@@ -58,18 +58,18 @@
   };
 </script>
 
-  <meta name="description" content="本主题为系列文章，分上下两篇。本文主要介绍time/rate的具体使用方法，下一篇文章将会着重介绍其内部实现原理。  限流器是后台服务中的非常重要的组件，可以用来限制请求速率，保护服务，以免服务过载。限流器的实现方法有很多种，例如滑动窗口法、Token Bucket、Leaky Bucket等。 其实golang标准库中就自带了限流算法的实现，即golang.org/x/time/rate。该限">
-<meta name="keywords" content="Golang,限流算法,微服务">
+  <meta name="description" content="本主题为系列文章，分上下两篇。本文主要介绍time/rate的具体使用方法，另外一篇文章《Golang限流器time/rate实现剖析》则着重介绍其内部实现原理。  限流器是后台服务中的非常重要的组件，可以用来限制请求速率，保护服务，以免服务过载。限流器的实现方法有很多种，例如滑动窗口法、Token Bucket、Leaky Bucket等。 其实golang标准库中就自带了限流算法的实现，即g">
+<meta name="keywords" content="Golang,限流,微服务">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Golang限流器time&#x2F;rate使用介绍">
 <meta property="og:url" content="http://www.cyhone.com/articles/usage-of-golang-rate/index.html">
 <meta property="og:site_name" content="沉思录">
-<meta property="og:description" content="本主题为系列文章，分上下两篇。本文主要介绍time/rate的具体使用方法，下一篇文章将会着重介绍其内部实现原理。  限流器是后台服务中的非常重要的组件，可以用来限制请求速率，保护服务，以免服务过载。限流器的实现方法有很多种，例如滑动窗口法、Token Bucket、Leaky Bucket等。 其实golang标准库中就自带了限流算法的实现，即golang.org/x/time/rate。该限">
+<meta property="og:description" content="本主题为系列文章，分上下两篇。本文主要介绍time/rate的具体使用方法，另外一篇文章《Golang限流器time/rate实现剖析》则着重介绍其内部实现原理。  限流器是后台服务中的非常重要的组件，可以用来限制请求速率，保护服务，以免服务过载。限流器的实现方法有很多种，例如滑动窗口法、Token Bucket、Leaky Bucket等。 其实golang标准库中就自带了限流算法的实现，即g">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-11-03T09:28:29.190Z">
+<meta property="og:updated_time" content="2019-11-05T05:34:42.411Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Golang限流器time&#x2F;rate使用介绍">
-<meta name="twitter:description" content="本主题为系列文章，分上下两篇。本文主要介绍time/rate的具体使用方法，下一篇文章将会着重介绍其内部实现原理。  限流器是后台服务中的非常重要的组件，可以用来限制请求速率，保护服务，以免服务过载。限流器的实现方法有很多种，例如滑动窗口法、Token Bucket、Leaky Bucket等。 其实golang标准库中就自带了限流算法的实现，即golang.org/x/time/rate。该限">
+<meta name="twitter:description" content="本主题为系列文章，分上下两篇。本文主要介绍time/rate的具体使用方法，另外一篇文章《Golang限流器time/rate实现剖析》则着重介绍其内部实现原理。  限流器是后台服务中的非常重要的组件，可以用来限制请求速率，保护服务，以免服务过载。限流器的实现方法有很多种，例如滑动窗口法、Token Bucket、Leaky Bucket等。 其实golang标准库中就自带了限流算法的实现，即g">
   <link rel="canonical" href="http://www.cyhone.com/articles/usage-of-golang-rate/">
 
 
@@ -281,7 +281,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-03 17:28:29" itemprop="dateModified" datetime="2019-11-03T17:28:29+08:00">2019-11-03</time>
+                <time title="修改时间：2019-11-05 13:34:42" itemprop="dateModified" datetime="2019-11-05T13:34:42+08:00">2019-11-05</time>
               </span>
             
           
@@ -333,7 +333,7 @@
 
       
         <blockquote>
-<p>本主题为系列文章，分上下两篇。本文主要介绍<code>time/rate</code>的具体使用方法，下一篇文章将会着重介绍其内部实现原理。</p>
+<p>本主题为系列文章，分上下两篇。本文主要介绍<code>time/rate</code>的具体使用方法，另外一篇文章<a href="https://www.cyhone.com/articles/analisys-of-golang-rate/">《Golang限流器time/rate实现剖析》</a>则着重介绍其内部实现原理。</p>
 </blockquote>
 <p>限流器是后台服务中的非常重要的组件，可以用来限制请求速率，保护服务，以免服务过载。<br>限流器的实现方法有很多种，例如滑动窗口法、Token Bucket、Leaky Bucket等。</p>
 <p>其实golang标准库中就自带了限流算法的实现，即<code>golang.org/x/time/rate</code>。<br>该限流器是基于Token Bucket(令牌桶)实现的。</p>
@@ -435,7 +435,7 @@
             
               <a href="/tags/Golang/" rel="tag"><i class="fa fa-tag"></i> Golang</a>
             
-              <a href="/tags/限流算法/" rel="tag"><i class="fa fa-tag"></i> 限流算法</a>
+              <a href="/tags/限流/" rel="tag"><i class="fa fa-tag"></i> 限流</a>
             
               <a href="/tags/微服务/" rel="tag"><i class="fa fa-tag"></i> 微服务</a>
             

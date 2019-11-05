@@ -279,7 +279,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-03 17:28:29" itemprop="dateModified" datetime="2019-11-03T17:28:29+08:00">2019-11-03</time>
+                <time title="修改时间：2019-11-05 13:34:42" itemprop="dateModified" datetime="2019-11-05T13:34:42+08:00">2019-11-05</time>
               </span>
             
           
@@ -331,7 +331,7 @@
 
       
           <blockquote>
-<p>本主题为系列文章，分上下两篇。本文主要介绍<code>time/rate</code>的具体使用方法，下一篇文章将会着重介绍其内部实现原理。</p>
+<p>本主题为系列文章，分上下两篇。本文主要介绍<code>time/rate</code>的具体使用方法，另外一篇文章<a href="https://www.cyhone.com/articles/analisys-of-golang-rate/">《Golang限流器time/rate实现剖析》</a>则着重介绍其内部实现原理。</p>
 </blockquote>
 <p>限流器是后台服务中的非常重要的组件，可以用来限制请求速率，保护服务，以免服务过载。<br>限流器的实现方法有很多种，例如滑动窗口法、Token Bucket、Leaky Bucket等。</p>
 <p>其实golang标准库中就自带了限流算法的实现，即<code>golang.org/x/time/rate</code>。<br>该限流器是基于Token Bucket(令牌桶)实现的。</p>
