@@ -67,7 +67,7 @@
 <meta property="og:description" content="限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章《Golang限流器time/rate使用介绍》简单介绍了time/rate的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。 上一篇文章讲到，time/rate是基于Token Bucket(令牌桶)算法实现的限流。本文将会基于源码，深入剖析下Golang是如何实现Token B">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/token-bucket/token-bucket.jpg">
-<meta property="og:updated_time" content="2019-11-05T05:44:22.743Z">
+<meta property="og:updated_time" content="2019-11-06T10:59:51.082Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Golang限流器time&#x2F;rate实现剖析">
 <meta name="twitter:description" content="限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章《Golang限流器time/rate使用介绍》简单介绍了time/rate的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。 上一篇文章讲到，time/rate是基于Token Bucket(令牌桶)算法实现的限流。本文将会基于源码，深入剖析下Golang是如何实现Token B">
@@ -272,11 +272,19 @@
                 
               
 
-              <time title="创建时间：2019-11-05 13:35:19 / 修改时间：13:44:22" itemprop="dateCreated datePublished" datetime="2019-11-05T13:35:19+08:00">2019-11-05</time>
+              <time title="创建时间：2019-11-05 13:35:19" itemprop="dateCreated datePublished" datetime="2019-11-05T13:35:19+08:00">2019-11-05</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-06 18:59:51" itemprop="dateModified" datetime="2019-11-06T18:59:51+08:00">2019-11-06</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -339,11 +347,20 @@
 <p>这固然是Token Bucket的一种实现方式，这么做也非常直观，但是效率太低了：我们需要不仅多维护一个Timer和BlockingQueue，而且还耗费了一些不必要的内存。</p>
 <p>在Golang的<code>timer/rate</code>中的实现, 并没有单独维护一个Timer，而是采用了lazyload的方式，直到每次消费之前才根据时间差更新Token数目，而且也不是用BlockingQueue来存放Token，而是仅仅通过计数的方式。</p>
 <h1 id="Token的生成和消费"><a href="#Token的生成和消费" class="headerlink" title="Token的生成和消费"></a>Token的生成和消费</h1><p>我们在<a href="https://www.cyhone.com/articles/usage-of-golang-rate/">上一篇文章</a>中讲到，Token的消费方式有三种。但其实在内部实现，最终三种消费方式都调用了reserveN函数来生成和消费Token。</p>
-<p>我们看下reserveN函数的具体实现，整个过程非常简单：</p>
+<p>我们看下reserveN函数的具体实现，整个过程非常简单。在正式讲之前，我们先了解一个简单的概念：</p>
+<p>在<code>time/rate</code>中，<code>NewLimiter</code>的第一个参数是速率limit，代表了一秒钟可以产生多少Token。<br>那么简单换算一下，我们就可以知道一个Token的生成间隔是多少。</p>
+<p>有了这个生成间隔，我们就可以轻易地得到两个数据：</p>
 <ol>
-<li><p>计算从当前时间到上次取Token的时刻，期间一共新产生了多少Token。<br>因为我们知道Token Bucket每秒产生的Token数，只要把上次取Token的时间记录下来，求出时间差值，就可以很容易的将时间差转化为Token数。<br><code>time/rate</code>中对应的实现函数为<code>tokensFromDuration</code>，后面会详细讲下。从时间转化为Token数目，大致公式如下。<br>$$NewTokensNum = Rate*PastSeconds$$<br>同时，当前Token数目 = 新产生的Token数目 + 之前剩余的Token数目 - 要消费的Token数目。</p>
-</li>
-<li><p>如果消费后剩余Token数目大于零，说明此时Token桶内仍不为空，此时无需等待。如果Token数目小于零，则需等待一段时间。<br>那么这个时候，我们需要将负值的Token数转化为需要等待的时间。<code>time/rate</code>中对应的实现函数为<code>durationFromTokens</code></p>
+<li>生成N个新的Token一共需要多久。<code>time/rate</code>中对应的实现函数为<code>durationFromTokens</code>。</li>
+<li>给定一段时长，这段时间一共可以生成多少个Token。<code>time/rate</code>中对应的实现函数为<code>tokensFromDuration</code>。</li>
+</ol>
+<p>那么，有了这些转换函数，整个过程就很清晰了，如下：</p>
+<ol>
+<li>计算从上次取Token的时间到当前时刻，期间一共新产生了多少Token：<br>我们只在取Token之前生成新的Token，也就意味着每次取Token的间隔，实际上也是生成Token的间隔。我们可以利用<code>tokensFromDuration</code>, 轻易的算出这段时间一共产生Token的数目。</li>
+</ol>
+<p>那么，当前Token数目 = 新产生的Token数目 + 之前剩余的Token数目 - 要消费的Token数目。</p>
+<ol start="2">
+<li><p>如果消费后剩余Token数目大于零，说明此时Token桶内仍不为空，此时Token充足，无需调用侧等待。<br>如果Token数目小于零，则需等待一段时间。<br>那么这个时候，我们可以利用<code>durationFromTokens</code>将当前负值的Token数转化为需要等待的时间。</p>
 </li>
 <li><p>将需要等待的时间等相关结果返回给调用方。</p>
 </li>
