@@ -69,7 +69,7 @@
 <meta property="og:image" content="http://www.cyhone.com/img/token-bucket/wait-interval.png">
 <meta property="og:image" content="http://www.cyhone.com/img/token-bucket/3-requests.png">
 <meta property="og:image" content="http://www.cyhone.com/img/token-bucket/maxslack.png">
-<meta property="og:updated_time" content="2019-11-10T08:07:57.028Z">
+<meta property="og:updated_time" content="2019-11-12T09:45:37.478Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="uber-go漏桶限流器使用与原理分析">
 <meta name="twitter:description" content="uber在Github上开源了一套用于服务限流的go语言库ratelimit, 该组件基于Leaky Bucket(漏桶)实现。 我在之前写过《Golang限流器time/rate实现剖析》，讲了Golang标准库中提供的基于Token Bucket实现限流组件的time/rate原理，同时也讲了限流的一些背景。 相比于TokenBucket，只要桶内还有剩余令牌，调用方就可以一直消费。而Leak">
@@ -287,11 +287,19 @@
                 
               
 
-              <time title="创建时间：2019-11-10 15:40:19 / 修改时间：16:07:57" itemprop="dateCreated datePublished" datetime="2019-11-10T15:40:19+08:00">2019-11-10</time>
+              <time title="创建时间：2019-11-10 15:40:19" itemprop="dateCreated datePublished" datetime="2019-11-10T15:40:19+08:00">2019-11-10</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-12 17:45:37" itemprop="dateModified" datetime="2019-11-12T17:45:37+08:00">2019-11-12</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -384,6 +392,7 @@
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">clock &amp;= MyClock&#123;&#125;</span><br><span class="line">limiter := ratelimit.New(<span class="number">100</span>, ratelimit.WithClock(clock))</span><br></pre></td></tr></table></figure>
 <h1 id="相关文章"><a href="#相关文章" class="headerlink" title="相关文章"></a>相关文章</h1><ul>
 <li><a href="https://www.cyhone.com/articles/analisys-of-golang-rate/">Golang限流器time/rate实现剖析</a></li>
+<li><a href="https://www.cyhone.com/articles/usage-of-golang-rate/">Golang限流器time/rate使用介绍</a></li>
 </ul>
 
     </div>
