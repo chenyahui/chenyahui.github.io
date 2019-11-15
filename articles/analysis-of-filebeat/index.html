@@ -61,7 +61,7 @@
   <meta name="description" content="Filebeat是使用Golang实现的轻量型日志采集器，也是Elasticsearch stack里面的一员。本质上是一个agent，可以安装在各个节点上，根据配置读取对应位置的日志，并上报到相应的地方去。 Filebeat的可靠性很强，可以保证日志At least once的上报，同时也考虑了日志搜集中的各类问题，例如日志断点续读、文件名更改、日志Truncated等。 Filebeat并不依">
 <meta name="keywords" content="Filebeat,ElasticSearch,大数据">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Filebeat实现剖析">
+<meta property="og:title" content="Elastic-Filebeat实现剖析">
 <meta property="og:url" content="http://www.cyhone.com/articles/analysis-of-filebeat/index.html">
 <meta property="og:site_name" content="沉思录">
 <meta property="og:description" content="Filebeat是使用Golang实现的轻量型日志采集器，也是Elasticsearch stack里面的一员。本质上是一个agent，可以安装在各个节点上，根据配置读取对应位置的日志，并上报到相应的地方去。 Filebeat的可靠性很强，可以保证日志At least once的上报，同时也考虑了日志搜集中的各类问题，例如日志断点续读、文件名更改、日志Truncated等。 Filebeat并不依">
@@ -70,9 +70,9 @@
 <meta property="og:image" content="http://www.cyhone.com/img/filebeat/produce-to-pipeline.png">
 <meta property="og:image" content="http://www.cyhone.com/img/filebeat/consume-from-pipeline.png">
 <meta property="og:image" content="http://www.cyhone.com/img/filebeat/ack.png">
-<meta property="og:updated_time" content="2019-11-15T07:17:33.960Z">
+<meta property="og:updated_time" content="2019-11-15T13:16:35.828Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Filebeat实现剖析">
+<meta name="twitter:title" content="Elastic-Filebeat实现剖析">
 <meta name="twitter:description" content="Filebeat是使用Golang实现的轻量型日志采集器，也是Elasticsearch stack里面的一员。本质上是一个agent，可以安装在各个节点上，根据配置读取对应位置的日志，并上报到相应的地方去。 Filebeat的可靠性很强，可以保证日志At least once的上报，同时也考虑了日志搜集中的各类问题，例如日志断点续读、文件名更改、日志Truncated等。 Filebeat并不依">
 <meta name="twitter:image" content="http://www.cyhone.com/img/filebeat/filebeat.png">
   <link rel="canonical" href="http://www.cyhone.com/articles/analysis-of-filebeat/">
@@ -89,7 +89,7 @@
   };
 </script>
 
-  <title>Filebeat实现剖析</title>
+  <title>Elastic-Filebeat实现剖析</title>
   
 
 
@@ -272,7 +272,7 @@
       <meta itemprop="name" content="沉思录">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">Filebeat实现剖析
+        <h2 class="post-title" itemprop="name headline">Elastic-Filebeat实现剖析
 
           
         </h2>
@@ -288,7 +288,7 @@
                 
               
 
-              <time title="创建时间：2019-11-15 10:55:00 / 修改时间：15:17:33" itemprop="dateCreated datePublished" datetime="2019-11-15T10:55:00+08:00">2019-11-15</time>
+              <time title="创建时间：2019-11-15 10:55:00 / 修改时间：21:16:35" itemprop="dateCreated datePublished" datetime="2019-11-15T10:55:00+08:00">2019-11-15</time>
             </span>
           
             
@@ -310,7 +310,7 @@
           
 
           
-            <span id="/articles/analysis-of-filebeat/" class="post-meta-item leancloud_visitors" data-flag-title="Filebeat实现剖析" title="阅读次数">
+            <span id="/articles/analysis-of-filebeat/" class="post-meta-item leancloud_visitors" data-flag-title="Elastic-Filebeat实现剖析" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -455,7 +455,7 @@
     <strong>本文作者： </strong>cyhone</li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://www.cyhone.com/articles/analysis-of-filebeat/" title="Filebeat实现剖析">http://www.cyhone.com/articles/analysis-of-filebeat/</a>
+    <a href="http://www.cyhone.com/articles/analysis-of-filebeat/" title="Elastic-Filebeat实现剖析">http://www.cyhone.com/articles/analysis-of-filebeat/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
