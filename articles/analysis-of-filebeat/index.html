@@ -70,7 +70,7 @@
 <meta property="og:image" content="http://www.cyhone.com/img/filebeat/produce-to-pipeline.png">
 <meta property="og:image" content="http://www.cyhone.com/img/filebeat/consume-from-pipeline.png">
 <meta property="og:image" content="http://www.cyhone.com/img/filebeat/ack.png">
-<meta property="og:updated_time" content="2019-11-15T06:40:17.163Z">
+<meta property="og:updated_time" content="2019-11-15T07:17:33.960Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Filebeat实现剖析">
 <meta name="twitter:description" content="Filebeat是使用Golang实现的轻量型日志采集器，也是Elasticsearch stack里面的一员。本质上是一个agent，可以安装在各个节点上，根据配置读取对应位置的日志，并上报到相应的地方去。 Filebeat的可靠性很强，可以保证日志At least once的上报，同时也考虑了日志搜集中的各类问题，例如日志断点续读、文件名更改、日志Truncated等。 Filebeat并不依">
@@ -288,7 +288,7 @@
                 
               
 
-              <time title="创建时间：2019-11-15 10:55:00 / 修改时间：14:40:17" itemprop="dateCreated datePublished" datetime="2019-11-15T10:55:00+08:00">2019-11-15</time>
+              <time title="创建时间：2019-11-15 10:55:00 / 修改时间：15:17:33" itemprop="dateCreated datePublished" datetime="2019-11-15T10:55:00+08:00">2019-11-15</time>
             </span>
           
             
@@ -392,7 +392,7 @@
 <p>对于这种第三种情况，我们需要考虑到一些异常情况，Filebeat是这么处理的：</p>
 <ol>
 <li>如果offset大于当前文件大小：说明文件被Truncate过，此时按做一个新文件处理，直接从头开始解析该文件</li>
-<li>如果offset大于当前文件大小，说明文件内容有新增，则从上次offset处继续读即可。</li>
+<li>如果offset小于当前文件大小，说明文件内容有新增，则从上次offset处继续读即可。</li>
 </ol>
 <p>对于第二种情况，Filebeat似乎有一个逻辑上的问题: 如果文件被Truncate过，后来又新增了数据，且文件大小也比之前offset大，那么Filebeat是检查不出来这个问题的。</p>
 <p>除此之外，一个比较有意思的点是，Filebeat甚至可以处理文件名修改的问题。即使一个日志的文件名被修改过，Filebeat重启后，也能找到该文件，从上次读过的地方继续读。</p>
