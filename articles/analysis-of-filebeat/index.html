@@ -70,7 +70,7 @@
 <meta property="og:image" content="http://www.cyhone.com/img/filebeat/produce-to-pipeline.png">
 <meta property="og:image" content="http://www.cyhone.com/img/filebeat/consume-from-pipeline.png">
 <meta property="og:image" content="http://www.cyhone.com/img/filebeat/ack.png">
-<meta property="og:updated_time" content="2019-11-15T06:26:44.875Z">
+<meta property="og:updated_time" content="2019-11-15T06:40:17.163Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Filebeat实现剖析">
 <meta name="twitter:description" content="Filebeat是使用Golang实现的轻量型日志采集器，也是Elasticsearch stack里面的一员。本质上是一个agent，可以安装在各个节点上，根据配置读取对应位置的日志，并上报到相应的地方去。 Filebeat的可靠性很强，可以保证日志At least once的上报，同时也考虑了日志搜集中的各类问题，例如日志断点续读、文件名更改、日志Truncated等。 Filebeat并不依">
@@ -288,7 +288,7 @@
                 
               
 
-              <time title="创建时间：2019-11-15 10:55:00 / 修改时间：14:26:44" itemprop="dateCreated datePublished" datetime="2019-11-15T10:55:00+08:00">2019-11-15</time>
+              <time title="创建时间：2019-11-15 10:55:00 / 修改时间：14:40:17" itemprop="dateCreated datePublished" datetime="2019-11-15T10:55:00+08:00">2019-11-15</time>
             </span>
           
             
@@ -377,7 +377,7 @@
 <p>为了解决这两个情况，filebeat采用了Input定时扫描的方式。代码如下，可以看出，Input扫描的频率是由用户指定的<code>scan_frequency</code>配置来决定的( 默认10s扫描一次)。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Runner)</span> <span class="title">Run</span><span class="params">()</span></span> &#123;</span><br><span class="line">	p.input.Run()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> p.Once &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-p.done:</span><br><span class="line">			logp.Info(<span class="string">"input ticker stopped"</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		<span class="keyword">case</span> &lt;-time.After(p.config.ScanFrequency): <span class="comment">// 定时扫描</span></span><br><span class="line">			logp.Debug(<span class="string">"input"</span>, <span class="string">"Run input"</span>)</span><br><span class="line">			p.input.Run()</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>此外，如果用户启动时指定了<code>--once</code>选项，则扫描只会进行一次，就退出了。</p>
 <h1 id="日志定时扫描及异常处理"><a href="#日志定时扫描及异常处理" class="headerlink" title="日志定时扫描及异常处理"></a>日志定时扫描及异常处理</h1><p>我们之前讲到Registrar会记录每个文件的状态，当Filebeat启动时，从Registrar启动时，会从Registrar恢复文件处理状态。</p>
-<p>其实在filebeat运行过程中，Input组件也记录了文件状态。不一样的是，Registrar是持久化存储，而Input中的文件状态仅表示当前文件的读取便宜量，且修改时不会同步到磁盘中。</p>
+<p>其实在filebeat运行过程中，Input组件也记录了文件状态。不一样的是，Registrar是持久化存储，而Input中的文件状态仅表示当前文件的读取偏移量，且修改时不会同步到磁盘中。</p>
 <p>每次，Filebeat刚启动时，Input都会载入Registrar中记录的文件状态，作为初始状态。Input中的状态有两个非常重要：</p>
 <ol>
 <li>offset: 代表文件当前读取的offset，从Registrar中初始化。Harvest读取文件后，会同时修改offset。</li>
