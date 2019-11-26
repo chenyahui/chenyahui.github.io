@@ -66,7 +66,7 @@
 <meta property="og:site_name" content="沉思录">
 <meta property="og:description" content="本文主要介绍Filebeat 7.5版本中Log相关的各个配置项的含义以及其应用场景。 一般情况下，我们使用log input的方式如下，只需要指定一系列paths即可。filebeat.inputs:- type: log  paths:    - /var/log/messages    - /var/log/*.log 但其实除了基本的paths配置外，log input还有大概十几个配置项">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-11-26T13:13:38.843Z">
+<meta property="og:updated_time" content="2019-11-26T13:25:08.132Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="FileBeat-Log相关配置介绍">
 <meta name="twitter:description" content="本文主要介绍Filebeat 7.5版本中Log相关的各个配置项的含义以及其应用场景。 一般情况下，我们使用log input的方式如下，只需要指定一系列paths即可。filebeat.inputs:- type: log  paths:    - /var/log/messages    - /var/log/*.log 但其实除了基本的paths配置外，log input还有大概十几个配置项">
@@ -283,7 +283,7 @@
                 
               
 
-              <time title="创建时间：2019-11-26 20:36:54 / 修改时间：21:13:38" itemprop="dateCreated datePublished" datetime="2019-11-26T20:36:54+08:00">2019-11-26</time>
+              <time title="创建时间：2019-11-26 20:36:54 / 修改时间：21:25:08" itemprop="dateCreated datePublished" datetime="2019-11-26T20:36:54+08:00">2019-11-26</time>
             </span>
           
             
@@ -390,7 +390,7 @@
 <p>加上不带子目录的Glob路径，一共会有8条Glob路径。这些路径都会作为input的输入源路径进行搜索。</p>
 <p>但是在使用的时候需要注意：</p>
 <ol>
-<li>filebeat展开为成8层子目录的规则，是直接hardcode在代码中的，无法通过配置修改匹配层数</li>
+<li>filebeat展开为8层子目录的规则，是直接hardcode在代码中的，无法通过配置修改匹配层数</li>
 <li>只支持单纯的<code>/**/</code>模式，对于<code>/data**/</code>模式不支持</li>
 <li>递归模式默认开启，可通过<code>recursive_glob.enabled</code>配置项关闭</li>
 </ol>
