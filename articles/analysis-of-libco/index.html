@@ -14,7 +14,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.3">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.3">
   <link rel="mask-icon" href="/images/logo.svg?v=7.4.3" color="#222">
-  <link rel="alternate" href="/atom.xml" title="沉思录" type="application/atom+xml">
+  <link rel="alternate" href="/atom.xml" title="编程沉思录" type="application/atom+xml">
   <meta http-equiv="Cache-Control" content="no-transform">
   <meta http-equiv="Cache-Control" content="no-siteapp">
 
@@ -63,7 +63,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="微信libco协程库源码分析">
 <meta property="og:url" content="http://www.cyhone.com/articles/analysis-of-libco/index.html">
-<meta property="og:site_name" content="沉思录">
+<meta property="og:site_name" content="编程沉思录">
 <meta property="og:description" content="libco是微信后台开发和使用的协程库，同时应该也是极少数的将C/C++协程直接运用到如此大规模的生成环境中的案例了。 在《云风coroutine协程库源码分析》中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。本文将从源码角度着重分析lib">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/libco/co_process_stack.png">
@@ -142,7 +142,7 @@
     <div>
       <a href="/" class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">沉思录</span>
+        <span class="site-title">编程沉思录</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -266,7 +266,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="沉思录">
+      <meta itemprop="name" content="编程沉思录">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">微信libco协程库源码分析

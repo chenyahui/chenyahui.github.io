@@ -14,7 +14,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.3">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.3">
   <link rel="mask-icon" href="/images/logo.svg?v=7.4.3" color="#222">
-  <link rel="alternate" href="/atom.xml" title="沉思录" type="application/atom+xml">
+  <link rel="alternate" href="/atom.xml" title="编程沉思录" type="application/atom+xml">
   <meta http-equiv="Cache-Control" content="no-transform">
   <meta http-equiv="Cache-Control" content="no-siteapp">
 
@@ -63,7 +63,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="云风coroutine协程库源码分析">
 <meta property="og:url" content="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/index.html">
-<meta property="og:site_name" content="沉思录">
+<meta property="og:site_name" content="编程沉思录">
 <meta property="og:description" content="随着Golang的兴起，协程尤其是有栈协程(stackful coroutine)越来越受到程序员的关注。协程几乎成了程序员的一套必备技能。 云风实现了一套C语言的协程库，整体背景可以参考其博客。 这个协程库非常轻量级，一共也才200多行代码，使用上更贴近于lua的写法（众所周知，云风是知名的lua粉)。整体基于ucontext和共享栈模型实现了有栈协程，代码质量毋庸置疑，本文将详细剖析该协程库的">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/coroutine/coroutine_dummy.png">
@@ -143,7 +143,7 @@
     <div>
       <a href="/" class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">沉思录</span>
+        <span class="site-title">编程沉思录</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -267,7 +267,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="沉思录">
+      <meta itemprop="name" content="编程沉思录">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">云风coroutine协程库源码分析
