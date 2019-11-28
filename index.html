@@ -281,11 +281,19 @@
                 
               
 
-              <time title="创建时间：2019-11-26 20:36:54 / 修改时间：21:25:08" itemprop="dateCreated datePublished" datetime="2019-11-26T20:36:54+08:00">2019-11-26</time>
+              <time title="创建时间：2019-11-26 20:36:54" itemprop="dateCreated datePublished" datetime="2019-11-26T20:36:54+08:00">2019-11-26</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-28 15:23:22" itemprop="dateModified" datetime="2019-11-28T15:23:22+08:00">2019-11-28</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -339,6 +347,7 @@
 <p>一般情况下，我们使用log input的方式如下，只需要指定一系列paths即可。<br><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">filebeat.inputs:</span></span><br><span class="line"><span class="attr">- type:</span> <span class="string">log</span></span><br><span class="line"><span class="attr">  paths:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/var/log/messages</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/var/log/*.log</span></span><br></pre></td></tr></table></figure></p>
 <p>但其实除了基本的paths配置外，log input还有大概十几个配置项需要我们关注。</p>
 <p>这些配置项或多或少都会影响到Filebeat的使用方式以及性能。虽然其默认值基本足够日常使用，但是还是需要深刻理解每个配置项背后的含义，这样才能够对其完全把控。</p>
+<p>同时，在filebeat的日常线上运维中，也会涉及到这些配置参数的调节。</p>
           <!--noindex-->
           
             <div class="post-button text-center">
