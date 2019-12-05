@@ -67,7 +67,7 @@
 <meta property="og:description" content="libco是微信后台开发和使用的协程库，同时应该也是极少数的将C/C++协程直接运用到如此大规模的生成环境中的案例了。 在《云风coroutine协程库源码分析》中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。本文将从源码角度着重分析lib">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/libco/co_process_stack.png">
-<meta property="og:updated_time" content="2019-11-20T03:18:33.099Z">
+<meta property="og:updated_time" content="2019-12-05T03:22:07.155Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="微信libco协程库源码分析">
 <meta name="twitter:description" content="libco是微信后台开发和使用的协程库，同时应该也是极少数的将C/C++协程直接运用到如此大规模的生成环境中的案例了。 在《云风coroutine协程库源码分析》中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。本文将从源码角度着重分析lib">
@@ -296,7 +296,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-20 11:18:33" itemprop="dateModified" datetime="2019-11-20T11:18:33+08:00">2019-11-20</time>
+                <time title="修改时间：2019-12-05 11:22:07" itemprop="dateModified" datetime="2019-12-05T11:22:07+08:00">2019-12-05</time>
               </span>
             
           
@@ -365,7 +365,7 @@
 <li>支持协程使用独立的栈空间，不使用共享栈模式。(默认每个协程有128k的栈空间)</li>
 <li>libco默认是独立的栈空间，不使用共享栈。</li>
 </ol>
-<p>除此之外，libco不使用ucontext进行用户态上下文的切换，而是自行写了一套汇编来进行上下文切换。</p>
+<p>除此之外，出于性能考虑，libco不使用ucontext进行用户态上下文的切换，而是自行写了一套汇编来进行上下文切换。</p>
 <p>另外，libco利用<code>co_create</code>创建的协程, 需要自行调用<code>co_release</code>进行释放。这里和coroutine不太一样。</p>
 <h1 id="协程上下文切换性能更好"><a href="#协程上下文切换性能更好" class="headerlink" title="协程上下文切换性能更好"></a>协程上下文切换性能更好</h1><p>我们之前提到，云风的coroutine库使用ucontext来实现用户态的上下文切换，这也是实现协程的关键。</p>
 <p>而<strong>libco基于性能优化的考虑，没有使用ucontext</strong>，而是自行编写了一套汇编来处理上下文的切换, 具体代码在<a href="https://github.com/Tencent/libco/blob/master/coctx_swap.S" target="_blank" rel="noopener">coctx_swap.S</a>。</p>
