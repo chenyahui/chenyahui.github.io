@@ -349,32 +349,48 @@
 
       
         <p>最近我用Golang开发了一个可以将数据库每张表的各个列信息转化成文档的小工具。开发的缘由是因为写后端时，经常需要为数据库写说明文档，对于稍微有些规模的项目来说，就动辄几十张上百张数据表，开发人员在文档中不断的写各个列的列名、类型、描述实在是无聊、枯燥和苦不堪言。所以就有了这个小工具的诞生。</p>
-<p>项目地址在<a href="https://github.com/chenyahui/db_doc_generator" target="_blank" rel="noopener">这里</a><br><a id="more"></a></p>
-<h1 id="工具使用介绍"><a href="#工具使用介绍" class="headerlink" title="工具使用介绍"></a>工具使用介绍</h1><p>工具用golang开发的，所以直接使用release的可执行文件就可以, 无需复杂任何编译安装。<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dbdoc -c config.json</span><br></pre></td></tr></table></figure></p>
-<p>在config.json文件中，按照格式配置好数据库信息，具体的配置方法如下:<br><figure class="highlight"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"db_info"</span>: &#123;</span><br><span class="line">    "db_type": "mysql",  // required</span><br><span class="line">    "ip_port": "127.0.0.1:3306", // required</span><br><span class="line">    "username": "root", // required</span><br><span class="line">    "password": "", // required</span><br><span class="line">    "schema": "cms" // required</span><br><span class="line">  &#125;,</span><br><span class="line">  "includes": [  // optional</span><br><span class="line">  ],</span><br><span class="line">  "excludes": [  // optional</span><br><span class="line">  ],</span><br><span class="line">  "template_path": "", // optional</span><br><span class="line">  "out_path": ""  // optional</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>简单两步，就可以自动生成数据库的说明文档了。如下图<br><img src="/img/db_doc/markdown_preview.png" alt="展示图"></p>
+<p>项目地址在<a href="https://github.com/chenyahui/db_doc_generator" target="_blank" rel="noopener">这里</a></p>
+<a id="more"></a>
+<h1 id="工具使用介绍"><a class="markdownIt-Anchor" href="#工具使用介绍"></a> 工具使用介绍</h1>
+<p>工具用golang开发的，所以直接使用release的可执行文件就可以, 无需复杂任何编译安装。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dbdoc -c config.json</span><br></pre></td></tr></table></figure>
+<p>在config.json文件中，按照格式配置好数据库信息，具体的配置方法如下:</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"db_info"</span>: &#123;</span><br><span class="line">    "db_type": "mysql",  // required</span><br><span class="line">    "ip_port": "127.0.0.1:3306", // required</span><br><span class="line">    "username": "root", // required</span><br><span class="line">    "password": "", // required</span><br><span class="line">    "schema": "cms" // required</span><br><span class="line">  &#125;,</span><br><span class="line">  "includes": [  // optional</span><br><span class="line">  ],</span><br><span class="line">  "excludes": [  // optional</span><br><span class="line">  ],</span><br><span class="line">  "template_path": "", // optional</span><br><span class="line">  "out_path": ""  // optional</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单两步，就可以自动生成数据库的说明文档了。如下图<br>
+<img src="/img/db_doc/markdown_preview.png" alt="展示图"></p>
 <p>展示图中的文档模板是使用工具内置的markdown模板</p>
-<h1 id="开发过程"><a href="#开发过程" class="headerlink" title="开发过程"></a>开发过程</h1><p>整个项目的思路其实非常简单，说起来其实就三步</p>
+<h1 id="开发过程"><a class="markdownIt-Anchor" href="#开发过程"></a> 开发过程</h1>
+<p>整个项目的思路其实非常简单，说起来其实就三步</p>
 <ol>
 <li>读取数据库的各个表</li>
 <li>依次读取每个表的列信息</li>
 <li>将列信息转化成markdown</li>
 </ol>
 <p>虽然步骤简单，但是还是有些值得谈的东西。</p>
-<h2 id="数据库适配"><a href="#数据库适配" class="headerlink" title="数据库适配"></a>数据库适配</h2><p>目前这个小工具支持MySQL和SQL Server, 这俩数据库在SQL语句上有着很大的区别。比如<br>MySQL的读取当前数据库下的所有表名的语句是<code>show tables</code>，而SQL Server的是<code>SELECT Distinct TABLE_NAME FROM information_schema.TABLES</code>。除此之外，两个数据库的连接语句，查询列信息的语句，都有很大区别。<br>所以适配各个数据库，让这个工具支持多个数据库，是件非常复杂的事情。</p>
+<h2 id="数据库适配"><a class="markdownIt-Anchor" href="#数据库适配"></a> 数据库适配</h2>
+<p>目前这个小工具支持MySQL和SQL Server, 这俩数据库在SQL语句上有着很大的区别。比如<br>
+MySQL的读取当前数据库下的所有表名的语句是<code>show tables</code>，而SQL Server的是<code>SELECT Distinct TABLE_NAME FROM information_schema.TABLES</code>。除此之外，两个数据库的连接语句，查询列信息的语句，都有很大区别。<br>
+所以适配各个数据库，让这个工具支持多个数据库，是件非常复杂的事情。</p>
 <p>我目前的做法给每个用到的SQL语句做一个工厂方法，给定一个数据库的类型，返回对应的sql语句。这种方法虽然复杂繁琐，但是有效。好在我们用到的SQL语句也不多，所以效率上也算还好。</p>
 <p>目前还在调研各大ORM库是怎么实现的这个功能。这个也是以后着重要做的功能。</p>
-<h2 id="文档模板"><a href="#文档模板" class="headerlink" title="文档模板"></a>文档模板</h2><p>我最初的本意是直接将信息转化成固定的markdown格式就可以了，想想既然都提取了表信息为何不做些更自由的做法——用户可以自己定义文档的格式。<br>比如，这个工具默认生成的格式是这样的:<br><img src="/img/db_doc/markdown_preview.png" alt="markdown_preview"></p>
-<p>但是万一用户不想用这个格式，想给每个表格的标题加个编号，或者给每一列加个编号啥的。那这个工具生成的结果就完全没法用了。<br>不能将我的喜好强加给用户，那么，可以给用户提供足够自由的接口。</p>
-<p>所以我提供了一个扩展的做法, 用户可以在配置文件的<code>template_path</code>项，配置一个自己定义的文档模板给工具。如果不提供的话，可以使用默认的模板，如下:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;- .schema&#125;&#125; Document</span><br><span class="line">&#123;&#123;range .tables -&#125;&#125;</span><br><span class="line"># &#123;&#123;.TableName&#125;&#125;</span><br><span class="line">|column|type|description|</span><br><span class="line">| ------| ------ | ------ |</span><br><span class="line">&#123;&#123;- range .Columns&#125;&#125;</span><br><span class="line">|&#123;&#123;.ColumnName&#125;&#125;|&#123;&#123;.ColumnType&#125;&#125;|&#123;&#123;.Description -&#125;&#125;|</span><br><span class="line">&#123;&#123;- end&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;end&#125;&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="文档模板"><a class="markdownIt-Anchor" href="#文档模板"></a> 文档模板</h2>
+<p>我最初的本意是直接将信息转化成固定的markdown格式就可以了，想想既然都提取了表信息为何不做些更自由的做法——用户可以自己定义文档的格式。<br>
+比如，这个工具默认生成的格式是这样的:<br>
+<img src="/img/db_doc/markdown_preview.png" alt="markdown_preview"></p>
+<p>但是万一用户不想用这个格式，想给每个表格的标题加个编号，或者给每一列加个编号啥的。那这个工具生成的结果就完全没法用了。<br>
+不能将我的喜好强加给用户，那么，可以给用户提供足够自由的接口。</p>
+<p>所以我提供了一个扩展的做法, 用户可以在配置文件的<code>template_path</code>项，配置一个自己定义的文档模板给工具。如果不提供的话，可以使用默认的模板，如下:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;- .schema&#125;&#125; Document</span><br><span class="line">&#123;&#123;range .tables -&#125;&#125;</span><br><span class="line"># &#123;&#123;.TableName&#125;&#125;</span><br><span class="line">|column|type|description|</span><br><span class="line">| ------| ------ | ------ |</span><br><span class="line">&#123;&#123;- range .Columns&#125;&#125;</span><br><span class="line">|&#123;&#123;.ColumnName&#125;&#125;|&#123;&#123;.ColumnType&#125;&#125;|&#123;&#123;.Description -&#125;&#125;|</span><br><span class="line">&#123;&#123;- end&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;end&#125;&#125;</span><br></pre></td></tr></table></figure>
 <p>这个模板的语法直接用的是golang标准库的<code>text/template</code>, 文档在<a href="https://golang.org/pkg/text/template/" target="_blank" rel="noopener">这里</a>。开始我本来想着随便搜个模板引擎用下，没想到golang直接在标准库里自带了。再次感叹下golang真是为工业化而生。</p>
 <p>有了这个文档模板的功能，这个工具的想象空间变得很大。文档的格式不再局限于markdown了，用户可以随便定义文档的格式, html、json都行。当然word的doc格式就是另外一个次元的事情了，我也在考虑是否以后加入进去。</p>
-<h2 id="以后要加的功能"><a href="#以后要加的功能" class="headerlink" title="以后要加的功能"></a>以后要加的功能</h2><ul>
+<h2 id="以后要加的功能"><a class="markdownIt-Anchor" href="#以后要加的功能"></a> 以后要加的功能</h2>
+<ul>
 <li>支持更多的数据库.</li>
 <li>支持导出格式为Word、Excel.</li>
 <li>更人性化的命令行接口。目前我为了图省事，就直接传了个-c。后期打算做成MySQL那样直观的接口</li>
 </ul>
-<h1 id="谈谈Golang"><a href="#谈谈Golang" class="headerlink" title="谈谈Golang"></a>谈谈Golang</h1><p>这个项目是我用Golang做的第一个项目，Golang在这种跨平台小工具，且完全无需考虑安装依赖的情况下是最好的选择了。Golang的熟悉之后用起来几乎和Python一样快速。我在<code>文档模板</code>一节感叹，Golang真是为工业化而生，把很多在其他语言里是三方库的东西直接做到了标准库。但是另一方面，由于Golang中模板和泛型的缺失，有些东西本该内置的又没有了。比如判断一个元素是否在数组中的方法InArray,String的IsBlank方法，都需要用户在项目中再单独写一遍。实在是无法理解</p>
+<h1 id="谈谈golang"><a class="markdownIt-Anchor" href="#谈谈golang"></a> 谈谈Golang</h1>
+<p>这个项目是我用Golang做的第一个项目，Golang在这种跨平台小工具，且完全无需考虑安装依赖的情况下是最好的选择了。Golang的熟悉之后用起来几乎和Python一样快速。我在<code>文档模板</code>一节感叹，Golang真是为工业化而生，把很多在其他语言里是三方库的东西直接做到了标准库。但是另一方面，由于Golang中模板和泛型的缺失，有些东西本该内置的又没有了。比如判断一个元素是否在数组中的方法InArray,String的IsBlank方法，都需要用户在项目中再单独写一遍。实在是无法理解</p>
 <p>总而言之，如果以后有类似的小工具的需求，我依然会选择Golang或者Python作为首选的开发语言。</p>
 
     </div>
@@ -490,7 +506,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#工具使用介绍"><span class="nav-text">工具使用介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#开发过程"><span class="nav-text">开发过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据库适配"><span class="nav-text">数据库适配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文档模板"><span class="nav-text">文档模板</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#以后要加的功能"><span class="nav-text">以后要加的功能</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#谈谈Golang"><span class="nav-text">谈谈Golang</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#工具使用介绍"><span class="nav-text"> 工具使用介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#开发过程"><span class="nav-text"> 开发过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据库适配"><span class="nav-text"> 数据库适配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文档模板"><span class="nav-text"> 文档模板</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#以后要加的功能"><span class="nav-text"> 以后要加的功能</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#谈谈golang"><span class="nav-text"> 谈谈Golang</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -626,51 +642,7 @@
   
     
       
-<script type="text/x-mathjax-config">
-
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
-      processEscapes: true,
-      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-      equationNumbers: {
-        autoNumber: 'AMS'
-      }
-    }
-  });
-
-  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
-    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
-      if (data.display) {
-        var next = data.script.nextSibling;
-        while (next && next.nodeName.toLowerCase() === '#text') {
-          next = next.nextSibling;
-        }
-        if (next && next.nodeName.toLowerCase() === 'br') {
-          next.parentNode.removeChild(next);
-        }
-      }
-    });
-  });
-
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for (i = 0; i < all.length; i += 1) {
-      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
-      if (element.nodeName.toLowerCase() == 'li') {
-        element = element.parentNode;
-      }
-      element.classList.add('has-jax');
-    }
-  });
-</script>
-<script>
-  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
-    MathJax.Hub.Typeset();
-  }, window.MathJax);
-</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css">
 
     
   

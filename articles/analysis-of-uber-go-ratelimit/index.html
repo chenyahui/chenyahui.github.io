@@ -352,23 +352,33 @@
         <p>uber在Github上开源了一套用于服务限流的go语言库<a href="https://github.com/uber-go/ratelimit/" target="_blank" rel="noopener">ratelimit</a>, 该组件基于Leaky Bucket(漏桶)实现。</p>
 <p>我在之前写过<a href="https://www.cyhone.com/articles/analisys-of-golang-rate/">《Golang限流器time/rate实现剖析》</a>，讲了Golang标准库中提供的基于Token Bucket实现限流组件的<code>time/rate</code>原理，同时也讲了限流的一些背景。</p>
 <p>相比于TokenBucket，只要桶内还有剩余令牌，调用方就可以一直消费。而Leaky Bucket相对来说比较严格，调用方只能严格按照这个间隔顺序进行消费调用。(实际上，uber-go对这个限制也做了一些优化，具体可以看下文详解)</p>
-<p>还是老规矩，在正式讲其实现之前，我们先看下ratelimit的使用方法。<br><a id="more"></a></p>
-<h1 id="ratelimit的使用"><a href="#ratelimit的使用" class="headerlink" title="ratelimit的使用"></a>ratelimit的使用</h1><p>我们直接看下uber-go官方库给的例子：</p>
+<p>还是老规矩，在正式讲其实现之前，我们先看下ratelimit的使用方法。</p>
+<a id="more"></a>
+<h1 id="ratelimit的使用"><a class="markdownIt-Anchor" href="#ratelimit的使用"></a> ratelimit的使用</h1>
+<p>我们直接看下uber-go官方库给的例子：</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">rl := ratelimit.New(<span class="number">100</span>) <span class="comment">// per second</span></span><br><span class="line"></span><br><span class="line">prev := time.Now()</span><br><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">  now := rl.Take()</span><br><span class="line">  fmt.Println(i, now.Sub(prev))</span><br><span class="line">  prev = now</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在这个例子中，我们给定限流器每秒可以通过100个请求，也就是平均每个请求间隔10ms。<br>因此，最终会每10ms打印一行数据。输出结果如下：<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Output:</span></span><br><span class="line"><span class="comment">// 0 0</span></span><br><span class="line"><span class="comment">// 1 10ms</span></span><br><span class="line"><span class="comment">// 2 10ms</span></span><br><span class="line"><span class="comment">// 3 10ms</span></span><br><span class="line"><span class="comment">// 4 10ms</span></span><br><span class="line"><span class="comment">// 5 10ms</span></span><br><span class="line"><span class="comment">// 6 10ms</span></span><br><span class="line"><span class="comment">// 7 10ms</span></span><br><span class="line"><span class="comment">// 8 10ms</span></span><br><span class="line"><span class="comment">// 9 10ms</span></span><br></pre></td></tr></table></figure></p>
-<h1 id="基本实现"><a href="#基本实现" class="headerlink" title="基本实现"></a>基本实现</h1><p>要实现以上每秒固定速率的目的，其实还是比较简单的。</p>
-<p>在ratelimit的New函数中，传入的参数是每秒允许请求量(RPS)。<br>我们可以很轻易的换算出每个请求之间的间隔：</p>
+<p>在这个例子中，我们给定限流器每秒可以通过100个请求，也就是平均每个请求间隔10ms。<br>
+因此，最终会每10ms打印一行数据。输出结果如下：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Output:</span></span><br><span class="line"><span class="comment">// 0 0</span></span><br><span class="line"><span class="comment">// 1 10ms</span></span><br><span class="line"><span class="comment">// 2 10ms</span></span><br><span class="line"><span class="comment">// 3 10ms</span></span><br><span class="line"><span class="comment">// 4 10ms</span></span><br><span class="line"><span class="comment">// 5 10ms</span></span><br><span class="line"><span class="comment">// 6 10ms</span></span><br><span class="line"><span class="comment">// 7 10ms</span></span><br><span class="line"><span class="comment">// 8 10ms</span></span><br><span class="line"><span class="comment">// 9 10ms</span></span><br></pre></td></tr></table></figure>
+<h1 id="基本实现"><a class="markdownIt-Anchor" href="#基本实现"></a> 基本实现</h1>
+<p>要实现以上每秒固定速率的目的，其实还是比较简单的。</p>
+<p>在ratelimit的New函数中，传入的参数是每秒允许请求量(RPS)。<br>
+我们可以很轻易的换算出每个请求之间的间隔：</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">limiter.perRequest = time.Second / time.Duration(rate)</span><br></pre></td></tr></table></figure>
 <p>以上<code>limiter.perRequest</code>指的就是每个请求之间的间隔时间。</p>
-<p>如下图，当请求1处理结束后, 我们记录下请求1的处理完成的时刻, 记为<code>limiter.last</code>。<br>稍后请求2到来, 如果此刻的时间与<code>limiter.last</code>相比并没有达到<code>perRequest</code>的间隔大小，那么sleep一段时间即可。</p>
+<p>如下图，当请求1处理结束后, 我们记录下请求1的处理完成的时刻, 记为<code>limiter.last</code>。<br>
+稍后请求2到来, 如果此刻的时间与<code>limiter.last</code>相比并没有达到<code>perRequest</code>的间隔大小，那么sleep一段时间即可。</p>
 <p><img src="/img/token-bucket/wait-interval.png" alt="漏桶示例图"></p>
-<p>对应ratelimit的实现代码如下：<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line">sleepFor = t.perRequest - now.Sub(t.last)</span><br><span class="line"><span class="keyword">if</span> sleepFor &gt; <span class="number">0</span> &#123;</span><br><span class="line">	t.clock.Sleep(sleepFor)</span><br><span class="line">	t.last = now.Add(sleepFor)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	t.last = now</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h1 id="最大松弛量"><a href="#最大松弛量" class="headerlink" title="最大松弛量"></a>最大松弛量</h1><p>我们讲到，传统的Leaky Bucket，每个请求的间隔是固定的，然而，在实际上的互联网应用中，流量经常是突发性的。对于这种情况，uber-go对Leaky Bucket做了一些改良，引入了最大松弛量(maxSlack)的概念。</p>
+<p>对应ratelimit的实现代码如下：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">sleepFor = t.perRequest - now.Sub(t.last)</span><br><span class="line"><span class="keyword">if</span> sleepFor &gt; <span class="number">0</span> &#123;</span><br><span class="line">	t.clock.Sleep(sleepFor)</span><br><span class="line">	t.last = now.Add(sleepFor)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	t.last = now</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="最大松弛量"><a class="markdownIt-Anchor" href="#最大松弛量"></a> 最大松弛量</h1>
+<p>我们讲到，传统的Leaky Bucket，每个请求的间隔是固定的，然而，在实际上的互联网应用中，流量经常是突发性的。对于这种情况，uber-go对Leaky Bucket做了一些改良，引入了最大松弛量(maxSlack)的概念。</p>
 <p>我们先理解下整体背景: 假如我们要求每秒限定100个请求，平均每个请求间隔10ms。但是实际情况下，有些请求间隔比较长，有些请求间隔比较短。如下图所示：</p>
 <p><img src="/img/token-bucket/3-requests.png" alt=""></p>
 <p>请求1完成后，15ms后，请求2才到来，可以对请求2立即处理。请求2完成后，5ms后，请求3到来，这个时候距离上次请求还不足10ms，因此还需要等待5ms。</p>
 <p>但是，对于这种情况，实际上三个请求一共消耗了25ms才完成，并不是预期的20ms。在uber-go实现的ratelimit中，可以把之前间隔比较长的请求的时间，匀给后面的使用，保证每秒请求数(RPS)即可。</p>
-<p>对于以上case，因为请求2相当于多等了5ms，我们可以把这5ms移给请求3使用。加上请求3本身就是5ms之后过来的，一共刚好10ms，所以请求3无需等待，直接可以处理。此时三个请求也恰好一共是20ms。<br>如下图所示：</p>
+<p>对于以上case，因为请求2相当于多等了5ms，我们可以把这5ms移给请求3使用。加上请求3本身就是5ms之后过来的，一共刚好10ms，所以请求3无需等待，直接可以处理。此时三个请求也恰好一共是20ms。<br>
+如下图所示：</p>
 <p><img src="/img/token-bucket/maxslack.png" alt=""></p>
 <p>在ratelimit的对应实现中很简单，是把每个请求多余出来的等待时间累加起来，以给后面的抵消使用。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">t.sleepFor += t.perRequest - now.Sub(t.last)</span><br><span class="line"><span class="keyword">if</span> t.sleepFor &gt; <span class="number">0</span> &#123;</span><br><span class="line">  t.clock.Sleep(t.sleepFor)</span><br><span class="line">  t.last = now.Add(t.sleepFor)</span><br><span class="line">  t.sleepFor = <span class="number">0</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  t.last = now</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -379,18 +389,24 @@
 <p>为了防止这种情况，ratelimit就引入了最大松弛量(maxSlack)的概念, 该值为负值，表示允许抵消的最长时间，防止以上情况的出现。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> t.sleepFor &lt; t.maxSlack &#123;</span><br><span class="line">  t.sleepFor = t.maxSlack</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>ratelimit中maxSlack的值为<code>-10 * time.Second / time.Duration(rate)</code>, 是十个请求的间隔大小。我们也可以理解为ratelimit允许的最大瞬时请求为10。</p>
-<h1 id="高级用法"><a href="#高级用法" class="headerlink" title="高级用法"></a>高级用法</h1><p>ratelimit的New函数，除了可以配置每秒请求数(QPS)， 其实还提供了一套可选配置项Option。</p>
+<h1 id="高级用法"><a class="markdownIt-Anchor" href="#高级用法"></a> 高级用法</h1>
+<p>ratelimit的New函数，除了可以配置每秒请求数(QPS)， 其实还提供了一套可选配置项Option。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">New</span><span class="params">(rate <span class="keyword">int</span>, opts ...Option)</span> <span class="title">Limiter</span></span></span><br></pre></td></tr></table></figure>
 <p>Option的类型为<code>type Option func(l *limiter)</code>, 也就是说我们可以提供一些这样类型的函数，作为Option，传给ratelimit, 定制相关需求。</p>
 <p>但实际上，自定义Option的用处比较小，因为<code>limiter</code>结构体本身就是个私有类型，我们并不能拿它做任何事情。</p>
 <p>我们只需要了解ratelimit目前提供的两个配置项即可：</p>
-<h2 id="WithoutSlack"><a href="#WithoutSlack" class="headerlink" title="WithoutSlack"></a><code>WithoutSlack</code></h2><p>我们上文讲到ratelimit中引入了最大松弛量的概念，而且默认的最大松弛量为10个请求的间隔时间。</p>
+<h2 id="withoutslack"><a class="markdownIt-Anchor" href="#withoutslack"></a> <code>WithoutSlack</code></h2>
+<p>我们上文讲到ratelimit中引入了最大松弛量的概念，而且默认的最大松弛量为10个请求的间隔时间。</p>
 <p>但是确实会有这样需求场景，需要严格的限制请求的固定间隔。那么我们就可以利用WithoutSlack来取消松弛量的影响。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">limiter := ratelimit.New(<span class="number">100</span>, ratelimit.WithoutSlack)</span><br></pre></td></tr></table></figure>
-<h2 id="WithClock-clock-Clock"><a href="#WithClock-clock-Clock" class="headerlink" title="WithClock(clock Clock)"></a><code>WithClock(clock Clock)</code></h2><p>我们上文讲到，ratelimit的实现时，会计算当前时间与上次请求时间的差值，并sleep相应时间。<br>在ratelimit基于go标准库的time实现时间相关计算。如果有精度更高或者特殊需求的计时场景，可以用WithClock来替换默认时钟。</p>
-<p>通过该方法，只要实现了Clock的interface，就可以自定义时钟了。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Clock <span class="keyword">interface</span> &#123;</span><br><span class="line">	Now() time.Time</span><br><span class="line">	Sleep(time.Duration)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="withclockclock-clock"><a class="markdownIt-Anchor" href="#withclockclock-clock"></a> <code>WithClock(clock Clock)</code></h2>
+<p>我们上文讲到，ratelimit的实现时，会计算当前时间与上次请求时间的差值，并sleep相应时间。<br>
+在ratelimit基于go标准库的time实现时间相关计算。如果有精度更高或者特殊需求的计时场景，可以用WithClock来替换默认时钟。</p>
+<p>通过该方法，只要实现了Clock的interface，就可以自定义时钟了。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Clock <span class="keyword">interface</span> &#123;</span><br><span class="line">	Now() time.Time</span><br><span class="line">	Sleep(time.Duration)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">clock &amp;= MyClock&#123;&#125;</span><br><span class="line">limiter := ratelimit.New(<span class="number">100</span>, ratelimit.WithClock(clock))</span><br></pre></td></tr></table></figure>
-<h1 id="相关文章"><a href="#相关文章" class="headerlink" title="相关文章"></a>相关文章</h1><ul>
+<h1 id="相关文章"><a class="markdownIt-Anchor" href="#相关文章"></a> 相关文章</h1>
+<ul>
 <li><a href="https://www.cyhone.com/articles/analisys-of-golang-rate/">Golang限流器time/rate实现剖析</a></li>
 <li><a href="https://www.cyhone.com/articles/usage-of-golang-rate/">Golang限流器time/rate使用介绍</a></li>
 </ul>
@@ -512,7 +528,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ratelimit的使用"><span class="nav-text">ratelimit的使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本实现"><span class="nav-text">基本实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最大松弛量"><span class="nav-text">最大松弛量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#高级用法"><span class="nav-text">高级用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#WithoutSlack"><span class="nav-text">WithoutSlack</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WithClock-clock-Clock"><span class="nav-text">WithClock(clock Clock)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#相关文章"><span class="nav-text">相关文章</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ratelimit的使用"><span class="nav-text"> ratelimit的使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本实现"><span class="nav-text"> 基本实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最大松弛量"><span class="nav-text"> 最大松弛量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#高级用法"><span class="nav-text"> 高级用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#withoutslack"><span class="nav-text"> WithoutSlack</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#withclockclock-clock"><span class="nav-text"> WithClock(clock Clock)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#相关文章"><span class="nav-text"> 相关文章</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -648,51 +664,7 @@
   
     
       
-<script type="text/x-mathjax-config">
-
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
-      processEscapes: true,
-      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-      equationNumbers: {
-        autoNumber: 'AMS'
-      }
-    }
-  });
-
-  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
-    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
-      if (data.display) {
-        var next = data.script.nextSibling;
-        while (next && next.nodeName.toLowerCase() === '#text') {
-          next = next.nextSibling;
-        }
-        if (next && next.nodeName.toLowerCase() === 'br') {
-          next.parentNode.removeChild(next);
-        }
-      }
-    });
-  });
-
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for (i = 0; i < all.length; i += 1) {
-      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
-      if (element.nodeName.toLowerCase() == 'li') {
-        element = element.parentNode;
-      }
-      element.classList.add('has-jax');
-    }
-  });
-</script>
-<script>
-  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
-    MathJax.Hub.Typeset();
-  }, window.MathJax);
-</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css">
 
     
   

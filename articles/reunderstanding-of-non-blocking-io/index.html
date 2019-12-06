@@ -348,8 +348,10 @@
 
       
         <p>在进行Linux网络编程开发的时候，免不了会涉及到IO模型的讨论。《Unix网络编程》一书中提到的几种IO模型，我们在开发过程中，讨论最多的应该就是三种： <code>阻塞IO</code>、<code>非阻塞IO</code>以及<code>异步IO</code>。</p>
-<p>本文试图理清楚几种IO模型的根本性区别，同时分析了为什么在Linux网络编程中最好要用非阻塞式IO。<br><a id="more"></a></p>
-<h1 id="网络IO概念准备"><a href="#网络IO概念准备" class="headerlink" title="网络IO概念准备"></a>网络IO概念准备</h1><p>在讨论网络IO之前，一定要有一个概念上的准备前提: <strong>不要用操作磁盘文件的经验去看待网络IO。</strong> 具体的原因我们在下文中会介绍到。</p>
+<p>本文试图理清楚几种IO模型的根本性区别，同时分析了为什么在Linux网络编程中最好要用非阻塞式IO。</p>
+<a id="more"></a>
+<h1 id="网络io概念准备"><a class="markdownIt-Anchor" href="#网络io概念准备"></a> 网络IO概念准备</h1>
+<p>在讨论网络IO之前，一定要有一个概念上的准备前提: <strong>不要用操作磁盘文件的经验去看待网络IO。</strong> 具体的原因我们在下文中会介绍到。</p>
 <p>相比于传统的网络IO来说，一个普通的文件描述符的操作可以分为两部分。以<code>read</code>为例，我们利用read函数从socket中同步阻塞的读取数据，整个流程如下所示：</p>
 <p><img src="/img/noblocking-io/block-read.png" alt="read示意图"></p>
 <ol>
@@ -362,34 +364,45 @@
 <li>等待阶段：等待socket的可读或者可写事件成立</li>
 <li>拷贝数据阶段：将数据从内核拷贝到用户进程，或者从用户进程拷贝到内核中，</li>
 </ol>
-<h1 id="三种IO模型的区别"><a href="#三种IO模型的区别" class="headerlink" title="三种IO模型的区别"></a>三种IO模型的区别</h1><p>我们日常开发遇到最多的三种IO模型分别是：同步阻塞IO、同步非阻塞IO、异步IO。</p>
-<p>这些名词非常容易混淆，为什么一个IO会有两个限定词：同步和阻塞？同步和阻塞分别代表什么意思？<br>简单来说：</p>
+<h1 id="三种io模型的区别"><a class="markdownIt-Anchor" href="#三种io模型的区别"></a> 三种IO模型的区别</h1>
+<p>我们日常开发遇到最多的三种IO模型分别是：同步阻塞IO、同步非阻塞IO、异步IO。</p>
+<p>这些名词非常容易混淆，为什么一个IO会有两个限定词：同步和阻塞？同步和阻塞分别代表什么意思？<br>
+简单来说：</p>
 <ol>
 <li>等待<strong>阻塞</strong>: 在socket操作的第一个阶段，也就是用户等待socket可读可写事件成立的这个阶段。如果一直等待下去，直到成立后，才进行下个阶段，则称为阻塞式IO；如果发现socket非可读可写状态，则直接返回，不等待，也不进行下个阶段，则称为非阻塞式IO。</li>
 <li>拷贝<strong>同步</strong>: 从内核拷贝到用户空间的这个阶段，如果直到从开始拷贝直到拷贝结束，read函数才返回，则称为同步IO。如果在调用read的时候就直接返回了，等到数据拷贝结束，才通过某种方式(例如回调)通知到用户，这种被称为异步IO。</li>
 </ol>
 <p>所谓异步，实际上就是非同步非阻塞。</p>
-<h2 id="同步阻塞IO"><a href="#同步阻塞IO" class="headerlink" title="同步阻塞IO"></a>同步阻塞IO</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">read(fd, buffer, count)</span><br></pre></td></tr></table></figure>
+<h2 id="同步阻塞io"><a class="markdownIt-Anchor" href="#同步阻塞io"></a> 同步阻塞IO</h2>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">read(fd, buffer, count)</span><br></pre></td></tr></table></figure>
 <p>Linux下面如果直接不对fd进行特殊处理，直接调用read，就是同步阻塞IO。同步阻塞IO的两个阶段都需要等待完成后，read才会返回。</p>
 <p><strong>也就是说，如果远程一直没有发送数据，则read一直就不会返回，整个线程就会阻塞到这里了。</strong></p>
-<h1 id="同步非阻塞IO"><a href="#同步非阻塞IO" class="headerlink" title="同步非阻塞IO"></a>同步非阻塞IO</h1><p>对于同步非阻塞IO来说，如果没有可读可写事件，则直接返回；如果有，则进行第二个阶段，复制数据。<br>在linux下面，需要使用fcntl将fd变为非阻塞的。<br><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> flags = fcntl(socket, F_GETFL, <span class="number">0</span>); </span><br><span class="line">fcntl(socket, F_SETFL, flags | O_NONBLOCK);</span><br></pre></td></tr></table></figure></p>
+<h1 id="同步非阻塞io"><a class="markdownIt-Anchor" href="#同步非阻塞io"></a> 同步非阻塞IO</h1>
+<p>对于同步非阻塞IO来说，如果没有可读可写事件，则直接返回；如果有，则进行第二个阶段，复制数据。<br>
+在linux下面，需要使用fcntl将fd变为非阻塞的。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> flags = fcntl(socket, F_GETFL, <span class="number">0</span>); </span><br><span class="line">fcntl(socket, F_SETFL, flags | O_NONBLOCK);</span><br></pre></td></tr></table></figure>
 <p>同时，如果read的时候，fd不可读，则read调用会触发一个EWOULDBLOCK错误(或者EAGAIN，EWOULDBLOCK和EAGAIN是一样的)。用户只要检查下<code>errno == EWOULDBLOCK</code>, 即可判断read是否返回正常。</p>
 <p>基本在Linux下进行网络编程，非阻塞IO都是不二之选。</p>
-<h2 id="异步IO"><a href="#异步IO" class="headerlink" title="异步IO"></a>异步IO</h2><p>Linux开发者应该很少使用纯粹的异步IO。因为目前来说，Linux并没有一个完美的异步IO的解决方案。pthread虽然提供了aio的接口，但是这里不做太具体的讨论了。</p>
+<h2 id="异步io"><a class="markdownIt-Anchor" href="#异步io"></a> 异步IO</h2>
+<p>Linux开发者应该很少使用纯粹的异步IO。因为目前来说，Linux并没有一个完美的异步IO的解决方案。pthread虽然提供了aio的接口，但是这里不做太具体的讨论了。</p>
 <p>我们平常接触到的异步IO库或者框架都是在代码层面把操作封装成了异步。但是在具体调用read或者write的时候，一般还是用的非阻塞式IO。</p>
-<h1 id="不能用操作磁盘IO的经验看待网络IO"><a href="#不能用操作磁盘IO的经验看待网络IO" class="headerlink" title="不能用操作磁盘IO的经验看待网络IO"></a>不能用操作磁盘IO的经验看待网络IO</h1><p>为什么不能用操作磁盘IO的经验看待网络IO。实际上在磁盘IO中，等待阶段是不存在的，因为磁盘文件并不像网络IO那样，需要等待远程传输数据。 </p>
+<h1 id="不能用操作磁盘io的经验看待网络io"><a class="markdownIt-Anchor" href="#不能用操作磁盘io的经验看待网络io"></a> 不能用操作磁盘IO的经验看待网络IO</h1>
+<p>为什么不能用操作磁盘IO的经验看待网络IO。实际上在磁盘IO中，等待阶段是不存在的，因为磁盘文件并不像网络IO那样，需要等待远程传输数据。</p>
 <p>所以有的时候，习惯了操作磁盘IO的开发者会无法理解同步阻塞IO的工作过程，无法理解为什么read函数不会返回。</p>
 <p>关于磁盘IO与同步非阻塞的讨论，在知乎上有一篇帖子<a href="https://www.zhihu.com/question/52989189" target="_blank" rel="noopener">为什么书上说同步非阻塞io在对磁盘io上不起作用?</a> 讨论了这个问题。</p>
-<h1 id="为什么在Linux网络编程中最好要用非阻塞式IO？"><a href="#为什么在Linux网络编程中最好要用非阻塞式IO？" class="headerlink" title="为什么在Linux网络编程中最好要用非阻塞式IO？"></a>为什么在Linux网络编程中最好要用非阻塞式IO？</h1><p>上文说到，在linux网络编程中，如果使用阻塞式的IO，假如某个fd长期不可读，那么一个线程相应将会被长期阻塞，那么线程资源就会被白白浪费。</p>
+<h1 id="为什么在linux网络编程中最好要用非阻塞式io"><a class="markdownIt-Anchor" href="#为什么在linux网络编程中最好要用非阻塞式io"></a> 为什么在Linux网络编程中最好要用非阻塞式IO？</h1>
+<p>上文说到，在linux网络编程中，如果使用阻塞式的IO，假如某个fd长期不可读，那么一个线程相应将会被长期阻塞，那么线程资源就会被白白浪费。</p>
 <p>那么，如果我们用了epoll，还必须要使用非阻塞IO吗？ 因为如果使用epoll监听了fd的可读事件，在epoll_wait之后调用read，此时fd一定是可读的， 那么此时非阻塞IO相比于阻塞IO的优势不就没了吗？</p>
-<p>实际上，并不是这样的。<strong>epoll也必须要搭配非阻塞IO使用。</strong><br>这个帖子<a href="https://www.zhihu.com/question/37271342" target="_blank" rel="noopener">为什么 IO 多路复用要搭配非阻塞 IO?</a> 详细讨论了这个问题？</p>
+<p>实际上，并不是这样的。<strong>epoll也必须要搭配非阻塞IO使用。</strong><br>
+这个帖子<a href="https://www.zhihu.com/question/37271342" target="_blank" rel="noopener">为什么 IO 多路复用要搭配非阻塞 IO?</a> 详细讨论了这个问题？</p>
 <p>总结来说，原因有二：</p>
 <ol>
 <li>fd在read之前有可能会重新进入不可读的状态。要么被其他方式读走了(参考惊群问题), 还有可能被内核抛弃了，总的来说，fd因为在read之前，数据被其他方式读走，fd重新变为不可读。此时，用阻塞式IO的read函数就会阻塞整个线程。</li>
 <li>epoll只是返回了可读事件，但是并没有返回可以读多少数据量。因此，非阻塞IO的做法是读多次，直到不能读。而阻塞io却只能读一次，因为万一一次就读完了缓冲区所有数据，第二次读的时候，read就会又阻塞了。但是对于epoll的ET模式来说，缓冲区的数据只会在改变的通知一次，如果此次没有消费完，在下次数据到来之前，可读事件再也不会通知了。那么对于只能调用一次read的阻塞式IO来说，未读完的数据就有可能永远读不到了。</li>
 </ol>
 <p>因此，在Linux网络编程中最好使用非阻塞式IO。</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<h1 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h1>
+<ul>
 <li><a href="http://man7.org/linux/man-pages/man2/read.2.html" target="_blank" rel="noopener">http://man7.org/linux/man-pages/man2/read.2.html</a></li>
 <li><a href="http://matt33.com/2017/08/06/unix-io/" target="_blank" rel="noopener">http://matt33.com/2017/08/06/unix-io/</a></li>
 <li><a href="https://www.zhihu.com/question/52989189" target="_blank" rel="noopener">https://www.zhihu.com/question/52989189</a></li>
@@ -511,7 +524,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#网络IO概念准备"><span class="nav-text">网络IO概念准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三种IO模型的区别"><span class="nav-text">三种IO模型的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#同步阻塞IO"><span class="nav-text">同步阻塞IO</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#同步非阻塞IO"><span class="nav-text">同步非阻塞IO</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#异步IO"><span class="nav-text">异步IO</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#不能用操作磁盘IO的经验看待网络IO"><span class="nav-text">不能用操作磁盘IO的经验看待网络IO</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么在Linux网络编程中最好要用非阻塞式IO？"><span class="nav-text">为什么在Linux网络编程中最好要用非阻塞式IO？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text">参考</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#网络io概念准备"><span class="nav-text"> 网络IO概念准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三种io模型的区别"><span class="nav-text"> 三种IO模型的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#同步阻塞io"><span class="nav-text"> 同步阻塞IO</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#同步非阻塞io"><span class="nav-text"> 同步非阻塞IO</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#异步io"><span class="nav-text"> 异步IO</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#不能用操作磁盘io的经验看待网络io"><span class="nav-text"> 不能用操作磁盘IO的经验看待网络IO</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么在linux网络编程中最好要用非阻塞式io"><span class="nav-text"> 为什么在Linux网络编程中最好要用非阻塞式IO？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -647,51 +660,7 @@
   
     
       
-<script type="text/x-mathjax-config">
-
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
-      processEscapes: true,
-      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-      equationNumbers: {
-        autoNumber: 'AMS'
-      }
-    }
-  });
-
-  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
-    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
-      if (data.display) {
-        var next = data.script.nextSibling;
-        while (next && next.nodeName.toLowerCase() === '#text') {
-          next = next.nextSibling;
-        }
-        if (next && next.nodeName.toLowerCase() === 'br') {
-          next.parentNode.removeChild(next);
-        }
-      }
-    });
-  });
-
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for (i = 0; i < all.length; i += 1) {
-      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
-      if (element.nodeName.toLowerCase() == 'li') {
-        element = element.parentNode;
-      }
-      element.classList.add('has-jax');
-    }
-  });
-</script>
-<script>
-  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
-    MathJax.Hub.Typeset();
-  }, window.MathJax);
-</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css">
 
     
   

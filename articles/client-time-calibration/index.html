@@ -58,18 +58,18 @@
   };
 </script>
 
-  <meta name="description" content="在客户端开发中，往往会有一些功能对时间要求比较严格，客户端需要获取到当前最准确的时间。但由于客户端环境多种多样，我们无法保证直接在客户端设备上获取到的时间是最准确的时间。对于某些问题设备来说，设备时间与比当前实际的时间差了几个小时，甚至几天的情况都存在。倘若某功能依赖于当前时间，而客户端所提供的时间不准，就往往会给客户造成一些困扰。 那么，客户端如何能够获取到当前最准确的时间呢？">
+  <meta name="description" content="在客户端开发中，往往会有一些功能对时间要求比较严格，客户端需要获取到当前最准确的时间。但由于客户端环境多种多样，我们无法保证直接在客户端设备上获取到的时间是最准确的时间。 对于某些问题设备来说，设备时间与比当前实际的时间差了几个小时，甚至几天的情况都存在。倘若某功能依赖于当前时间，而客户端所提供的时间不准，就往往会给客户造成一些困扰。 那么，客户端如何能够获取到当前最准确的时间呢？">
 <meta property="og:type" content="article">
 <meta property="og:title" content="客户端秒级时间同步方案">
 <meta property="og:url" content="http://www.cyhone.com/articles/client-time-calibration/index.html">
 <meta property="og:site_name" content="编程沉思录">
-<meta property="og:description" content="在客户端开发中，往往会有一些功能对时间要求比较严格，客户端需要获取到当前最准确的时间。但由于客户端环境多种多样，我们无法保证直接在客户端设备上获取到的时间是最准确的时间。对于某些问题设备来说，设备时间与比当前实际的时间差了几个小时，甚至几天的情况都存在。倘若某功能依赖于当前时间，而客户端所提供的时间不准，就往往会给客户造成一些困扰。 那么，客户端如何能够获取到当前最准确的时间呢？">
+<meta property="og:description" content="在客户端开发中，往往会有一些功能对时间要求比较严格，客户端需要获取到当前最准确的时间。但由于客户端环境多种多样，我们无法保证直接在客户端设备上获取到的时间是最准确的时间。 对于某些问题设备来说，设备时间与比当前实际的时间差了几个小时，甚至几天的情况都存在。倘若某功能依赖于当前时间，而客户端所提供的时间不准，就往往会给客户造成一些困扰。 那么，客户端如何能够获取到当前最准确的时间呢？">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/network.png">
 <meta property="og:updated_time" content="2019-10-10T06:02:57.090Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="客户端秒级时间同步方案">
-<meta name="twitter:description" content="在客户端开发中，往往会有一些功能对时间要求比较严格，客户端需要获取到当前最准确的时间。但由于客户端环境多种多样，我们无法保证直接在客户端设备上获取到的时间是最准确的时间。对于某些问题设备来说，设备时间与比当前实际的时间差了几个小时，甚至几天的情况都存在。倘若某功能依赖于当前时间，而客户端所提供的时间不准，就往往会给客户造成一些困扰。 那么，客户端如何能够获取到当前最准确的时间呢？">
+<meta name="twitter:description" content="在客户端开发中，往往会有一些功能对时间要求比较严格，客户端需要获取到当前最准确的时间。但由于客户端环境多种多样，我们无法保证直接在客户端设备上获取到的时间是最准确的时间。 对于某些问题设备来说，设备时间与比当前实际的时间差了几个小时，甚至几天的情况都存在。倘若某功能依赖于当前时间，而客户端所提供的时间不准，就往往会给客户造成一些困扰。 那么，客户端如何能够获取到当前最准确的时间呢？">
 <meta name="twitter:image" content="http://www.cyhone.com/img/network.png">
   <link rel="canonical" href="http://www.cyhone.com/articles/client-time-calibration/">
 
@@ -346,34 +346,56 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>在客户端开发中，往往会有一些功能对时间要求比较严格，客户端需要获取到当前最准确的时间。但由于客户端环境多种多样，我们无法保证直接在客户端设备上获取到的时间是最准确的时间。<br>对于某些问题设备来说，设备时间与比当前实际的时间差了几个小时，甚至几天的情况都存在。倘若某功能依赖于当前时间，而客户端所提供的时间不准，就往往会给客户造成一些困扰。</p>
-<p>那么，客户端如何能够获取到当前最准确的时间呢？<br><a id="more"></a></p>
-<h2 id="从服务器同步时间"><a href="#从服务器同步时间" class="headerlink" title="从服务器同步时间"></a>从服务器同步时间</h2><p>我们首先想到的是，服务器可以提供一个获取当前时间戳的接口。客户端每次获取当前时间时，都直接从服务器拉数据就可以了。</p>
-<p>这个方案简单粗暴，但是问题也可以一眼看出：<br>每次都从服务器拉时间，一方面会对服务器造成一些压力；另一方面网络也存在时延损耗和不稳定的可能，将会减低客户端的体验。</p>
-<h2 id="只拉取一次时间"><a href="#只拉取一次时间" class="headerlink" title="只拉取一次时间"></a>只拉取一次时间</h2><p>那么，能不能只从服务器拉取一次时间，不用每次都访问服务器呢？<br>我们可以在客户端初始化的时候，拉取一次时间接口。<br>记此时的服务器时间为<code>server_init_time</code>，同时获取到当前客户端的时间, 记为<code>local_init_time</code>。</p>
-<p>当客户端需要获取当前的准确时间的时候，首先得到客户端的当前时间 记为local_now_time<br>那么，当前最准确的时间就可以通过一个简单的差值计算得到。</p>
+        <p>在客户端开发中，往往会有一些功能对时间要求比较严格，客户端需要获取到当前最准确的时间。但由于客户端环境多种多样，我们无法保证直接在客户端设备上获取到的时间是最准确的时间。<br>
+对于某些问题设备来说，设备时间与比当前实际的时间差了几个小时，甚至几天的情况都存在。倘若某功能依赖于当前时间，而客户端所提供的时间不准，就往往会给客户造成一些困扰。</p>
+<p>那么，客户端如何能够获取到当前最准确的时间呢？</p>
+<a id="more"></a>
+<h2 id="从服务器同步时间"><a class="markdownIt-Anchor" href="#从服务器同步时间"></a> 从服务器同步时间</h2>
+<p>我们首先想到的是，服务器可以提供一个获取当前时间戳的接口。客户端每次获取当前时间时，都直接从服务器拉数据就可以了。</p>
+<p>这个方案简单粗暴，但是问题也可以一眼看出：<br>
+每次都从服务器拉时间，一方面会对服务器造成一些压力；另一方面网络也存在时延损耗和不稳定的可能，将会减低客户端的体验。</p>
+<h2 id="只拉取一次时间"><a class="markdownIt-Anchor" href="#只拉取一次时间"></a> 只拉取一次时间</h2>
+<p>那么，能不能只从服务器拉取一次时间，不用每次都访问服务器呢？<br>
+我们可以在客户端初始化的时候，拉取一次时间接口。<br>
+记此时的服务器时间为<code>server_init_time</code>，同时获取到当前客户端的时间, 记为<code>local_init_time</code>。</p>
+<p>当客户端需要获取当前的准确时间的时候，首先得到客户端的当前时间 记为local_now_time<br>
+那么，当前最准确的时间就可以通过一个简单的差值计算得到。</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line">server_now_time = server_init_time + (local_now_time - local_init_time)</span><br></pre></td></tr></table></figure>
 <p>通过计算两次本地时间的差值，就可以推出当前服务器的时间了。</p>
-<h2 id="网络时延的损耗"><a href="#网络时延的损耗" class="headerlink" title="网络时延的损耗"></a>网络时延的损耗</h2><p>上述方案实际上已经能够准确的获取到当前服务器的时间了。<br>但是仍然有个不严谨的地方：<br>在该方案中，我们假设server_init_time和local_init_time是同一时刻。<br>但实际上并不是这样的。server_init_time只是http请求到达服务器的时间。<br>server_init_time和local_init_time还差一个请求返回时间。</p>
+<h2 id="网络时延的损耗"><a class="markdownIt-Anchor" href="#网络时延的损耗"></a> 网络时延的损耗</h2>
+<p>上述方案实际上已经能够准确的获取到当前服务器的时间了。<br>
+但是仍然有个不严谨的地方：<br>
+在该方案中，我们假设server_init_time和local_init_time是同一时刻。<br>
+但实际上并不是这样的。server_init_time只是http请求到达服务器的时间。<br>
+server_init_time和local_init_time还差一个请求返回时间。</p>
 <p><img src="/img/network.png" alt="网络时延"></p>
 <p>我们都知道网络是不可靠的，严重情况下，一次网络时延可以达到数秒。这对于时间校准的也会造成一些小小的干扰。</p>
 <p>基于这个问题，我们可以假设<code>客户端发出请求到服务器的时间</code> 与 <code>服务器回复请求到客户端的时间</code>基本是一致的。虽然在实际情况下，有可能存在偏差。</p>
-<p>此时<br><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">server_init_time = server_init_time - delta / <span class="number">2</span>;</span><br></pre></td></tr></table></figure></p>
+<p>此时</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">server_init_time = server_init_time - delta / <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
 <p>其中delta是指一次请求的总时延。</p>
-<h2 id="防止客户端运行期间时间改变"><a href="#防止客户端运行期间时间改变" class="headerlink" title="防止客户端运行期间时间改变"></a>防止客户端运行期间时间改变</h2><p>基于以上考虑，我们的时间校准方案已经基本上可以满足大多数客户端的需求了。</p>
-<p>但是，你永远也不会知道客户端会出现什么情况。<br>假如，在软件运行期间，无论是出于被动还是用户有意主动的修改，客户端的时间发生了变化。那么，以上通过计算两次本地时间差值来获取准确时间的方案将会失效。</p>
-<p>因此，我们需要使用一个不随本地时间变化的维度作为校对的标准。我们首先想到了开机时长，开机时长是指当前时刻距离设备开机时刻的毫秒数，而这个东西是不随设备的时钟变化的。<br>因此我们的公式可以修改为：</p>
+<h2 id="防止客户端运行期间时间改变"><a class="markdownIt-Anchor" href="#防止客户端运行期间时间改变"></a> 防止客户端运行期间时间改变</h2>
+<p>基于以上考虑，我们的时间校准方案已经基本上可以满足大多数客户端的需求了。</p>
+<p>但是，你永远也不会知道客户端会出现什么情况。<br>
+假如，在软件运行期间，无论是出于被动还是用户有意主动的修改，客户端的时间发生了变化。那么，以上通过计算两次本地时间差值来获取准确时间的方案将会失效。</p>
+<p>因此，我们需要使用一个不随本地时间变化的维度作为校对的标准。我们首先想到了开机时长，开机时长是指当前时刻距离设备开机时刻的毫秒数，而这个东西是不随设备的时钟变化的。<br>
+因此我们的公式可以修改为：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server_now_time = server_init_time + (local_now_tickcount - local_init_tickout)</span><br></pre></td></tr></table></figure>
 <p>local_now_tickcount和local_init_tickout分别指的是设备当前的开机时长和初始化阶段用户的开机时长。</p>
-<h2 id="时间溢出"><a href="#时间溢出" class="headerlink" title="时间溢出"></a>时间溢出</h2><p>使用开机时长作为校对的标准的方案，看似完美无缺，实际上仍然存在着一些意想不到的问题….</p>
-<p>以Windows为例，C#用来返回开机时长的方法<code>Environment.TickCount</code>是int32类型的，单位为ms。<br>我们可以简单计算下，一天大概有 <code>24 * 60 * 60 * 1000 = 86400000</code> 毫秒，而int32的最大值是<code>2^31 - 1 = 2147483647</code></p>
-<p>这也就意味着，当开机时间超过<code>2147483647 / 86400000 = 24.85</code> 天的时候int32就溢出了。。<br>也就意味着，如果我们的客户端软件运行在一个25天未关机的设备上，那么软件的时间校准将会出现严重的问题。。。</p>
-<p>在真实的情况下，客户端设备25天不关机的情况太常见了。<br>那么，如果解决此问题呢？</p>
+<h2 id="时间溢出"><a class="markdownIt-Anchor" href="#时间溢出"></a> 时间溢出</h2>
+<p>使用开机时长作为校对的标准的方案，看似完美无缺，实际上仍然存在着一些意想不到的问题…</p>
+<p>以Windows为例，C#用来返回开机时长的方法<code>Environment.TickCount</code>是int32类型的，单位为ms。<br>
+我们可以简单计算下，一天大概有 <code>24 * 60 * 60 * 1000 = 86400000</code> 毫秒，而int32的最大值是<code>2^31 - 1 = 2147483647</code></p>
+<p>这也就意味着，当开机时间超过<code>2147483647 / 86400000 = 24.85</code> 天的时候int32就溢出了。。<br>
+也就意味着，如果我们的客户端软件运行在一个25天未关机的设备上，那么软件的时间校准将会出现严重的问题。。。</p>
+<p>在真实的情况下，客户端设备25天不关机的情况太常见了。<br>
+那么，如果解决此问题呢？</p>
 <p>我们发现C#有一个StopWatch函数，常常用来统计函数运行时长。而它的时间表示<code>stopWatch.ElapsedMilliseconds</code>是long型的。同时，StopWatch是基于Timer实现的时间统计，也不与本地时钟相关。</p>
 <p>那么，与利用开机时长的方案类似，我们在软件初始化时，开启一个StopWatch。每次获取准确时间的时候，将stopWatch中记录的当前耗时时间与服务器初始时间相加，即可得到当前的准确时间。</p>
 <p>最终的时间校准方案如下：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server_init_time = server_init_time - delta / 2;</span><br><span class="line">server_now_time = server_init_time + stopWatch.ElapsedMilliseconds / 1000</span><br></pre></td></tr></table></figure>
-<h2 id="定期校准"><a href="#定期校准" class="headerlink" title="定期校准"></a>定期校准</h2><p>考虑到时间越长，有可能本地时间与服务器时间的偏差逐渐加大。可以采用定时器，定时对本地时间进行重新校准。</p>
+<h2 id="定期校准"><a class="markdownIt-Anchor" href="#定期校准"></a> 定期校准</h2>
+<p>考虑到时间越长，有可能本地时间与服务器时间的偏差逐渐加大。可以采用定时器，定时对本地时间进行重新校准。</p>
 <p>基于以上方案，我们就实现了客户端与后台时间的秒级时间同步方案。</p>
 
     </div>
@@ -478,7 +500,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#从服务器同步时间"><span class="nav-text">从服务器同步时间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#只拉取一次时间"><span class="nav-text">只拉取一次时间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络时延的损耗"><span class="nav-text">网络时延的损耗</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#防止客户端运行期间时间改变"><span class="nav-text">防止客户端运行期间时间改变</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#时间溢出"><span class="nav-text">时间溢出</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定期校准"><span class="nav-text">定期校准</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#从服务器同步时间"><span class="nav-text"> 从服务器同步时间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#只拉取一次时间"><span class="nav-text"> 只拉取一次时间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络时延的损耗"><span class="nav-text"> 网络时延的损耗</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#防止客户端运行期间时间改变"><span class="nav-text"> 防止客户端运行期间时间改变</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#时间溢出"><span class="nav-text"> 时间溢出</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定期校准"><span class="nav-text"> 定期校准</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -614,51 +636,7 @@
   
     
       
-<script type="text/x-mathjax-config">
-
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
-      processEscapes: true,
-      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-      equationNumbers: {
-        autoNumber: 'AMS'
-      }
-    }
-  });
-
-  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
-    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
-      if (data.display) {
-        var next = data.script.nextSibling;
-        while (next && next.nodeName.toLowerCase() === '#text') {
-          next = next.nextSibling;
-        }
-        if (next && next.nodeName.toLowerCase() === 'br') {
-          next.parentNode.removeChild(next);
-        }
-      }
-    });
-  });
-
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for (i = 0; i < all.length; i += 1) {
-      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
-      if (element.nodeName.toLowerCase() == 'li') {
-        element = element.parentNode;
-      }
-      element.classList.add('has-jax');
-    }
-  });
-</script>
-<script>
-  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
-    MathJax.Hub.Typeset();
-  }, window.MathJax);
-</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css">
 
     
   

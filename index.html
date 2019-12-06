@@ -344,7 +344,8 @@
 
       
           <p>本文主要介绍Filebeat 7.5版本中Log相关的各个配置项的含义以及其应用场景。</p>
-<p>一般情况下，我们使用log input的方式如下，只需要指定一系列paths即可。<br><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">filebeat.inputs:</span></span><br><span class="line"><span class="attr">- type:</span> <span class="string">log</span></span><br><span class="line"><span class="attr">  paths:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/var/log/messages</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/var/log/*.log</span></span><br></pre></td></tr></table></figure></p>
+<p>一般情况下，我们使用log input的方式如下，只需要指定一系列paths即可。</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">filebeat.inputs:</span></span><br><span class="line"><span class="attr">- type:</span> <span class="string">log</span></span><br><span class="line"><span class="attr">  paths:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/var/log/messages</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/var/log/*.log</span></span><br></pre></td></tr></table></figure>
 <p>但其实除了基本的paths配置外，log input还有大概十几个配置项需要我们关注。</p>
 <p>这些配置项或多或少都会影响到Filebeat的使用方式以及性能。虽然其默认值基本足够日常使用，但是还是需要深刻理解每个配置项背后的含义，这样才能够对其完全把控。</p>
 <p>同时，在filebeat的日常线上运维中，也会涉及到这些配置参数的调节。</p>
@@ -463,7 +464,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>Redis作为一个单线程高性能的内存缓存Server而被人熟知。作为一个典型的Reactor式网络应用，Redis能够达到如此高的性能，必然要依靠足够可靠的事件循环库。<br>Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可以在<code>ae*.h/cpp</code>这些文件中找到。</p>
+          <p>Redis作为一个单线程高性能的内存缓存Server而被人熟知。作为一个典型的Reactor式网络应用，Redis能够达到如此高的性能，必然要依靠足够可靠的事件循环库。<br>
+Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可以在<code>ae*.h/cpp</code>这些文件中找到。</p>
 <p>AE本身就是Redis的一部分，所以整体设计原则就是够用就行。也正因为这个背景，AE的代码才可以简短干净，非常适合阅读和学习。</p>
 <p>本文将基于Redis 5.0.6的源码分析下其事件循环器(AE)的实现原理。</p>
 <p>同时本人也提供了一个<a href="https://github.com/chenyahui/AnnotatedCode/tree/master/redis-5.0" target="_blank" rel="noopener">Redis注释版</a>，用以辅助理解Redis的源码。</p>
@@ -721,7 +723,7 @@
           <p>uber在Github上开源了一套用于服务限流的go语言库<a href="https://github.com/uber-go/ratelimit/" target="_blank" rel="noopener">ratelimit</a>, 该组件基于Leaky Bucket(漏桶)实现。</p>
 <p>我在之前写过<a href="https://www.cyhone.com/articles/analisys-of-golang-rate/">《Golang限流器time/rate实现剖析》</a>，讲了Golang标准库中提供的基于Token Bucket实现限流组件的<code>time/rate</code>原理，同时也讲了限流的一些背景。</p>
 <p>相比于TokenBucket，只要桶内还有剩余令牌，调用方就可以一直消费。而Leaky Bucket相对来说比较严格，调用方只能严格按照这个间隔顺序进行消费调用。(实际上，uber-go对这个限制也做了一些优化，具体可以看下文详解)</p>
-<p>还是老规矩，在正式讲其实现之前，我们先看下ratelimit的使用方法。<br>
+<p>还是老规矩，在正式讲其实现之前，我们先看下ratelimit的使用方法。</p>
           <!--noindex-->
           
             <div class="post-button text-center">
@@ -974,9 +976,12 @@
           <blockquote>
 <p>本主题为系列文章，分上下两篇。本文主要介绍<code>time/rate</code>的具体使用方法，另外一篇文章<a href="https://www.cyhone.com/articles/analisys-of-golang-rate/">《Golang限流器time/rate实现剖析》</a>则着重介绍其内部实现原理。</p>
 </blockquote>
-<p>限流器是后台服务中的非常重要的组件，可以用来限制请求速率，保护服务，以免服务过载。<br>限流器的实现方法有很多种，例如滑动窗口法、Token Bucket、Leaky Bucket等。</p>
-<p>其实golang标准库中就自带了限流算法的实现，即<code>golang.org/x/time/rate</code>。<br>该限流器是基于Token Bucket(令牌桶)实现的。</p>
-<p>简单来说，令牌桶就是想象有一个固定大小的桶，系统会以恒定速率向桶中放Token，桶满则暂时不放。<br>而用户则从桶中取Token，如果有剩余Token就可以一直取。如果没有剩余Token，则需要等到系统中被放置了Token才行。</p>
+<p>限流器是后台服务中的非常重要的组件，可以用来限制请求速率，保护服务，以免服务过载。<br>
+限流器的实现方法有很多种，例如滑动窗口法、Token Bucket、Leaky Bucket等。</p>
+<p>其实golang标准库中就自带了限流算法的实现，即<code>golang.org/x/time/rate</code>。<br>
+该限流器是基于Token Bucket(令牌桶)实现的。</p>
+<p>简单来说，令牌桶就是想象有一个固定大小的桶，系统会以恒定速率向桶中放Token，桶满则暂时不放。<br>
+而用户则从桶中取Token，如果有剩余Token就可以一直取。如果没有剩余Token，则需要等到系统中被放置了Token才行。</p>
           <!--noindex-->
           
             <div class="post-button text-center">
@@ -1101,9 +1106,10 @@
 
       
           <p>libco是微信后台开发和使用的协程库，同时应该也是极少数的将C/C++协程直接运用到如此大规模的生成环境中的案例了。</p>
-<p>在<a href="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">《云风coroutine协程库源码分析》</a>中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。<br>本文将从源码角度着重分析libco的高效之道。</p>
+<p>在<a href="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">《云风coroutine协程库源码分析》</a>中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。<br>
+本文将从源码角度着重分析libco的高效之道。</p>
 <p>在正式阅读本文之前，如果对有栈协程的实现原理不是特别了解，建议提前阅读<a href="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">《云风coroutine协程库源码分析》</a>。</p>
-<p>同时，我也提供了<a href="https://github.com/chenyahui/AnnotatedCode/tree/master/libco" target="_blank" rel="noopener">libco注释版</a>，用以辅助理解libco的源码<br>
+<p>同时，我也提供了<a href="https://github.com/chenyahui/AnnotatedCode/tree/master/libco" target="_blank" rel="noopener">libco注释版</a>，用以辅助理解libco的源码</p>
           <!--noindex-->
           
             <div class="post-button text-center">
@@ -1363,13 +1369,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>最近在写C++时，有这样一个代码需求：在lambda中，将一个捕获参数move给另外一个变量。<br>看似一个很简单常规的操作，然而这个move动作却没有生效。</p>
+          <p>最近在写C++时，有这样一个代码需求：在lambda中，将一个捕获参数move给另外一个变量。<br>
+看似一个很简单常规的操作，然而这个move动作却没有生效。</p>
 <p>具体代码如下：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">auto</span> func = [=]()&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; vec.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; vec2.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>代码可在<a href="https://wandbox.org/permlink/et6ZTBhwpz5SH6w0" target="_blank" rel="noopener">wandbox</a>运行。</p>
 <p>我们期望的是，将对变量<code>vec</code>调用std::move后，数据将会移动至变量<code>vec2</code>, 此时<code>vec</code>里面应该没有数据了。但是通过打印<code>vec.size()</code>发现vec中的数据并没有按预期移走。</p>
 <p>这也就意味着，构造vec2时并没有按预期调用移动构造函数，而是调用了拷贝构造函数。</p>
-<p>为什么会造成这个问题呢, 我们需要结合<code>std::move</code>和<code>lambda</code>的原理看下。（最终的解决方案可以直接看<a href="#解决方案">这里</a>）</p>
+<p>为什么会造成这个问题呢, 我们需要结合<code>std::move</code>和<code>lambda</code>的原理看下。（最终的解决方案可以直接看<a href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">这里</a>）</p>
           <!--noindex-->
           
             <div class="post-button text-center">
@@ -1695,51 +1702,7 @@
   
     
       
-<script type="text/x-mathjax-config">
-
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
-      processEscapes: true,
-      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-      equationNumbers: {
-        autoNumber: 'AMS'
-      }
-    }
-  });
-
-  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
-    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
-      if (data.display) {
-        var next = data.script.nextSibling;
-        while (next && next.nodeName.toLowerCase() === '#text') {
-          next = next.nextSibling;
-        }
-        if (next && next.nodeName.toLowerCase() === 'br') {
-          next.parentNode.removeChild(next);
-        }
-      }
-    });
-  });
-
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for (i = 0; i < all.length; i += 1) {
-      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
-      if (element.nodeName.toLowerCase() == 'li') {
-        element = element.parentNode;
-      }
-      element.classList.add('has-jax');
-    }
-  });
-</script>
-<script>
-  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
-    MathJax.Hub.Typeset();
-  }, window.MathJax);
-</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css">
 
     
   

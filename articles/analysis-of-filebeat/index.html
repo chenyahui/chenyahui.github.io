@@ -356,7 +356,8 @@
 <p>当然，我们也可以自定义Output组件，让Filebeat将日志转发到我们想要的地方。</p>
 <p>filebeat其实是<a href="https://github.com/elastic/beats" target="_blank" rel="noopener">elastic/beats</a>的一员，除了filebeat外，还有HeartBeat、PacketBeat。这些beat的实现都是基于libbeat框架。</p>
 <a id="more"></a>
-<h1 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h1><p>下图是Filebeat官方提供的架构图：</p>
+<h1 id="整体架构"><a class="markdownIt-Anchor" href="#整体架构"></a> 整体架构</h1>
+<p>下图是Filebeat官方提供的架构图：</p>
 <p><img src="/img/filebeat/filebeat.png" alt="filebeat"></p>
 <p>除了图中提到的各个组件，整个filebeat主要包含以下重要组件：</p>
 <ol>
@@ -368,7 +369,8 @@
 <li>Registrar：管理记录每个文件处理状态，包括偏移量、文件名等信息。当Filebeat启动时，会从Registrar恢复文件处理状态。</li>
 </ol>
 <p>filebeat的整个生命周期，几个组件共同协作，完成了日志从采集到上报的整个过程。</p>
-<h1 id="日志采集流程"><a href="#日志采集流程" class="headerlink" title="日志采集流程"></a>日志采集流程</h1><p>Filebeat不仅支持普通文本日志的作为输入源，还内置支持了redis的慢查询日志、stdin、tcp和udp等作为输入源。</p>
+<h1 id="日志采集流程"><a class="markdownIt-Anchor" href="#日志采集流程"></a> 日志采集流程</h1>
+<p>Filebeat不仅支持普通文本日志的作为输入源，还内置支持了redis的慢查询日志、stdin、tcp和udp等作为输入源。</p>
 <p>本文只分析下普通文本日志的处理方式，对于普通文本日志，可以按照以下配置方式，指定log的输入源信息。</p>
 <figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="string">filebeat.inputs:</span></span><br><span class="line"><span class="attr">- type:</span> <span class="string">log</span></span><br><span class="line"><span class="attr">  enabled:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  paths:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/var/log/*.log</span></span><br></pre></td></tr></table></figure>
 <p>其中Input也可以指定多个, 每个Input下的Log也可以指定多个。</p>
@@ -382,9 +384,11 @@
 <li>会有新的日志在不断产生</li>
 <li>可能一个日志文件对应的Harvester退出后，又再次有了内容更新。</li>
 </ol>
-<p>为了解决这两个情况，filebeat采用了Input定时扫描的方式。代码如下，可以看出，Input扫描的频率是由用户指定的<code>scan_frequency</code>配置来决定的( 默认10s扫描一次)。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Runner)</span> <span class="title">Run</span><span class="params">()</span></span> &#123;</span><br><span class="line">	p.input.Run()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> p.Once &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-p.done:</span><br><span class="line">			logp.Info(<span class="string">"input ticker stopped"</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		<span class="keyword">case</span> &lt;-time.After(p.config.ScanFrequency): <span class="comment">// 定时扫描</span></span><br><span class="line">			logp.Debug(<span class="string">"input"</span>, <span class="string">"Run input"</span>)</span><br><span class="line">			p.input.Run()</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>为了解决这两个情况，filebeat采用了Input定时扫描的方式。代码如下，可以看出，Input扫描的频率是由用户指定的<code>scan_frequency</code>配置来决定的( 默认10s扫描一次)。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Runner)</span> <span class="title">Run</span><span class="params">()</span></span> &#123;</span><br><span class="line">	p.input.Run()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> p.Once &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-p.done:</span><br><span class="line">			logp.Info(<span class="string">"input ticker stopped"</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		<span class="keyword">case</span> &lt;-time.After(p.config.ScanFrequency): <span class="comment">// 定时扫描</span></span><br><span class="line">			logp.Debug(<span class="string">"input"</span>, <span class="string">"Run input"</span>)</span><br><span class="line">			p.input.Run()</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>此外，如果用户启动时指定了<code>--once</code>选项，则扫描只会进行一次，就退出了。</p>
-<h1 id="日志定时扫描及异常处理"><a href="#日志定时扫描及异常处理" class="headerlink" title="日志定时扫描及异常处理"></a>日志定时扫描及异常处理</h1><p>我们之前讲到Registrar会记录每个文件的状态，当Filebeat启动时，从Registrar启动时，会从Registrar恢复文件处理状态。</p>
+<h1 id="日志定时扫描及异常处理"><a class="markdownIt-Anchor" href="#日志定时扫描及异常处理"></a> 日志定时扫描及异常处理</h1>
+<p>我们之前讲到Registrar会记录每个文件的状态，当Filebeat启动时，从Registrar启动时，会从Registrar恢复文件处理状态。</p>
 <p>其实在filebeat运行过程中，Input组件也记录了文件状态。不一样的是，Registrar是持久化存储，而Input中的文件状态仅表示当前文件的读取偏移量，且修改时不会同步到磁盘中。</p>
 <p>每次，Filebeat刚启动时，Input都会载入Registrar中记录的文件状态，作为初始状态。Input中的状态有两个非常重要：</p>
 <ol>
@@ -406,39 +410,53 @@
 <p>除此之外，一个比较有意思的点是，Filebeat甚至可以处理文件名修改的问题。即使一个日志的文件名被修改过，Filebeat重启后，也能找到该文件，从上次读过的地方继续读。</p>
 <p>这是因为Filebeat除了在Registrar存储了文件名，还存储了文件的唯一标识。对于Linux来说，这个文件的唯一标识就是该文件的inode ID + device ID。</p>
 <p>至此，我们可以清楚的知道，Filebeat是如何采集日志文件，同时做到监听日志文件的更新和修改。而日志采集过程，Harvest会将数据写到Pipeline中。我们接下来看下数据是如何写入到Pipeline中的。</p>
-<h1 id="Pipeline的写入"><a href="#Pipeline的写入" class="headerlink" title="Pipeline的写入"></a>Pipeline的写入</h1><p>Haveseter会将数据写入缓存中，而另一方面Output会从缓存将数据读走。整个生产消费的过程都是由Pipeline进行调度的，而整个调度过程也非常复杂。</p>
+<h1 id="pipeline的写入"><a class="markdownIt-Anchor" href="#pipeline的写入"></a> Pipeline的写入</h1>
+<p>Haveseter会将数据写入缓存中，而另一方面Output会从缓存将数据读走。整个生产消费的过程都是由Pipeline进行调度的，而整个调度过程也非常复杂。</p>
 <p>此外，Filebeat的缓存目前分为memqueue和spool。memqueue顾名思义就是内存缓存，spool则是将数据缓存到磁盘中。本文将基于memqueue讲解整个调度过程。</p>
 <p>我们首先看下Haveseter是如何将数据写入缓存中的，如下图所示：</p>
 <p><img src="/img/filebeat/produce-to-pipeline.png" alt=""></p>
 <p>Harvester通过pipeline提供的pipelineClient将数据写入到pipeline中，Haveseter会将读到的数据会包装成一个Event结构体，再递交给pipeline。</p>
 <p>在Filebeat的实现中，pipelineClient并不直接操作缓存，而是将event先写入一个events channel中。</p>
 <p>同时，有一个eventloop组件，会监听events channel的事件到来，等event到达时，eventloop会将其放入缓存中。</p>
-<p>当缓存满的时候，eventloop直接移除对该channel的监听。<br>每次event ACK或者取消后，缓存不再满了，则eventloop会重新监听events channel。</p>
-<p>以上是Pipeline的写入过程，此时event已被写入到了缓存中。<br>但是Output是如何从缓存中拿到event数据的？</p>
-<h1 id="Pipeline的消费过程"><a href="#Pipeline的消费过程" class="headerlink" title="Pipeline的消费过程"></a>Pipeline的消费过程</h1><p>整个消费的过程非常复杂，数据会在多个channel之间传递流转，如下图所示：<br><img src="/img/filebeat/consume-from-pipeline.png" alt=""></p>
+<p>当缓存满的时候，eventloop直接移除对该channel的监听。<br>
+每次event ACK或者取消后，缓存不再满了，则eventloop会重新监听events channel。</p>
+<p>以上是Pipeline的写入过程，此时event已被写入到了缓存中。<br>
+但是Output是如何从缓存中拿到event数据的？</p>
+<h1 id="pipeline的消费过程"><a class="markdownIt-Anchor" href="#pipeline的消费过程"></a> Pipeline的消费过程</h1>
+<p>整个消费的过程非常复杂，数据会在多个channel之间传递流转，如下图所示：<br>
+<img src="/img/filebeat/consume-from-pipeline.png" alt=""></p>
 <p>首先再介绍两个角色：</p>
 <ol>
 <li>consumer： pipeline在创建的时候，会同时创建一个consumer。consumer负责从缓存中取数据</li>
 <li>client worker：负责接收consumer传来的数据，并调用Output的Publish函数进行上报。</li>
 </ol>
-<p>与producer类似，consumer也不直接操作缓存，而是会向get channel中写入消费请求。<br>consumer本身是个后台loop的过程，这个消费请求会不断进行。</p>
-<p>eventloop监听get channel, 拿到之后会从缓存中取数据。并将数据写入到resp channel中。<br>consumer从resp channel中拿到event数据后，又会将其写入到workQueue。</p>
+<p>与producer类似，consumer也不直接操作缓存，而是会向get channel中写入消费请求。<br>
+consumer本身是个后台loop的过程，这个消费请求会不断进行。</p>
+<p>eventloop监听get channel, 拿到之后会从缓存中取数据。并将数据写入到resp channel中。<br>
+consumer从resp channel中拿到event数据后，又会将其写入到workQueue。</p>
 <p>workQueue也是个channel。client worker会监听该channel上的数据到来，将数据交给Output client进行Publish上报。</p>
 <p>而且，Output收到的是Batch Events，即会一次收到一批Events。BatchSize由各个Output自行决定。</p>
 <p>至此，消息已经递交给了Output组件。</p>
-<h1 id="Ack机制"><a href="#Ack机制" class="headerlink" title="Ack机制"></a>Ack机制</h1><p>filebeat之所以可以保证日志可以at least once的上报，就是基于其Ack机制。</p>
+<h1 id="ack机制"><a class="markdownIt-Anchor" href="#ack机制"></a> Ack机制</h1>
+<p>filebeat之所以可以保证日志可以at least once的上报，就是基于其Ack机制。</p>
 <p>简单来说，Ack机制就是，当Output Publish成功之后会调用ACK，最终Registrar会收到ACK，并修改偏移量。</p>
-<p>而且, Registrar只会在Output调用batch的相关信号时，才改变文件偏移量。其中Batch对外提供了这些信号：<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Batch <span class="keyword">interface</span> &#123;</span><br><span class="line">	Events() []Event</span><br><span class="line"></span><br><span class="line">	<span class="comment">// signals</span></span><br><span class="line">	ACK()</span><br><span class="line">	Drop()</span><br><span class="line">	Retry()</span><br><span class="line">	RetryEvents(events []Event)</span><br><span class="line">	Cancelled()</span><br><span class="line">	CancelledEvents(events []Event)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>而且, Registrar只会在Output调用batch的相关信号时，才改变文件偏移量。其中Batch对外提供了这些信号：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Batch <span class="keyword">interface</span> &#123;</span><br><span class="line">	Events() []Event</span><br><span class="line"></span><br><span class="line">	<span class="comment">// signals</span></span><br><span class="line">	ACK()</span><br><span class="line">	Drop()</span><br><span class="line">	Retry()</span><br><span class="line">	RetryEvents(events []Event)</span><br><span class="line">	Cancelled()</span><br><span class="line">	CancelledEvents(events []Event)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>Output在Publish之后，无论失败，必须调用这些函数中的其中一个。</p>
-<p>以下是Output Publish成功后调用Ack的流程：<br><img src="/img/filebeat/ack.png" alt="ack"></p>
-<p>可以看到其中起核心作用的组件是Ackloop。AckLoop中有一个ackChanList，其中每一个ackChan，对应于转发给Output的一个Batch。<br>每次新建一个Batch，同时会建立一个ackChan，该ackChan会被append到ackChanList中。</p>
+<p>以下是Output Publish成功后调用Ack的流程：<br>
+<img src="/img/filebeat/ack.png" alt="ack"></p>
+<p>可以看到其中起核心作用的组件是Ackloop。AckLoop中有一个ackChanList，其中每一个ackChan，对应于转发给Output的一个Batch。<br>
+每次新建一个Batch，同时会建立一个ackChan，该ackChan会被append到ackChanList中。</p>
 <p>而AckLoop每次只监听处于ackChanList最头部的ackChan。</p>
 <p>当Batch被Output调用Ack后，AckLoop会收到对应ackChan上的事件，并将其最终转发给Registrar。同时，ackChanList将会pop头部的ackChan，继续监听接下来的Ack事件。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>了解了Filebeat的实现原理，我们才有会明白Filebeat配置中各个参数对程序的最终影响。同时，由于FileBeat是At least once的上报，但并不保证Exactly once, 因此一条数据可能会被上报多次，所以接收端需要自行进行去重过滤。</p>
-<h1 id="相关阅读"><a href="#相关阅读" class="headerlink" title="相关阅读"></a>相关阅读</h1><ul>
+<h1 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h1>
+<p>了解了Filebeat的实现原理，我们才有会明白Filebeat配置中各个参数对程序的最终影响。同时，由于FileBeat是At least once的上报，但并不保证Exactly once, 因此一条数据可能会被上报多次，所以接收端需要自行进行去重过滤。</p>
+<h1 id="相关阅读"><a class="markdownIt-Anchor" href="#相关阅读"></a> 相关阅读</h1>
+<ul>
 <li><a href="https://www.cyhone.com/articles/usage-of-filebeat-log-config/">FileBeat-Log相关配置介绍</a></li>
 </ul>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<h1 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h1>
+<ul>
 <li><a href="https://www.elastic.co/guide/en/beats/filebeat/current/how-filebeat-works.html" target="_blank" rel="noopener">How FileBeat Works</a></li>
 <li><a href="https://cloud.tencent.com/developer/article/1367784" target="_blank" rel="noopener">filebeat源码解析</a></li>
 <li><a href="https://niyanchun.com/filebeat-truncate-bug.html" target="_blank" rel="noopener">filebeat数据重复和截断及丢失问题分析</a></li>
@@ -564,7 +582,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#整体架构"><span class="nav-text">整体架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#日志采集流程"><span class="nav-text">日志采集流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#日志定时扫描及异常处理"><span class="nav-text">日志定时扫描及异常处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pipeline的写入"><span class="nav-text">Pipeline的写入</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pipeline的消费过程"><span class="nav-text">Pipeline的消费过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ack机制"><span class="nav-text">Ack机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#相关阅读"><span class="nav-text">相关阅读</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text">参考</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#整体架构"><span class="nav-text"> 整体架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#日志采集流程"><span class="nav-text"> 日志采集流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#日志定时扫描及异常处理"><span class="nav-text"> 日志定时扫描及异常处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pipeline的写入"><span class="nav-text"> Pipeline的写入</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pipeline的消费过程"><span class="nav-text"> Pipeline的消费过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ack机制"><span class="nav-text"> Ack机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text"> 总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#相关阅读"><span class="nav-text"> 相关阅读</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -700,51 +718,7 @@
   
     
       
-<script type="text/x-mathjax-config">
-
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
-      processEscapes: true,
-      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-      equationNumbers: {
-        autoNumber: 'AMS'
-      }
-    }
-  });
-
-  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
-    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
-      if (data.display) {
-        var next = data.script.nextSibling;
-        while (next && next.nodeName.toLowerCase() === '#text') {
-          next = next.nextSibling;
-        }
-        if (next && next.nodeName.toLowerCase() === 'br') {
-          next.parentNode.removeChild(next);
-        }
-      }
-    });
-  });
-
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for (i = 0; i < all.length; i += 1) {
-      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
-      if (element.nodeName.toLowerCase() == 'li') {
-        element = element.parentNode;
-      }
-      element.classList.add('has-jax');
-    }
-  });
-</script>
-<script>
-  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
-    MathJax.Hub.Typeset();
-  }, window.MathJax);
-</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css">
 
     
   

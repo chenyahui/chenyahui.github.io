@@ -58,13 +58,13 @@
   };
 </script>
 
-  <meta name="description" content="前两天把实验室的一台旧台式机装上了Ubuntu Server，打算当作测试服务器使用着玩。装上之后意识到一个严重的问题：实验室电脑连接外网时候需要打开浏览器输入学号进行认证。">
+  <meta name="description" content="前两天把实验室的一台旧台式机装上了Ubuntu Server，打算当作测试服务器使用着玩。 装上之后意识到一个严重的问题：实验室电脑连接外网时候需要打开浏览器输入学号进行认证。">
 <meta name="keywords" content="HTTP">
 <meta property="og:type" content="article">
 <meta property="og:title" content="服务器校园网登录验证解决方案">
 <meta property="og:url" content="http://www.cyhone.com/articles/whu-cs-network-auth/index.html">
 <meta property="og:site_name" content="编程沉思录">
-<meta property="og:description" content="前两天把实验室的一台旧台式机装上了Ubuntu Server，打算当作测试服务器使用着玩。装上之后意识到一个严重的问题：实验室电脑连接外网时候需要打开浏览器输入学号进行认证。">
+<meta property="og:description" content="前两天把实验室的一台旧台式机装上了Ubuntu Server，打算当作测试服务器使用着玩。 装上之后意识到一个严重的问题：实验室电脑连接外网时候需要打开浏览器输入学号进行认证。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/server-net-auth/login.png">
 <meta property="og:image" content="http://www.cyhone.com/img/server-net-auth/fiddler.png">
@@ -73,7 +73,7 @@
 <meta property="og:updated_time" content="2019-11-03T09:22:16.606Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="服务器校园网登录验证解决方案">
-<meta name="twitter:description" content="前两天把实验室的一台旧台式机装上了Ubuntu Server，打算当作测试服务器使用着玩。装上之后意识到一个严重的问题：实验室电脑连接外网时候需要打开浏览器输入学号进行认证。">
+<meta name="twitter:description" content="前两天把实验室的一台旧台式机装上了Ubuntu Server，打算当作测试服务器使用着玩。 装上之后意识到一个严重的问题：实验室电脑连接外网时候需要打开浏览器输入学号进行认证。">
 <meta name="twitter:image" content="http://www.cyhone.com/img/server-net-auth/login.png">
   <link rel="canonical" href="http://www.cyhone.com/articles/whu-cs-network-auth/">
 
@@ -350,17 +350,29 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>前两天把实验室的一台旧台式机装上了Ubuntu Server，打算当作测试服务器使用着玩。<br>装上之后意识到一个严重的问题：实验室电脑连接外网时候需要打开浏览器输入学号进行认证。</p>
+        <p>前两天把实验室的一台旧台式机装上了Ubuntu Server，打算当作测试服务器使用着玩。<br>
+装上之后意识到一个严重的问题：实验室电脑连接外网时候需要打开浏览器输入学号进行认证。</p>
 <a id="more"></a>
 <p>而对于服务器版的Ubuntu Server来说只有黑乎乎的命令行界面。根本没有浏览器可以打开，所以网络认证就无从谈起。。</p>
-<p>就在准备打算重装一个Ubuntu Desktop的时候，某君提醒可以尝试使用curl来访问认证API！经过这个提醒，我打算使用Ubuntu Server<br>16.04 自带的Python3来实现以上功能。</p>
-<p>首先，找到网络认证的网页 <code>http://172.16.254.10/0.htm</code><br><img src="/img/server-net-auth/login.png"><br>随便输入账户密码后提交，同时使用Fiddler抓包数据。<br><img src="/img/server-net-auth/fiddler.png"><br>在上一步中，我提交的账户密码分别为12345678和123456。而可以看到upass字段处的密码显然是经过加密的。</p>
+<p>就在准备打算重装一个Ubuntu Desktop的时候，某君提醒可以尝试使用curl来访问认证API！经过这个提醒，我打算使用Ubuntu Server<br>
+16.04 自带的Python3来实现以上功能。</p>
+<p>首先，找到网络认证的网页 <code>http://172.16.254.10/0.htm</code><br>
+<img src="/img/server-net-auth/login.png"><br>
+随便输入账户密码后提交，同时使用Fiddler抓包数据。<br>
+<img src="/img/server-net-auth/fiddler.png"><br>
+在上一步中，我提交的账户密码分别为12345678和123456。而可以看到upass字段处的密码显然是经过加密的。</p>
 <p>这就很头疼了。。</p>
-<p>这时只能开始一步步地阅读，页面中的js代码了。<br>有关代码如下：<br><img src="/img/server-net-auth/code.png"></p>
-<p>将密码加密部分的代码翻译为Python如下：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def encrypt_pass(upass):</span><br><span class="line">	pid = &apos;2&apos;</span><br><span class="line">	calg=&apos;12345678&apos;</span><br><span class="line">	tmpchar = pid+upass+calg</span><br><span class="line">	return calcMD5(tmpchar)+calg+pid</span><br><span class="line"></span><br><span class="line">def calcMD5(content):</span><br><span class="line">	return hashlib.md5(content.encode(&apos;utf-8&apos;)).hexdigest()</span><br></pre></td></tr></table></figure></p>
-<p>请求Http接口部分使用Python自带的库Urllib来实现。<br>全部代码完成后运行。然后<br><code>ping www.baidu.com</code><br><img src="/img/server-net-auth/pingBaidu.png"></p>
+<p>这时只能开始一步步地阅读，页面中的js代码了。<br>
+有关代码如下：<br>
+<img src="/img/server-net-auth/code.png"></p>
+<p>将密码加密部分的代码翻译为Python如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def encrypt_pass(upass):</span><br><span class="line">	pid = &apos;2&apos;</span><br><span class="line">	calg=&apos;12345678&apos;</span><br><span class="line">	tmpchar = pid+upass+calg</span><br><span class="line">	return calcMD5(tmpchar)+calg+pid</span><br><span class="line"></span><br><span class="line">def calcMD5(content):</span><br><span class="line">	return hashlib.md5(content.encode(&apos;utf-8&apos;)).hexdigest()</span><br></pre></td></tr></table></figure>
+<p>请求Http接口部分使用Python自带的库Urllib来实现。<br>
+全部代码完成后运行。然后<br>
+<code>ping www.baidu.com</code><br>
+<img src="/img/server-net-auth/pingBaidu.png"></p>
 <p>完整的源码在<a href="https://github.com/chenyahui/practice/tree/master/whu-cs-network-auth" target="_blank" rel="noopener">Github</a>上。</p>
-<p>浏览器只是特殊的”Httpclient”。所以不仅仅网络认证可以使用程序的方式来实现，任何可以由浏览器实现的功能都可以程序来实现。</p>
+<p>浏览器只是特殊的&quot;Httpclient&quot;。所以不仅仅网络认证可以使用程序的方式来实现，任何可以由浏览器实现的功能都可以程序来实现。</p>
 
     </div>
 
@@ -607,51 +619,7 @@
   
     
       
-<script type="text/x-mathjax-config">
-
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
-      processEscapes: true,
-      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-      equationNumbers: {
-        autoNumber: 'AMS'
-      }
-    }
-  });
-
-  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
-    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
-      if (data.display) {
-        var next = data.script.nextSibling;
-        while (next && next.nodeName.toLowerCase() === '#text') {
-          next = next.nextSibling;
-        }
-        if (next && next.nodeName.toLowerCase() === 'br') {
-          next.parentNode.removeChild(next);
-        }
-      }
-    });
-  });
-
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for (i = 0; i < all.length; i += 1) {
-      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
-      if (element.nodeName.toLowerCase() == 'li') {
-        element = element.parentNode;
-      }
-      element.classList.add('has-jax');
-    }
-  });
-</script>
-<script>
-  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
-    MathJax.Hub.Typeset();
-  }, window.MathJax);
-</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css">
 
     
   

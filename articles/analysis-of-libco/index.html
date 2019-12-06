@@ -58,19 +58,19 @@
   };
 </script>
 
-  <meta name="description" content="libco是微信后台开发和使用的协程库，同时应该也是极少数的将C/C++协程直接运用到如此大规模的生成环境中的案例了。 在《云风coroutine协程库源码分析》中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。本文将从源码角度着重分析lib">
+  <meta name="description" content="libco是微信后台开发和使用的协程库，同时应该也是极少数的将C/C++协程直接运用到如此大规模的生成环境中的案例了。 在《云风coroutine协程库源码分析》中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。 本文将从源码角度着重分析li">
 <meta name="keywords" content="源码,协程">
 <meta property="og:type" content="article">
 <meta property="og:title" content="微信libco协程库源码分析">
 <meta property="og:url" content="http://www.cyhone.com/articles/analysis-of-libco/index.html">
 <meta property="og:site_name" content="编程沉思录">
-<meta property="og:description" content="libco是微信后台开发和使用的协程库，同时应该也是极少数的将C/C++协程直接运用到如此大规模的生成环境中的案例了。 在《云风coroutine协程库源码分析》中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。本文将从源码角度着重分析lib">
+<meta property="og:description" content="libco是微信后台开发和使用的协程库，同时应该也是极少数的将C/C++协程直接运用到如此大规模的生成环境中的案例了。 在《云风coroutine协程库源码分析》中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。 本文将从源码角度着重分析li">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/libco/co_process_stack.png">
 <meta property="og:updated_time" content="2019-12-05T03:22:07.155Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="微信libco协程库源码分析">
-<meta name="twitter:description" content="libco是微信后台开发和使用的协程库，同时应该也是极少数的将C/C++协程直接运用到如此大规模的生成环境中的案例了。 在《云风coroutine协程库源码分析》中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。本文将从源码角度着重分析lib">
+<meta name="twitter:description" content="libco是微信后台开发和使用的协程库，同时应该也是极少数的将C/C++协程直接运用到如此大规模的生成环境中的案例了。 在《云风coroutine协程库源码分析》中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。 本文将从源码角度着重分析li">
 <meta name="twitter:image" content="http://www.cyhone.com/img/libco/co_process_stack.png">
   <link rel="canonical" href="http://www.cyhone.com/articles/analysis-of-libco/">
 
@@ -348,10 +348,13 @@
 
       
         <p>libco是微信后台开发和使用的协程库，同时应该也是极少数的将C/C++协程直接运用到如此大规模的生成环境中的案例了。</p>
-<p>在<a href="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">《云风coroutine协程库源码分析》</a>中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。<br>本文将从源码角度着重分析libco的高效之道。</p>
+<p>在<a href="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">《云风coroutine协程库源码分析》</a>中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。<br>
+本文将从源码角度着重分析libco的高效之道。</p>
 <p>在正式阅读本文之前，如果对有栈协程的实现原理不是特别了解，建议提前阅读<a href="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">《云风coroutine协程库源码分析》</a>。</p>
-<p>同时，我也提供了<a href="https://github.com/chenyahui/AnnotatedCode/tree/master/libco" target="_blank" rel="noopener">libco注释版</a>，用以辅助理解libco的源码<br><a id="more"></a></p>
-<h1 id="libco和coroutine的基本差异"><a href="#libco和coroutine的基本差异" class="headerlink" title="libco和coroutine的基本差异"></a>libco和coroutine的基本差异</h1><p>相比于coroutine协程库, libco整体更成熟，性能更高，使用上也更加方便。主要体现在以下几个方面：</p>
+<p>同时，我也提供了<a href="https://github.com/chenyahui/AnnotatedCode/tree/master/libco" target="_blank" rel="noopener">libco注释版</a>，用以辅助理解libco的源码</p>
+<a id="more"></a>
+<h1 id="libco和coroutine的基本差异"><a class="markdownIt-Anchor" href="#libco和coroutine的基本差异"></a> libco和coroutine的基本差异</h1>
+<p>相比于coroutine协程库, libco整体更成熟，性能更高，使用上也更加方便。主要体现在以下几个方面：</p>
 <ol>
 <li>协程上下文切换性能更好</li>
 <li>协程在IO阻塞时可自动切换，包括gethostname、mysqlclient等。</li>
@@ -367,7 +370,8 @@
 </ol>
 <p>除此之外，出于性能考虑，libco不使用ucontext进行用户态上下文的切换，而是自行写了一套汇编来进行上下文切换。</p>
 <p>另外，libco利用<code>co_create</code>创建的协程, 需要自行调用<code>co_release</code>进行释放。这里和coroutine不太一样。</p>
-<h1 id="协程上下文切换性能更好"><a href="#协程上下文切换性能更好" class="headerlink" title="协程上下文切换性能更好"></a>协程上下文切换性能更好</h1><p>我们之前提到，云风的coroutine库使用ucontext来实现用户态的上下文切换，这也是实现协程的关键。</p>
+<h1 id="协程上下文切换性能更好"><a class="markdownIt-Anchor" href="#协程上下文切换性能更好"></a> 协程上下文切换性能更好</h1>
+<p>我们之前提到，云风的coroutine库使用ucontext来实现用户态的上下文切换，这也是实现协程的关键。</p>
 <p>而<strong>libco基于性能优化的考虑，没有使用ucontext</strong>，而是自行编写了一套汇编来处理上下文的切换, 具体代码在<a href="https://github.com/Tencent/libco/blob/master/coctx_swap.S" target="_blank" rel="noopener">coctx_swap.S</a>。</p>
 <p>libco的上下文切换大体只保存和交换了两类东西：</p>
 <ol>
@@ -382,14 +386,17 @@
 <p>此外，libco的上下文切换只支持x86，不支持其他架构的cpu，这是因为在服务端也几乎都是x86架构的，不用太考虑CPU的通用性。</p>
 <p>据<a href="https://www.zhihu.com/question/52193579/answer/156692295" target="_blank" rel="noopener">知乎网友的实验</a>证明：libco的上下文切换效率大致是ucontext的3.6倍。</p>
 <p>总结来说，libco牺牲了通用性，把运营环境中用不到的寄存器拷贝去掉，对代码进行了极致优化，但是换取到了很高的性能。</p>
-<h1 id="协程在IO阻塞时可自动切换"><a href="#协程在IO阻塞时可自动切换" class="headerlink" title="协程在IO阻塞时可自动切换"></a>协程在IO阻塞时可自动切换</h1><p>我们希望的是，当协程中遇到阻塞IO的调用时，协程可以自行yield出去，等到调用结束，可以再resume回来，这些流程不用用户关心。</p>
+<h1 id="协程在io阻塞时可自动切换"><a class="markdownIt-Anchor" href="#协程在io阻塞时可自动切换"></a> 协程在IO阻塞时可自动切换</h1>
+<p>我们希望的是，当协程中遇到阻塞IO的调用时，协程可以自行yield出去，等到调用结束，可以再resume回来，这些流程不用用户关心。</p>
 <p><strong>然而难点在于：</strong> 对于自己代码中的阻塞类调用尚且容易改造，可以把它改成非阻塞IO，然后框架内部进行yield和resume。但是大量三方库也存在着阻塞IO调用，如知名的mysqlclient就是阻塞IO，对于此类的IO调用，我们无法直接改造，不便于和我们现有的协程框架进行配合。</p>
 <p>然而，libco的协程不仅可以做到IO阻塞协程的自动切换，甚至包括三方库的阻塞IO调用都可以零改造的自动切换。</p>
 <p>libco巧妙运用了Linux的hook技术，同时配合了epoll事件循环，完美的完成了阻塞IO的协程化改造。</p>
 <p>所谓系统函数hook，简单来说，就是替换原有的系统函数，例如read、write等，替换为自己的逻辑。所有关于hook系统函数的代码都在<code>co_hook_sys_call.cpp</code>中可以看到。</p>
 <p>在分析具体代码之前，有个点需要先注意下：<strong>libco的hook逻辑用于client行为的阻塞类IO调用</strong>。</p>
 <p>client行为指的是，本地主动connect一个远程的服务，使用的时候一般先往socket中write数据，然后再read回包这种形式。</p>
-<h2 id="read函数的hook流程"><a href="#read函数的hook流程" class="headerlink" title="read函数的hook流程"></a>read函数的hook流程</h2><p>我们以read函数为例，看下都做了什么：<br><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> read( <span class="keyword">int</span> fd, <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> nbyte )</span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">pollfd</span> <span class="title">pf</span> = &#123;</span> <span class="number">0</span> &#125;;</span><br><span class="line">	pf.fd = fd;</span><br><span class="line">	pf.events = ( POLLIN | POLLERR | POLLHUP );</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> pollret = poll( &amp;pf,<span class="number">1</span>,timeout );</span><br><span class="line"></span><br><span class="line">	<span class="keyword">ssize_t</span> readret = g_sys_read_func( fd,(<span class="keyword">char</span>*)buf ,nbyte );</span><br><span class="line">	<span class="keyword">return</span> readret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="read函数的hook流程"><a class="markdownIt-Anchor" href="#read函数的hook流程"></a> read函数的hook流程</h2>
+<p>我们以read函数为例，看下都做了什么：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> read( <span class="keyword">int</span> fd, <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> nbyte )</span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">pollfd</span> <span class="title">pf</span> = &#123;</span> <span class="number">0</span> &#125;;</span><br><span class="line">	pf.fd = fd;</span><br><span class="line">	pf.events = ( POLLIN | POLLERR | POLLHUP );</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> pollret = poll( &amp;pf,<span class="number">1</span>,timeout );</span><br><span class="line"></span><br><span class="line">	<span class="keyword">ssize_t</span> readret = g_sys_read_func( fd,(<span class="keyword">char</span>*)buf ,nbyte );</span><br><span class="line">	<span class="keyword">return</span> readret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上述代码对原有代码进行了简略，只保留了最核心的hook逻辑。</p>
 <p>注意：这里poll函数实际上也是被hook过的函数，在这个函数中，最终会交由<code>co_poll_inner</code>函数处理。</p>
 <p><code>co_poll_inner</code>函数主要有三个作用：</p>
@@ -399,9 +406,11 @@
 <li>调用co_yield_ct, 让出该协程。</li>
 </ol>
 <p>可以看到，调用poll函数之后，相关事件注册到了EventLoop中后，该协程就yield走了。</p>
-<p>那么，什么时候，协程会再resume回来呢？<br>答案是：<strong>当epoll相关事件触发或者超时触发时</strong>，会再次resume该协程，处理接下来的流程。</p>
+<p>那么，什么时候，协程会再resume回来呢？<br>
+答案是：<strong>当epoll相关事件触发或者超时触发时</strong>，会再次resume该协程，处理接下来的流程。</p>
 <p>协程resume之后，会接着处理poll之后的逻辑，也就是调用了<code>g_sys_read_func</code>。这个函数就是真实的linux的read函数。</p>
-<p>libco使用dlsym函数获取了系统函数, 如下：<br><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">ssize_t</span> <span class="params">(*<span class="keyword">read_pfn_t</span>)</span><span class="params">(<span class="keyword">int</span> fildes, <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> nbyte)</span></span>;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">read_pfn_t</span> g_sys_read_func = (<span class="keyword">read_pfn_t</span>)dlsym(RTLD_NEXT,<span class="string">"read"</span>);</span><br></pre></td></tr></table></figure></p>
+<p>libco使用dlsym函数获取了系统函数, 如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">ssize_t</span> <span class="params">(*<span class="keyword">read_pfn_t</span>)</span><span class="params">(<span class="keyword">int</span> fildes, <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> nbyte)</span></span>;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">read_pfn_t</span> g_sys_read_func = (<span class="keyword">read_pfn_t</span>)dlsym(RTLD_NEXT,<span class="string">"read"</span>);</span><br></pre></td></tr></table></figure>
 <p>这个逻辑就非常巧妙了：</p>
 <ul>
 <li>从内部来看，本质上是个异步流程，在EventLoop中注册相关事件，当事件触发时就执行接下来的处理函数。</li>
@@ -410,13 +419,23 @@
 <p>这个就是libco的巧妙之处了，通过hook系统函数的方式，几乎无感知的改造了阻塞IO调用。</p>
 <p>此外，libco也hook了系统的socket函数。在libco实现的socket函数中，会将fd变成非阻塞的(O_NONBLOCK)。</p>
 <p>那么，为什么libco连mysql_client都可以一并协程化改造呢？</p>
-<p>这是因为mysql_client里面的具体网络IO实现，也是用的Linux的那些系统函数connect、read、write这些函数。<br>所以，libco只用hook十几个socket相关的api，就可以将用到的三方库中的IO调用也一起协程化改造了。</p>
-<h2 id="read的超时处理"><a href="#read的超时处理" class="headerlink" title="read的超时处理"></a>read的超时处理</h2><p>libco的read函数和普通的阻塞IO中的read函数，行为上稍微有一点不一样。</p>
-<p>普通的read函数，如果一直没有消息可读，则会一直阻塞。<br>但是libco中的read函数，如果1秒钟之内socket依然不可读，则就认为read失败，返回-1。这也是read中注册超时事件的原因。</p>
-<p>在client侧网络的IO调用里面，一般行为都是，write请求，然后read回包。<br>所以一定是会引入一个超时判断，判断该次调用是否超时。<br>同时，还要保证要保证read的行为和语义，与原有的系统函数保持一致。毕竟hook的目标是mysql_client这种三方库。<br>所以这个超时只能做在read内部，把超时当成一次read失败处理。</p>
+<p>这是因为mysql_client里面的具体网络IO实现，也是用的Linux的那些系统函数connect、read、write这些函数。<br>
+所以，libco只用hook十几个socket相关的api，就可以将用到的三方库中的IO调用也一起协程化改造了。</p>
+<h2 id="read的超时处理"><a class="markdownIt-Anchor" href="#read的超时处理"></a> read的超时处理</h2>
+<p>libco的read函数和普通的阻塞IO中的read函数，行为上稍微有一点不一样。</p>
+<p>普通的read函数，如果一直没有消息可读，则会一直阻塞。<br>
+但是libco中的read函数，如果1秒钟之内socket依然不可读，则就认为read失败，返回-1。这也是read中注册超时事件的原因。</p>
+<p>在client侧网络的IO调用里面，一般行为都是，write请求，然后read回包。<br>
+所以一定是会引入一个超时判断，判断该次调用是否超时。<br>
+同时，还要保证要保证read的行为和语义，与原有的系统函数保持一致。毕竟hook的目标是mysql_client这种三方库。<br>
+所以这个超时只能做在read内部，把超时当成一次read失败处理。</p>
 <p>这样即能保证read原有行为，也能保证read不会一直阻塞。</p>
-<p>但这里有个问题：libco把read的超时时间硬编码为1s，那么所有被hook的阻塞IO的read，一旦超过1s，就会被认为失败。<br>但对于某些特殊场景，会存在一些耗时请求，server端的处理时间确实有可能会超过1s。<br>对于这种情况，libco似乎也没有提供一个自定义超时时间的办法。</p>
-<h2 id="stCoEpoll-t结构体分析"><a href="#stCoEpoll-t结构体分析" class="headerlink" title="stCoEpoll_t结构体分析"></a>stCoEpoll_t结构体分析</h2><p>libco的事件循环同时支持epoll和kqueue，libco会在每个线程维护一个<code>stCoEpoll_t</code>对象。<br><code>stCoEpoll_t</code>结构体中维护了事件循环需要的数据。</p>
+<p>但这里有个问题：libco把read的超时时间硬编码为1s，那么所有被hook的阻塞IO的read，一旦超过1s，就会被认为失败。<br>
+但对于某些特殊场景，会存在一些耗时请求，server端的处理时间确实有可能会超过1s。<br>
+对于这种情况，libco似乎也没有提供一个自定义超时时间的办法。</p>
+<h2 id="stcoepoll_t结构体分析"><a class="markdownIt-Anchor" href="#stcoepoll_t结构体分析"></a> stCoEpoll_t结构体分析</h2>
+<p>libco的事件循环同时支持epoll和kqueue，libco会在每个线程维护一个<code>stCoEpoll_t</code>对象。<br>
+<code>stCoEpoll_t</code>结构体中维护了事件循环需要的数据。</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stCoEpoll_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">int</span> iEpollFd;</span><br><span class="line">	co_epoll_res *result; </span><br><span class="line"></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">stTimeout_t</span> *<span class="title">pTimeout</span>;</span>  </span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">stTimeoutItemLink_t</span> *<span class="title">pstTimeoutList</span>;</span> </span><br><span class="line"></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">stTimeoutItemLink_t</span> *<span class="title">pstActiveList</span>;</span> </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <ol>
 <li>iEpollFd：epoll或者kqueue的fd</li>
@@ -426,7 +445,11 @@
 <li>pstActiveList: 本轮触发的事件。</li>
 </ol>
 <p>此外，libco使用了时间轮来做超时管理，关于时间轮的原理分析网上比较多，这块也不是libco最核心的东西，就不在本文讨论了。</p>
-<h1 id="协程可以嵌套创建"><a href="#协程可以嵌套创建" class="headerlink" title="协程可以嵌套创建"></a>协程可以嵌套创建</h1><p>libco的协程可以嵌套创建，协程内部可以创建一个新的协程。这里其实没有什么黑科技，只不过云风coroutine中不能实现协程嵌套创建，所以在这里单独讲下。<br>libco使用了一个栈维护协程调用过程。<br>我们模拟下这个调用栈的运行过程, 如下图所示：<br><img src="/img/libco/co_process_stack.png" alt="协程调用栈"></p>
+<h1 id="协程可以嵌套创建"><a class="markdownIt-Anchor" href="#协程可以嵌套创建"></a> 协程可以嵌套创建</h1>
+<p>libco的协程可以嵌套创建，协程内部可以创建一个新的协程。这里其实没有什么黑科技，只不过云风coroutine中不能实现协程嵌套创建，所以在这里单独讲下。<br>
+libco使用了一个栈维护协程调用过程。<br>
+我们模拟下这个调用栈的运行过程, 如下图所示：<br>
+<img src="/img/libco/co_process_stack.png" alt="协程调用栈"></p>
 <p>图中绿色方块代表栈顶，同时也是当前正在运行的协程。</p>
 <ol>
 <li>当在主协程中co_resume到A协程时，当前运行的协程变更为A，同时协程A入栈。</li>
@@ -434,9 +457,12 @@
 <li>协程B中调用co_yield_ct。协程B出栈，同时当前协程切换到协程A。</li>
 <li>协程A中调用co_yield_ct。协程B出栈，同时当前协程切换到主协程。</li>
 </ol>
-<p>libco的协程调用栈维护stCoRoutineEnv_t结构体中，如下：<br><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stCoRoutineEnv_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	stCoRoutine_t *pCallStack[ <span class="number">128</span> ]; </span><br><span class="line">	<span class="keyword">int</span> iCallStackSize; </span><br><span class="line">	stCoEpoll_t *pEpoll; </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p>其中pCallStack即是协程的调用栈，从参数可以看出，libco只能支持128层协程的嵌套调用，这个深度已经足够使用了。<br>iCallStackSize代表当前的调用深度。</p>
-<h1 id="libco的运营经验"><a href="#libco的运营经验" class="headerlink" title="libco的运营经验"></a>libco的运营经验</h1><p>libco的负责人leiffyli在purecpp大会上分享了<a href="http://purecpp.org/purecpp/static/64a819e99584452aab70a7f9c307717f.pdf" target="_blank" rel="noopener">libco的一些运营经验</a>，个人觉得还是非常值得学习的，这里直接引用过来。</p>
+<p>libco的协程调用栈维护stCoRoutineEnv_t结构体中，如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stCoRoutineEnv_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	stCoRoutine_t *pCallStack[ <span class="number">128</span> ]; </span><br><span class="line">	<span class="keyword">int</span> iCallStackSize; </span><br><span class="line">	stCoEpoll_t *pEpoll; </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>其中pCallStack即是协程的调用栈，从参数可以看出，libco只能支持128层协程的嵌套调用，这个深度已经足够使用了。<br>
+iCallStackSize代表当前的调用深度。</p>
+<h1 id="libco的运营经验"><a class="markdownIt-Anchor" href="#libco的运营经验"></a> libco的运营经验</h1>
+<p>libco的负责人leiffyli在purecpp大会上分享了<a href="http://purecpp.org/purecpp/static/64a819e99584452aab70a7f9c307717f.pdf" target="_blank" rel="noopener">libco的一些运营经验</a>，个人觉得还是非常值得学习的，这里直接引用过来。</p>
 <blockquote>
 <p>协程栈大小有限，接入协程的服务谨慎使用栈空间；</p>
 </blockquote>
@@ -452,10 +478,12 @@
 <blockquote>
 <p>过载保护。对于基于事件循环的协程调度框架，建议监控完成一次事件循环的时间，若此时间过长，会导致其它协程被延迟调度，需要与上层框架配合，减少新任务的调度；</p>
 </blockquote>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>libco巧妙的利用了hook技术，将协程的威力发挥的更加彻底，可以改良C++的RPC框架异步化后的回调痛苦。整个库除了基本的协程函数，又加入类pthread的一些辅助功能，让协程的通信更加好用。</p>
+<h1 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h1>
+<p>libco巧妙的利用了hook技术，将协程的威力发挥的更加彻底，可以改良C++的RPC框架异步化后的回调痛苦。整个库除了基本的协程函数，又加入类pthread的一些辅助功能，让协程的通信更加好用。</p>
 <p>然而遗憾的是，libco在开源方面做得并不是很好，后续bug维护和功能更新都不是很活跃。</p>
 <p>但好消息是，据leiffyli的分享，目前有一些libco有一些实验中的特性，如事件回调、类golang的channel等，目前正在内部使用。相信后期也会同步到开源社区中。</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<h1 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h1>
+<ul>
 <li><a href="http://purecpp.org/purecpp/static/64a819e99584452aab70a7f9c307717f.pdf" target="_blank" rel="noopener">leiffyli：Libco分享</a></li>
 <li><a href="https://www.infoq.cn/article/CplusStyleCorourtine-At-Wechat" target="_blank" rel="noopener">C/C++ 协程库 libco：微信怎样漂亮地完成异步化改造</a></li>
 <li><a href="https://www.zhihu.com/question/52193579/answer/156692295" target="_blank" rel="noopener">腾讯开源的 libco 号称千万级协程支持，那个共享栈模式原理是什么? - 江哈莫夫斯基的回答</a></li>
@@ -579,7 +607,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#libco和coroutine的基本差异"><span class="nav-text">libco和coroutine的基本差异</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#协程上下文切换性能更好"><span class="nav-text">协程上下文切换性能更好</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#协程在IO阻塞时可自动切换"><span class="nav-text">协程在IO阻塞时可自动切换</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#read函数的hook流程"><span class="nav-text">read函数的hook流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#read的超时处理"><span class="nav-text">read的超时处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stCoEpoll-t结构体分析"><span class="nav-text">stCoEpoll_t结构体分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#协程可以嵌套创建"><span class="nav-text">协程可以嵌套创建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#libco的运营经验"><span class="nav-text">libco的运营经验</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text">参考</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#libco和coroutine的基本差异"><span class="nav-text"> libco和coroutine的基本差异</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#协程上下文切换性能更好"><span class="nav-text"> 协程上下文切换性能更好</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#协程在io阻塞时可自动切换"><span class="nav-text"> 协程在IO阻塞时可自动切换</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#read函数的hook流程"><span class="nav-text"> read函数的hook流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#read的超时处理"><span class="nav-text"> read的超时处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stcoepoll_t结构体分析"><span class="nav-text"> stCoEpoll_t结构体分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#协程可以嵌套创建"><span class="nav-text"> 协程可以嵌套创建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#libco的运营经验"><span class="nav-text"> libco的运营经验</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text"> 总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -715,51 +743,7 @@
   
     
       
-<script type="text/x-mathjax-config">
-
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
-      processEscapes: true,
-      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-      equationNumbers: {
-        autoNumber: 'AMS'
-      }
-    }
-  });
-
-  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
-    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
-      if (data.display) {
-        var next = data.script.nextSibling;
-        while (next && next.nodeName.toLowerCase() === '#text') {
-          next = next.nextSibling;
-        }
-        if (next && next.nodeName.toLowerCase() === 'br') {
-          next.parentNode.removeChild(next);
-        }
-      }
-    });
-  });
-
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for (i = 0; i < all.length; i += 1) {
-      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
-      if (element.nodeName.toLowerCase() == 'li') {
-        element = element.parentNode;
-      }
-      element.classList.add('has-jax');
-    }
-  });
-</script>
-<script>
-  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
-    MathJax.Hub.Typeset();
-  }, window.MathJax);
-</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css">
 
     
   
