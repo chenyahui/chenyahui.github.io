@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.cyhone.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":"default"},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: true,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}
+  };
+</script>
+
+  <meta name="description" content="最近我用Golang开发了一个可以将数据库每张表的各个列信息转化成文档的小工具。开发的缘由是因为写后端时，经常需要为数据库写说明文档，对于稍微有些规模的项目来说，就动辄几十张上百张数据表，开发人员在文档中不断的写各个列的列名、类型、描述实在是无聊、枯燥和苦不堪言。所以就有了这个小工具的诞生。 项目地址在这里">
+<meta name="keywords" content="Golang,数据库">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自动生成数据库文档小工具的诞生">
+<meta property="og:url" content="http://www.cyhone.com/articles/db-doc-generator/index.html">
+<meta property="og:site_name" content="编程沉思录">
+<meta property="og:description" content="最近我用Golang开发了一个可以将数据库每张表的各个列信息转化成文档的小工具。开发的缘由是因为写后端时，经常需要为数据库写说明文档，对于稍微有些规模的项目来说，就动辄几十张上百张数据表，开发人员在文档中不断的写各个列的列名、类型、描述实在是无聊、枯燥和苦不堪言。所以就有了这个小工具的诞生。 项目地址在这里">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.cyhone.com/img/db_doc/markdown_preview.png">
+<meta property="og:image" content="http://www.cyhone.com/img/db_doc/markdown_preview.png">
+<meta property="og:updated_time" content="2019-11-03T09:22:16.606Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自动生成数据库文档小工具的诞生">
+<meta name="twitter:description" content="最近我用Golang开发了一个可以将数据库每张表的各个列信息转化成文档的小工具。开发的缘由是因为写后端时，经常需要为数据库写说明文档，对于稍微有些规模的项目来说，就动辄几十张上百张数据表，开发人员在文档中不断的写各个列的列名、类型、描述实在是无聊、枯燥和苦不堪言。所以就有了这个小工具的诞生。 项目地址在这里">
+<meta name="twitter:image" content="http://www.cyhone.com/img/db_doc/markdown_preview.png">
+
+<link rel="canonical" href="http://www.cyhone.com/articles/db-doc-generator/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>自动生成数据库文档小工具的诞生 | 编程沉思录</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ec99ce8d168c9260e5d744401582acc9";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">编程沉思录</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">一些思考和总结</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">10</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">24</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">26</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/chenyahui" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/db-doc-generator/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          自动生成数据库文档小工具的诞生
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-01-30 19:00:54" itemprop="dateCreated datePublished" datetime="2018-01-30T19:00:54+08:00">2018-01-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-03 17:22:16" itemprop="dateModified" datetime="2019-11-03T17:22:16+08:00">2019-11-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/开发经验/" itemprop="url" rel="index">
+                    <span itemprop="name">开发经验</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/db-doc-generator/" class="post-meta-item leancloud_visitors" data-flag-title="自动生成数据库文档小工具的诞生" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/articles/db-doc-generator/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/articles/db-doc-generator/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近我用Golang开发了一个可以将数据库每张表的各个列信息转化成文档的小工具。开发的缘由是因为写后端时，经常需要为数据库写说明文档，对于稍微有些规模的项目来说，就动辄几十张上百张数据表，开发人员在文档中不断的写各个列的列名、类型、描述实在是无聊、枯燥和苦不堪言。所以就有了这个小工具的诞生。</p>
+<p>项目地址在<a href="https://github.com/chenyahui/db_doc_generator" target="_blank" rel="noopener">这里</a></p>
+<a id="more"></a>
+<h1 id="工具使用介绍"><a class="markdownIt-Anchor" href="#工具使用介绍"></a> 工具使用介绍</h1>
+<p>工具用golang开发的，所以直接使用release的可执行文件就可以, 无需复杂任何编译安装。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dbdoc -c config.json</span><br></pre></td></tr></table></figure>
+<p>在config.json文件中，按照格式配置好数据库信息，具体的配置方法如下:</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"db_info"</span>: &#123;</span><br><span class="line">    "db_type": "mysql",  // required</span><br><span class="line">    "ip_port": "127.0.0.1:3306", // required</span><br><span class="line">    "username": "root", // required</span><br><span class="line">    "password": "", // required</span><br><span class="line">    "schema": "cms" // required</span><br><span class="line">  &#125;,</span><br><span class="line">  "includes": [  // optional</span><br><span class="line">  ],</span><br><span class="line">  "excludes": [  // optional</span><br><span class="line">  ],</span><br><span class="line">  "template_path": "", // optional</span><br><span class="line">  "out_path": ""  // optional</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单两步，就可以自动生成数据库的说明文档了。如下图<br>
+<img src="/img/db_doc/markdown_preview.png" alt="展示图"></p>
+<p>展示图中的文档模板是使用工具内置的markdown模板</p>
+<h1 id="开发过程"><a class="markdownIt-Anchor" href="#开发过程"></a> 开发过程</h1>
+<p>整个项目的思路其实非常简单，说起来其实就三步</p>
+<ol>
+<li>读取数据库的各个表</li>
+<li>依次读取每个表的列信息</li>
+<li>将列信息转化成markdown</li>
+</ol>
+<p>虽然步骤简单，但是还是有些值得谈的东西。</p>
+<h2 id="数据库适配"><a class="markdownIt-Anchor" href="#数据库适配"></a> 数据库适配</h2>
+<p>目前这个小工具支持MySQL和SQL Server, 这俩数据库在SQL语句上有着很大的区别。比如<br>
+MySQL的读取当前数据库下的所有表名的语句是<code>show tables</code>，而SQL Server的是<code>SELECT Distinct TABLE_NAME FROM information_schema.TABLES</code>。除此之外，两个数据库的连接语句，查询列信息的语句，都有很大区别。<br>
+所以适配各个数据库，让这个工具支持多个数据库，是件非常复杂的事情。</p>
+<p>我目前的做法给每个用到的SQL语句做一个工厂方法，给定一个数据库的类型，返回对应的sql语句。这种方法虽然复杂繁琐，但是有效。好在我们用到的SQL语句也不多，所以效率上也算还好。</p>
+<p>目前还在调研各大ORM库是怎么实现的这个功能。这个也是以后着重要做的功能。</p>
+<h2 id="文档模板"><a class="markdownIt-Anchor" href="#文档模板"></a> 文档模板</h2>
+<p>我最初的本意是直接将信息转化成固定的markdown格式就可以了，想想既然都提取了表信息为何不做些更自由的做法——用户可以自己定义文档的格式。<br>
+比如，这个工具默认生成的格式是这样的:<br>
+<img src="/img/db_doc/markdown_preview.png" alt="markdown_preview"></p>
+<p>但是万一用户不想用这个格式，想给每个表格的标题加个编号，或者给每一列加个编号啥的。那这个工具生成的结果就完全没法用了。<br>
+不能将我的喜好强加给用户，那么，可以给用户提供足够自由的接口。</p>
+<p>所以我提供了一个扩展的做法, 用户可以在配置文件的<code>template_path</code>项，配置一个自己定义的文档模板给工具。如果不提供的话，可以使用默认的模板，如下:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;- .schema&#125;&#125; Document</span><br><span class="line">&#123;&#123;range .tables -&#125;&#125;</span><br><span class="line"># &#123;&#123;.TableName&#125;&#125;</span><br><span class="line">|column|type|description|</span><br><span class="line">| ------| ------ | ------ |</span><br><span class="line">&#123;&#123;- range .Columns&#125;&#125;</span><br><span class="line">|&#123;&#123;.ColumnName&#125;&#125;|&#123;&#123;.ColumnType&#125;&#125;|&#123;&#123;.Description -&#125;&#125;|</span><br><span class="line">&#123;&#123;- end&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;end&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>这个模板的语法直接用的是golang标准库的<code>text/template</code>, 文档在<a href="https://golang.org/pkg/text/template/" target="_blank" rel="noopener">这里</a>。开始我本来想着随便搜个模板引擎用下，没想到golang直接在标准库里自带了。再次感叹下golang真是为工业化而生。</p>
+<p>有了这个文档模板的功能，这个工具的想象空间变得很大。文档的格式不再局限于markdown了，用户可以随便定义文档的格式, html、json都行。当然word的doc格式就是另外一个次元的事情了，我也在考虑是否以后加入进去。</p>
+<h2 id="以后要加的功能"><a class="markdownIt-Anchor" href="#以后要加的功能"></a> 以后要加的功能</h2>
+<ul>
+<li>支持更多的数据库.</li>
+<li>支持导出格式为Word、Excel.</li>
+<li>更人性化的命令行接口。目前我为了图省事，就直接传了个-c。后期打算做成MySQL那样直观的接口</li>
+</ul>
+<h1 id="谈谈golang"><a class="markdownIt-Anchor" href="#谈谈golang"></a> 谈谈Golang</h1>
+<p>这个项目是我用Golang做的第一个项目，Golang在这种跨平台小工具，且完全无需考虑安装依赖的情况下是最好的选择了。Golang的熟悉之后用起来几乎和Python一样快速。我在<code>文档模板</code>一节感叹，Golang真是为工业化而生，把很多在其他语言里是三方库的东西直接做到了标准库。但是另一方面，由于Golang中模板和泛型的缺失，有些东西本该内置的又没有了。比如判断一个元素是否在数组中的方法InArray,String的IsBlank方法，都需要用户在项目中再单独写一遍。实在是无法理解</p>
+<p>总而言之，如果以后有类似的小工具的需求，我依然会选择Golang或者Python作为首选的开发语言。</p>
+
+    </div>
+
+    
+    
+    
+    <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
+        <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber_search.png" alt="cyhone wechat" style="width: 750px;max-width:100%;">
+    <!--div>欢迎关注公众号【编程沉思录】</div-->
+    </div>
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>cyhone
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://www.cyhone.com/articles/db-doc-generator/" title="自动生成数据库文档小工具的诞生">http://www.cyhone.com/articles/db-doc-generator/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Golang/" rel="tag"><i class="fa fa-tag"></i> Golang</a>
+              <a href="/tags/数据库/" rel="tag"><i class="fa fa-tag"></i> 数据库</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/2017-reading-records/" rel="prev" title="2017年读了哪些书？">
+      <i class="fa fa-chevron-left"></i> 2017年读了哪些书？
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/analysis-of-muduo/" rel="next" title="muduo源码剖析">
+      muduo源码剖析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#工具使用介绍"><span class="nav-text"> 工具使用介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#开发过程"><span class="nav-text"> 开发过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据库适配"><span class="nav-text"> 数据库适配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文档模板"><span class="nav-text"> 文档模板</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#以后要加的功能"><span class="nav-text"> 以后要加的功能</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#谈谈golang"><span class="nav-text"> 谈谈Golang</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="cyhone"
+      src="/img/avatar.jpg">
+  <p class="site-author-name" itemprop="name">cyhone</p>
+  <div class="site-description" itemprop="description">每有会意，便欣然忘食</div>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chenyahui" title="GitHub → https://github.com/chenyahui" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cyhone@qq.com" title="E-Mail → mailto:cyhone@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhuanlan.zhihu.com/ruminations-on-code" title="Zhihu → https://zhuanlan.zhihu.com/ruminations-on-code" rel="noopener" target="_blank"><i class="fa fa-fw fa-custom zhihu"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="rss → /atom.xml"><i class="fa fa-fw fa-rss"></i></a>
+      </span>
+  </div>
+
+
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
+    <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber.jpg" alt="cyhone wechat" style="width: 200px; max-width: 100%;">
+    <div style="color: #999;font-size: 14px;">
+      欢迎关注公众号【编程沉思录】
+    </div>
+</div>
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">豫ICP备18011028号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cyhone</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
+    appKey: 'DVy4Enbaa5UpxREeLinbWIcG',
+    placeholder: "请在上方填写您的邮箱，邮件不会被公开",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
