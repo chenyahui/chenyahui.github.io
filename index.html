@@ -33,7 +33,7 @@
     fancybox: false,
     mediumzoom: false,
     lazyload: false,
-    pangu: true,
+    pangu: false,
     comments: {"style":"tabs","active":null,"storage":true,"nav":null},
     algolia: {
       appID: '',
@@ -212,7 +212,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/articles/usage-of-filebeat-log-config/" class="post-title-link" itemprop="url">FileBeat-Log相关配置介绍</a>
+            <a href="/articles/usage-of-filebeat-log-config/" class="post-title-link" itemprop="url">FileBeat-Log 相关配置介绍</a>
         </h2>
 
         <div class="post-meta">
@@ -229,7 +229,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-05 11:22:07" itemprop="dateModified" datetime="2019-12-05T11:22:07+08:00">2019-12-05</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -244,7 +244,7 @@
             </span>
 
           
-            <span id="/articles/usage-of-filebeat-log-config/" class="post-meta-item leancloud_visitors" data-flag-title="FileBeat-Log相关配置介绍" title="阅读次数">
+            <span id="/articles/usage-of-filebeat-log-config/" class="post-meta-item leancloud_visitors" data-flag-title="FileBeat-Log 相关配置介绍" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -263,12 +263,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文主要介绍Filebeat 7.5版本中Log相关的各个配置项的含义以及其应用场景。</p>
-<p>一般情况下，我们使用log input的方式如下，只需要指定一系列paths即可。</p>
+          <p>本文主要介绍 Filebeat 7.5 版本中 Log 相关的各个配置项的含义以及其应用场景。</p>
+<p>一般情况下，我们使用 log input 的方式如下，只需要指定一系列 paths 即可。</p>
 <figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">filebeat.inputs:</span></span><br><span class="line"><span class="attr">- type:</span> <span class="string">log</span></span><br><span class="line"><span class="attr">  paths:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/var/log/messages</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/var/log/*.log</span></span><br></pre></td></tr></table></figure>
-<p>但其实除了基本的paths配置外，log input还有大概十几个配置项需要我们关注。</p>
-<p>这些配置项或多或少都会影响到Filebeat的使用方式以及性能。虽然其默认值基本足够日常使用，但是还是需要深刻理解每个配置项背后的含义，这样才能够对其完全把控。</p>
-<p>同时，在filebeat的日常线上运维中，也会涉及到这些配置参数的调节。</p>
+<p>但其实除了基本的 paths 配置外，log input 还有大概十几个配置项需要我们关注。</p>
+<p>这些配置项或多或少都会影响到 Filebeat 的使用方式以及性能。虽然其默认值基本足够日常使用，但是还是需要深刻理解每个配置项背后的含义，这样才能够对其完全把控。</p>
+<p>同时，在 filebeat 的日常线上运维中，也会涉及到这些配置参数的调节。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/articles/usage-of-filebeat-log-config/#more" rel="contents">
@@ -309,7 +309,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/articles/analysis-of-redis-ae/" class="post-title-link" itemprop="url">Redis事件循环器(AE)实现剖析</a>
+            <a href="/articles/analysis-of-redis-ae/" class="post-title-link" itemprop="url">Redis 事件循环器 (AE) 实现剖析</a>
         </h2>
 
         <div class="post-meta">
@@ -318,10 +318,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2019-11-20 11:16:54 / 修改时间：11:18:33" itemprop="dateCreated datePublished" datetime="2019-11-20T11:16:54+08:00">2019-11-20</time>
+              <time title="创建时间：2019-11-20 11:16:54" itemprop="dateCreated datePublished" datetime="2019-11-20T11:16:54+08:00">2019-11-20</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
@@ -335,7 +341,7 @@
             </span>
 
           
-            <span id="/articles/analysis-of-redis-ae/" class="post-meta-item leancloud_visitors" data-flag-title="Redis事件循环器(AE)实现剖析" title="阅读次数">
+            <span id="/articles/analysis-of-redis-ae/" class="post-meta-item leancloud_visitors" data-flag-title="Redis 事件循环器 (AE) 实现剖析" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -354,11 +360,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>Redis作为一个单线程高性能的内存缓存Server而被人熟知。作为一个典型的Reactor式网络应用，Redis能够达到如此高的性能，必然要依靠足够可靠的事件循环库。<br>
-Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可以在<code>ae*.h/cpp</code>这些文件中找到。</p>
-<p>AE本身就是Redis的一部分，所以整体设计原则就是够用就行。也正因为这个背景，AE的代码才可以简短干净，非常适合阅读和学习。</p>
-<p>本文将基于Redis 5.0.6的源码分析下其事件循环器(AE)的实现原理。</p>
-<p>同时本人也提供了一个<a href="https://github.com/chenyahui/AnnotatedCode/tree/master/redis-5.0" target="_blank" rel="noopener">Redis注释版</a>，用以辅助理解Redis的源码。</p>
+          <p>Redis 作为一个单线程高性能的内存缓存 Server 而被人熟知。作为一个典型的 Reactor 式网络应用，Redis 能够达到如此高的性能，必然要依靠足够可靠的事件循环库。<br>
+Redis 内置了一个高性能事件循环器，叫做 AE。其定义和实现可以在 <code>ae*.h/cpp</code> 这些文件中找到。</p>
+<p>AE 本身就是 Redis 的一部分，所以整体设计原则就是够用就行。也正因为这个背景，AE 的代码才可以简短干净，非常适合阅读和学习。</p>
+<p>本文将基于 Redis 5.0.6 的源码分析下其事件循环器 (AE) 的实现原理。</p>
+<p>同时本人也提供了一个 <a href="https://github.com/chenyahui/AnnotatedCode/tree/master/redis-5.0" target="_blank" rel="noopener">Redis 注释版</a>，用以辅助理解 Redis 的源码。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/articles/analysis-of-redis-ae/#more" rel="contents">
@@ -399,7 +405,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/articles/analysis-of-filebeat/" class="post-title-link" itemprop="url">Elastic-Filebeat实现剖析</a>
+            <a href="/articles/analysis-of-filebeat/" class="post-title-link" itemprop="url">Elastic-Filebeat 实现剖析</a>
         </h2>
 
         <div class="post-meta">
@@ -416,7 +422,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-26 21:13:38" itemprop="dateModified" datetime="2019-11-26T21:13:38+08:00">2019-11-26</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -431,7 +437,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
             </span>
 
           
-            <span id="/articles/analysis-of-filebeat/" class="post-meta-item leancloud_visitors" data-flag-title="Elastic-Filebeat实现剖析" title="阅读次数">
+            <span id="/articles/analysis-of-filebeat/" class="post-meta-item leancloud_visitors" data-flag-title="Elastic-Filebeat 实现剖析" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -450,11 +456,11 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>Filebeat是使用Golang实现的轻量型日志采集器，也是Elasticsearch stack里面的一员。本质上是一个agent，可以安装在各个节点上，根据配置读取对应位置的日志，并上报到相应的地方去。</p>
-<p>Filebeat的可靠性很强，可以保证日志At least once的上报，同时也考虑了日志搜集中的各类问题，例如日志断点续读、文件名更改、日志Truncated等。</p>
-<p>Filebeat并不依赖于ElasticSearch，可以单独存在。我们可以单独使用Filebeat进行日志的上报和搜集。filebeat内置了常用的Output组件, 例如kafka、ElasticSearch、redis等，出于调试考虑，也可以输出到console和file。我们可以利用现有的Output组件，将日志进行上报。</p>
-<p>当然，我们也可以自定义Output组件，让Filebeat将日志转发到我们想要的地方。</p>
-<p>filebeat其实是<a href="https://github.com/elastic/beats" target="_blank" rel="noopener">elastic/beats</a>的一员，除了filebeat外，还有HeartBeat、PacketBeat。这些beat的实现都是基于libbeat框架。</p>
+          <p>Filebeat 是使用 Golang 实现的轻量型日志采集器，也是 Elasticsearch stack 里面的一员。本质上是一个 agent，可以安装在各个节点上，根据配置读取对应位置的日志，并上报到相应的地方去。</p>
+<p>Filebeat 的可靠性很强，可以保证日志 At least once 的上报，同时也考虑了日志搜集中的各类问题，例如日志断点续读、文件名更改、日志 Truncated 等。</p>
+<p>Filebeat 并不依赖于 ElasticSearch，可以单独存在。我们可以单独使用 Filebeat 进行日志的上报和搜集。filebeat 内置了常用的 Output 组件, 例如 kafka、ElasticSearch、redis 等，出于调试考虑，也可以输出到 console 和 file。我们可以利用现有的 Output 组件，将日志进行上报。</p>
+<p>当然，我们也可以自定义 Output 组件，让 Filebeat 将日志转发到我们想要的地方。</p>
+<p>filebeat 其实是 <a href="https://github.com/elastic/beats" target="_blank" rel="noopener">elastic/beats</a> 的一员，除了 filebeat 外，还有 HeartBeat、PacketBeat。这些 beat 的实现都是基于 libbeat 框架。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/articles/analysis-of-filebeat/#more" rel="contents">
@@ -495,7 +501,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/articles/analysis-of-uber-go-ratelimit/" class="post-title-link" itemprop="url">uber-go漏桶限流器使用与原理分析</a>
+            <a href="/articles/analysis-of-uber-go-ratelimit/" class="post-title-link" itemprop="url">uber-go 漏桶限流器使用与原理分析</a>
         </h2>
 
         <div class="post-meta">
@@ -512,7 +518,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-12 17:45:37" itemprop="dateModified" datetime="2019-11-12T17:45:37+08:00">2019-11-12</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -527,7 +533,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
             </span>
 
           
-            <span id="/articles/analysis-of-uber-go-ratelimit/" class="post-meta-item leancloud_visitors" data-flag-title="uber-go漏桶限流器使用与原理分析" title="阅读次数">
+            <span id="/articles/analysis-of-uber-go-ratelimit/" class="post-meta-item leancloud_visitors" data-flag-title="uber-go 漏桶限流器使用与原理分析" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -546,10 +552,10 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>uber在Github上开源了一套用于服务限流的go语言库<a href="https://github.com/uber-go/ratelimit/" target="_blank" rel="noopener">ratelimit</a>, 该组件基于Leaky Bucket(漏桶)实现。</p>
-<p>我在之前写过<a href="https://www.cyhone.com/articles/analisys-of-golang-rate/">《Golang限流器time/rate实现剖析》</a>，讲了Golang标准库中提供的基于Token Bucket实现限流组件的<code>time/rate</code>原理，同时也讲了限流的一些背景。</p>
-<p>相比于TokenBucket，只要桶内还有剩余令牌，调用方就可以一直消费。而Leaky Bucket相对来说比较严格，调用方只能严格按照这个间隔顺序进行消费调用。(实际上，uber-go对这个限制也做了一些优化，具体可以看下文详解)</p>
-<p>还是老规矩，在正式讲其实现之前，我们先看下ratelimit的使用方法。</p>
+          <p>uber 在 Github 上开源了一套用于服务限流的 go 语言库 <a href="https://github.com/uber-go/ratelimit/" target="_blank" rel="noopener">ratelimit</a>, 该组件基于 Leaky Bucket(漏桶) 实现。</p>
+<p>我在之前写过 <a href="https://www.cyhone.com/articles/analisys-of-golang-rate/">《Golang 限流器 time/rate 实现剖析》</a>，讲了 Golang 标准库中提供的基于 Token Bucket 实现限流组件的 <code>time/rate</code> 原理，同时也讲了限流的一些背景。</p>
+<p>相比于 TokenBucket，只要桶内还有剩余令牌，调用方就可以一直消费。而 Leaky Bucket 相对来说比较严格，调用方只能严格按照这个间隔顺序进行消费调用。(实际上，uber-go 对这个限制也做了一些优化，具体可以看下文详解)</p>
+<p>还是老规矩，在正式讲其实现之前，我们先看下 ratelimit 的使用方法。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/articles/analysis-of-uber-go-ratelimit/#more" rel="contents">
@@ -590,7 +596,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/articles/analisys-of-golang-rate/" class="post-title-link" itemprop="url">Golang限流器time/rate实现剖析</a>
+            <a href="/articles/analisys-of-golang-rate/" class="post-title-link" itemprop="url">Golang 限流器 time/rate 实现剖析</a>
         </h2>
 
         <div class="post-meta">
@@ -607,7 +613,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-18 11:38:37" itemprop="dateModified" datetime="2019-11-18T11:38:37+08:00">2019-11-18</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -622,7 +628,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
             </span>
 
           
-            <span id="/articles/analisys-of-golang-rate/" class="post-meta-item leancloud_visitors" data-flag-title="Golang限流器time/rate实现剖析" title="阅读次数">
+            <span id="/articles/analisys-of-golang-rate/" class="post-meta-item leancloud_visitors" data-flag-title="Golang 限流器 time/rate 实现剖析" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -641,9 +647,9 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章<a href="https://www.cyhone.com/articles/usage-of-golang-rate/">《Golang限流器time/rate使用介绍》</a>简单介绍了time/rate的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。</p>
-<p>上一篇文章讲到，time/rate是基于Token Bucket(令牌桶)算法实现的限流。本文将会基于源码，深入剖析下Golang是如何实现Token Bucket的。其代码也非常简洁，去除注释后，也就200行左右的代码量。</p>
-<p>同时，我也提供了<a href="https://github.com/chenyahui/AnnotatedCode/tree/master/go/x/time" target="_blank" rel="noopener">time/rate注释版</a>，辅助大家理解该组件的实现。</p>
+          <p>限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章 <a href="https://www.cyhone.com/articles/usage-of-golang-rate/">《Golang 限流器 time/rate 使用介绍》</a> 简单介绍了 time/rate 的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。</p>
+<p>上一篇文章讲到，time/rate 是基于 Token Bucket(令牌桶) 算法实现的限流。本文将会基于源码，深入剖析下 Golang 是如何实现 Token Bucket 的。其代码也非常简洁，去除注释后，也就 200 行左右的代码量。</p>
+<p>同时，我也提供了 <a href="https://github.com/chenyahui/AnnotatedCode/tree/master/go/x/time" target="_blank" rel="noopener">time/rate 注释版</a>，辅助大家理解该组件的实现。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/articles/analisys-of-golang-rate/#more" rel="contents">
@@ -684,7 +690,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/articles/usage-of-golang-rate/" class="post-title-link" itemprop="url">Golang限流器time/rate使用介绍</a>
+            <a href="/articles/usage-of-golang-rate/" class="post-title-link" itemprop="url">Golang 限流器 time/rate 使用介绍</a>
         </h2>
 
         <div class="post-meta">
@@ -701,7 +707,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-12 17:45:37" itemprop="dateModified" datetime="2019-11-12T17:45:37+08:00">2019-11-12</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -716,7 +722,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
             </span>
 
           
-            <span id="/articles/usage-of-golang-rate/" class="post-meta-item leancloud_visitors" data-flag-title="Golang限流器time/rate使用介绍" title="阅读次数">
+            <span id="/articles/usage-of-golang-rate/" class="post-meta-item leancloud_visitors" data-flag-title="Golang 限流器 time/rate 使用介绍" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -736,14 +742,14 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
 
       
           <blockquote>
-<p>本主题为系列文章，分上下两篇。本文主要介绍<code>time/rate</code>的具体使用方法，另外一篇文章<a href="https://www.cyhone.com/articles/analisys-of-golang-rate/">《Golang限流器time/rate实现剖析》</a>则着重介绍其内部实现原理。</p>
+<p>本主题为系列文章，分上下两篇。本文主要介绍 <code>time/rate</code> 的具体使用方法，另外一篇文章 <a href="https://www.cyhone.com/articles/analisys-of-golang-rate/">《Golang 限流器 time/rate 实现剖析》</a> 则着重介绍其内部实现原理。</p>
 </blockquote>
 <p>限流器是后台服务中的非常重要的组件，可以用来限制请求速率，保护服务，以免服务过载。<br>
-限流器的实现方法有很多种，例如滑动窗口法、Token Bucket、Leaky Bucket等。</p>
-<p>其实golang标准库中就自带了限流算法的实现，即<code>golang.org/x/time/rate</code>。<br>
-该限流器是基于Token Bucket(令牌桶)实现的。</p>
-<p>简单来说，令牌桶就是想象有一个固定大小的桶，系统会以恒定速率向桶中放Token，桶满则暂时不放。<br>
-而用户则从桶中取Token，如果有剩余Token就可以一直取。如果没有剩余Token，则需要等到系统中被放置了Token才行。</p>
+限流器的实现方法有很多种，例如滑动窗口法、Token Bucket、Leaky Bucket 等。</p>
+<p>其实 golang 标准库中就自带了限流算法的实现，即 <code>golang.org/x/time/rate</code>。<br>
+该限流器是基于 Token Bucket(令牌桶) 实现的。</p>
+<p>简单来说，令牌桶就是想象有一个固定大小的桶，系统会以恒定速率向桶中放 Token，桶满则暂时不放。<br>
+而用户则从桶中取 Token，如果有剩余 Token 就可以一直取。如果没有剩余 Token，则需要等到系统中被放置了 Token 才行。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/articles/usage-of-golang-rate/#more" rel="contents">
@@ -784,7 +790,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/articles/analysis-of-libco/" class="post-title-link" itemprop="url">微信libco协程库源码分析</a>
+            <a href="/articles/analysis-of-libco/" class="post-title-link" itemprop="url">微信 libco 协程库源码分析</a>
         </h2>
 
         <div class="post-meta">
@@ -801,7 +807,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-05 11:22:07" itemprop="dateModified" datetime="2019-12-05T11:22:07+08:00">2019-12-05</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -816,7 +822,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
             </span>
 
           
-            <span id="/articles/analysis-of-libco/" class="post-meta-item leancloud_visitors" data-flag-title="微信libco协程库源码分析" title="阅读次数">
+            <span id="/articles/analysis-of-libco/" class="post-meta-item leancloud_visitors" data-flag-title="微信 libco 协程库源码分析" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -835,11 +841,11 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>libco是微信后台开发和使用的协程库，同时应该也是极少数的将C/C++协程直接运用到如此大规模的生成环境中的案例了。</p>
-<p>在<a href="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">《云风coroutine协程库源码分析》</a>中，介绍了有栈协程的实现原理。相比coroutine，libco在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类pthread的协程通信机制，同时可以零改造地将三方库的阻塞IO调用协程异步化。<br>
-本文将从源码角度着重分析libco的高效之道。</p>
-<p>在正式阅读本文之前，如果对有栈协程的实现原理不是特别了解，建议提前阅读<a href="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">《云风coroutine协程库源码分析》</a>。</p>
-<p>同时，我也提供了<a href="https://github.com/chenyahui/AnnotatedCode/tree/master/libco" target="_blank" rel="noopener">libco注释版</a>，用以辅助理解libco的源码</p>
+          <p>libco 是微信后台开发和使用的协程库，同时应该也是极少数的将 C/C++ 协程直接运用到如此大规模的生成环境中的案例了。</p>
+<p>在 <a href="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">《云风 coroutine 协程库源码分析》</a> 中，介绍了有栈协程的实现原理。相比 coroutine，libco 在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类 pthread 的协程通信机制，同时可以零改造地将三方库的阻塞 IO 调用协程异步化。<br>
+本文将从源码角度着重分析 libco 的高效之道。</p>
+<p>在正式阅读本文之前，如果对有栈协程的实现原理不是特别了解，建议提前阅读 <a href="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">《云风 coroutine 协程库源码分析》</a>。</p>
+<p>同时，我也提供了 <a href="https://github.com/chenyahui/AnnotatedCode/tree/master/libco" target="_blank" rel="noopener">libco 注释版</a>，用以辅助理解 libco 的源码</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/articles/analysis-of-libco/#more" rel="contents">
@@ -880,7 +886,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/articles/right-way-to-use-cpp-smart-pointer/" class="post-title-link" itemprop="url">C++智能指针的正确使用方式</a>
+            <a href="/articles/right-way-to-use-cpp-smart-pointer/" class="post-title-link" itemprop="url">C++ 智能指针的正确使用方式</a>
         </h2>
 
         <div class="post-meta">
@@ -897,7 +903,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-03 17:22:16" itemprop="dateModified" datetime="2019-11-03T17:22:16+08:00">2019-11-03</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -912,7 +918,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
             </span>
 
           
-            <span id="/articles/right-way-to-use-cpp-smart-pointer/" class="post-meta-item leancloud_visitors" data-flag-title="C++智能指针的正确使用方式" title="阅读次数">
+            <span id="/articles/right-way-to-use-cpp-smart-pointer/" class="post-meta-item leancloud_visitors" data-flag-title="C++ 智能指针的正确使用方式" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -931,17 +937,17 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>C++11中推出了三种智能指针，unique_ptr、shared_ptr和weak_ptr，同时也将auto_ptr置为废弃(deprecated)。</p>
+          <p>C++11 中推出了三种智能指针，unique_ptr、shared_ptr 和 weak_ptr，同时也将 auto_ptr 置为废弃 (deprecated)。</p>
 <p>但是在实际的使用过程中，很多人都会有这样的问题：</p>
 <ol>
 <li>不知道三种智能指针的具体使用场景</li>
-<li>无脑只使用shared_ptr</li>
-<li>认为应该禁用raw pointer(裸指针，即Widget*这种形式)，全部使用智能指针</li>
+<li>无脑只使用 shared_ptr</li>
+<li>认为应该禁用 raw pointer(裸指针，即 Widget * 这种形式)，全部使用智能指针</li>
 </ol>
 <p>本文将从这几方面讲解智能指针：</p>
 <ol>
 <li>智能指针的应用场景分析</li>
-<li>智能指针的性能分析: 为什么shared_ptr性能比unique_ptr差</li>
+<li>智能指针的性能分析: 为什么 shared_ptr 性能比 unique_ptr 差</li>
 <li>指针作为函数参数时应该传，传值、传引用，还是裸指针？</li>
 </ol>
           <!--noindex-->
@@ -984,7 +990,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/articles/why-move-no-work-in-lambda/" class="post-title-link" itemprop="url">c++ lambda内std::move失效问题的思考</a>
+            <a href="/articles/why-move-no-work-in-lambda/" class="post-title-link" itemprop="url">c++ lambda 内 std::move 失效问题的思考</a>
         </h2>
 
         <div class="post-meta">
@@ -1001,7 +1007,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-09 21:40:52" itemprop="dateModified" datetime="2019-11-09T21:40:52+08:00">2019-11-09</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1016,7 +1022,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
             </span>
 
           
-            <span id="/articles/why-move-no-work-in-lambda/" class="post-meta-item leancloud_visitors" data-flag-title="c++ lambda内std::move失效问题的思考" title="阅读次数">
+            <span id="/articles/why-move-no-work-in-lambda/" class="post-meta-item leancloud_visitors" data-flag-title="c++ lambda 内 std::move 失效问题的思考" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -1035,14 +1041,14 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>最近在写C++时，有这样一个代码需求：在lambda中，将一个捕获参数move给另外一个变量。<br>
-看似一个很简单常规的操作，然而这个move动作却没有生效。</p>
+          <p>最近在写 C++ 时，有这样一个代码需求：在 lambda 中，将一个捕获参数 move 给另外一个变量。<br>
+看似一个很简单常规的操作，然而这个 move 动作却没有生效。</p>
 <p>具体代码如下：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">auto</span> func = [=]()&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; vec.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; vec2.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>代码可在<a href="https://wandbox.org/permlink/et6ZTBhwpz5SH6w0" target="_blank" rel="noopener">wandbox</a>运行。</p>
-<p>我们期望的是，将对变量<code>vec</code>调用std::move后，数据将会移动至变量<code>vec2</code>, 此时<code>vec</code>里面应该没有数据了。但是通过打印<code>vec.size()</code>发现vec中的数据并没有按预期移走。</p>
-<p>这也就意味着，构造vec2时并没有按预期调用移动构造函数，而是调用了拷贝构造函数。</p>
-<p>为什么会造成这个问题呢, 我们需要结合<code>std::move</code>和<code>lambda</code>的原理看下。（最终的解决方案可以直接看<a href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">这里</a>）</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> func = [=]()&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec2.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>代码可在 <a href="https://wandbox.org/permlink/et6ZTBhwpz5SH6w0" target="_blank" rel="noopener">wandbox</a> 运行。</p>
+<p>我们期望的是，将对变量 <code>vec</code> 调用 std::move 后，数据将会移动至变量 <code>vec2</code>, 此时 <code>vec</code> 里面应该没有数据了。但是通过打印 <code>vec.size()</code> 发现 vec 中的数据并没有按预期移走。</p>
+<p>这也就意味着，构造 vec2 时并没有按预期调用移动构造函数，而是调用了拷贝构造函数。</p>
+<p>为什么会造成这个问题呢, 我们需要结合 <code>std::move</code> 和 <code>lambda</code> 的原理看下。（最终的解决方案可以直接看 [这里](# 解决方案)）</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/articles/why-move-no-work-in-lambda/#more" rel="contents">
@@ -1083,7 +1089,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/articles/analysis-of-cloudwu-coroutine/" class="post-title-link" itemprop="url">云风coroutine协程库源码分析</a>
+            <a href="/articles/analysis-of-cloudwu-coroutine/" class="post-title-link" itemprop="url">云风 coroutine 协程库源码分析</a>
         </h2>
 
         <div class="post-meta">
@@ -1100,7 +1106,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-03 17:22:16" itemprop="dateModified" datetime="2019-11-03T17:22:16+08:00">2019-11-03</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1115,7 +1121,7 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
             </span>
 
           
-            <span id="/articles/analysis-of-cloudwu-coroutine/" class="post-meta-item leancloud_visitors" data-flag-title="云风coroutine协程库源码分析" title="阅读次数">
+            <span id="/articles/analysis-of-cloudwu-coroutine/" class="post-meta-item leancloud_visitors" data-flag-title="云风 coroutine 协程库源码分析" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -1134,10 +1140,10 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>随着Golang的兴起，协程尤其是有栈协程(stackful coroutine)越来越受到程序员的关注。协程几乎成了程序员的一套必备技能。</p>
-<p>云风实现了一套<a href="https://github.com/cloudwu/coroutine/" target="_blank" rel="noopener">C语言的协程库</a>，整体背景可以参考其<a href="https://blog.codingnow.com/2012/07/c_coroutine.html" target="_blank" rel="noopener">博客</a>。</p>
-<p>这个协程库非常轻量级，一共也才200多行代码，使用上更贴近于lua的写法（众所周知，云风是知名的lua粉)。整体基于ucontext和共享栈模型实现了有栈协程，代码质量毋庸置疑，本文将详细剖析该协程库的实现原理。</p>
-<p>同时，我也提供了<a href="https://github.com/chenyahui/AnnotatedCode/tree/master/coroutine" target="_blank" rel="noopener">coroutine注释版</a>，辅助大家理解coroutine的代码。</p>
+          <p>随着 Golang 的兴起，协程尤其是有栈协程 (stackful coroutine) 越来越受到程序员的关注。协程几乎成了程序员的一套必备技能。</p>
+<p>云风实现了一套 <a href="https://github.com/cloudwu/coroutine/" target="_blank" rel="noopener">C 语言的协程库</a>，整体背景可以参考其 <a href="https://blog.codingnow.com/2012/07/c_coroutine.html" target="_blank" rel="noopener">博客</a>。</p>
+<p>这个协程库非常轻量级，一共也才 200 多行代码，使用上更贴近于 lua 的写法（众所周知，云风是知名的 lua 粉)。整体基于 ucontext 和共享栈模型实现了有栈协程，代码质量毋庸置疑，本文将详细剖析该协程库的实现原理。</p>
+<p>同时，我也提供了 <a href="https://github.com/chenyahui/AnnotatedCode/tree/master/coroutine" target="_blank" rel="noopener">coroutine 注释版</a>，辅助大家理解 coroutine 的代码。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/articles/analysis-of-cloudwu-coroutine/#more" rel="contents">
@@ -1290,7 +1296,6 @@ Redis内置了一个高性能事件循环器，叫做AE。其定义和实现可�
 
   
   <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
 <script src="/js/utils.js"></script>
 <script src="/js/schemes/pisces.js"></script>
 <script src="/js/next-boot.js"></script>

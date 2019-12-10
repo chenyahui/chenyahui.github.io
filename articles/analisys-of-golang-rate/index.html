@@ -33,7 +33,7 @@
     fancybox: false,
     mediumzoom: false,
     lazyload: false,
-    pangu: true,
+    pangu: false,
     comments: {"style":"tabs","active":null,"storage":true,"nav":null},
     algolia: {
       appID: '',
@@ -48,19 +48,19 @@
   };
 </script>
 
-  <meta name="description" content="限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章《Golang限流器time/rate使用介绍》简单介绍了time/rate的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。 上一篇文章讲到，time/rate是基于Token Bucket(令牌桶)算法实现的限流。本文将会基于源码，深入剖析下Golang是如何实现Token B">
+  <meta name="description" content="限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章 《Golang 限流器 time/rate 使用介绍》 简单介绍了 time/rate 的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。 上一篇文章讲到，time/rate 是基于 Token Bucket(令牌桶) 算法实现的限流。本文将会基于源码，深入剖析下 Golang">
 <meta name="keywords" content="限流,Golang,微服务,源码">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Golang限流器time&#x2F;rate实现剖析">
+<meta property="og:title" content="Golang 限流器 time&#x2F;rate 实现剖析">
 <meta property="og:url" content="http://www.cyhone.com/articles/analisys-of-golang-rate/index.html">
 <meta property="og:site_name" content="编程沉思录">
-<meta property="og:description" content="限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章《Golang限流器time/rate使用介绍》简单介绍了time/rate的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。 上一篇文章讲到，time/rate是基于Token Bucket(令牌桶)算法实现的限流。本文将会基于源码，深入剖析下Golang是如何实现Token B">
+<meta property="og:description" content="限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章 《Golang 限流器 time/rate 使用介绍》 简单介绍了 time/rate 的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。 上一篇文章讲到，time/rate 是基于 Token Bucket(令牌桶) 算法实现的限流。本文将会基于源码，深入剖析下 Golang">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/token-bucket/token-bucket.jpg">
-<meta property="og:updated_time" content="2019-11-18T03:38:37.679Z">
+<meta property="og:updated_time" content="2019-12-10T05:07:50.063Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Golang限流器time&#x2F;rate实现剖析">
-<meta name="twitter:description" content="限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章《Golang限流器time/rate使用介绍》简单介绍了time/rate的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。 上一篇文章讲到，time/rate是基于Token Bucket(令牌桶)算法实现的限流。本文将会基于源码，深入剖析下Golang是如何实现Token B">
+<meta name="twitter:title" content="Golang 限流器 time&#x2F;rate 实现剖析">
+<meta name="twitter:description" content="限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章 《Golang 限流器 time/rate 使用介绍》 简单介绍了 time/rate 的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。 上一篇文章讲到，time/rate 是基于 Token Bucket(令牌桶) 算法实现的限流。本文将会基于源码，深入剖析下 Golang">
 <meta name="twitter:image" content="http://www.cyhone.com/img/token-bucket/token-bucket.jpg">
 
 <link rel="canonical" href="http://www.cyhone.com/articles/analisys-of-golang-rate/">
@@ -75,7 +75,7 @@
   };
 </script>
 
-  <title>Golang限流器time/rate实现剖析 | 编程沉思录</title>
+  <title>Golang 限流器 time/rate 实现剖析 | 编程沉思录</title>
   
 
 
@@ -215,7 +215,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          Golang限流器time/rate实现剖析
+          Golang 限流器 time/rate 实现剖析
         </h2>
 
         <div class="post-meta">
@@ -232,7 +232,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-18 11:38:37" itemprop="dateModified" datetime="2019-11-18T11:38:37+08:00">2019-11-18</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,7 +247,7 @@
             </span>
 
           
-            <span id="/articles/analisys-of-golang-rate/" class="post-meta-item leancloud_visitors" data-flag-title="Golang限流器time/rate实现剖析" title="阅读次数">
+            <span id="/articles/analisys-of-golang-rate/" class="post-meta-item leancloud_visitors" data-flag-title="Golang 限流器 time/rate 实现剖析" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -278,113 +278,113 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章<a href="https://www.cyhone.com/articles/usage-of-golang-rate/">《Golang限流器time/rate使用介绍》</a>简单介绍了time/rate的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。</p>
-<p>上一篇文章讲到，time/rate是基于Token Bucket(令牌桶)算法实现的限流。本文将会基于源码，深入剖析下Golang是如何实现Token Bucket的。其代码也非常简洁，去除注释后，也就200行左右的代码量。</p>
-<p>同时，我也提供了<a href="https://github.com/chenyahui/AnnotatedCode/tree/master/go/x/time" target="_blank" rel="noopener">time/rate注释版</a>，辅助大家理解该组件的实现。</p>
+        <p>限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章 <a href="https://www.cyhone.com/articles/usage-of-golang-rate/">《Golang 限流器 time/rate 使用介绍》</a> 简单介绍了 time/rate 的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。</p>
+<p>上一篇文章讲到，time/rate 是基于 Token Bucket(令牌桶) 算法实现的限流。本文将会基于源码，深入剖析下 Golang 是如何实现 Token Bucket 的。其代码也非常简洁，去除注释后，也就 200 行左右的代码量。</p>
+<p>同时，我也提供了 <a href="https://github.com/chenyahui/AnnotatedCode/tree/master/go/x/time" target="_blank" rel="noopener">time/rate 注释版</a>，辅助大家理解该组件的实现。</p>
 <a id="more"></a>
 <h1 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h1>
-<p>简单来说，令牌桶就是想象有一个固定大小的桶，系统会以恒定速率向桶中放Token，桶满则暂时不放。<br>
-而用户则从桶中取Token，如果有剩余Token就可以一直取。如果没有剩余Token，则需要等到系统中被放置了Token才行。</p>
-<p>一般介绍Token Bucket的时候，都会有一张这样的原理图：<br>
-<img src="/img/token-bucket/token-bucket.jpg" alt="Token Bucket原理图"></p>
+<p>简单来说，令牌桶就是想象有一个固定大小的桶，系统会以恒定速率向桶中放 Token，桶满则暂时不放。<br>
+而用户则从桶中取 Token，如果有剩余 Token 就可以一直取。如果没有剩余 Token，则需要等到系统中被放置了 Token 才行。</p>
+<p>一般介绍 Token Bucket 的时候，都会有一张这样的原理图：<br>
+<img src="/img/token-bucket/token-bucket.jpg" alt="Token Bucket 原理图"></p>
 <p>从这个图中看起来，似乎令牌桶实现应该是这样的：</p>
 <blockquote>
-<p>有一个Timer和一个BlockingQueue。Timer固定的往BlockingQueue中放token。用户则从BlockingQueue中取数据。</p>
+<p>有一个 Timer 和一个 BlockingQueue。Timer 固定的往 BlockingQueue 中放 token。用户则从 BlockingQueue 中取数据。</p>
 </blockquote>
-<p>这固然是Token Bucket的一种实现方式，这么做也非常直观，但是效率太低了：我们需要不仅多维护一个Timer和BlockingQueue，而且还耗费了一些不必要的内存。</p>
-<p>在Golang的<code>timer/rate</code>中的实现, 并没有单独维护一个Timer，而是采用了lazyload的方式，直到每次消费之前才根据时间差更新Token数目，而且也不是用BlockingQueue来存放Token，而是仅仅通过计数的方式。</p>
-<h1 id="token的生成和消费"><a class="markdownIt-Anchor" href="#token的生成和消费"></a> Token的生成和消费</h1>
-<p>我们在<a href="https://www.cyhone.com/articles/usage-of-golang-rate/">上一篇文章</a>中讲到，Token的消费方式有三种。但其实在内部实现，最终三种消费方式都调用了reserveN函数来生成和消费Token。</p>
-<p>我们看下reserveN函数的具体实现，整个过程非常简单。在正式讲之前，我们先了解一个简单的概念：</p>
-<p>在<code>time/rate</code>中，<code>NewLimiter</code>的第一个参数是速率limit，代表了一秒钟可以产生多少Token。<br>
-那么简单换算一下，我们就可以知道一个Token的生成间隔是多少。</p>
+<p>这固然是 Token Bucket 的一种实现方式，这么做也非常直观，但是效率太低了：我们需要不仅多维护一个 Timer 和 BlockingQueue，而且还耗费了一些不必要的内存。</p>
+<p>在 Golang 的 <code>timer/rate</code> 中的实现, 并没有单独维护一个 Timer，而是采用了 lazyload 的方式，直到每次消费之前才根据时间差更新 Token 数目，而且也不是用 BlockingQueue 来存放 Token，而是仅仅通过计数的方式。</p>
+<h1 id="token-的生成和消费"><a class="markdownIt-Anchor" href="#token-的生成和消费"></a> Token 的生成和消费</h1>
+<p>我们在 <a href="https://www.cyhone.com/articles/usage-of-golang-rate/">上一篇文章</a> 中讲到，Token 的消费方式有三种。但其实在内部实现，最终三种消费方式都调用了 reserveN 函数来生成和消费 Token。</p>
+<p>我们看下 reserveN 函数的具体实现，整个过程非常简单。在正式讲之前，我们先了解一个简单的概念：</p>
+<p>在 <code>time/rate</code> 中，<code>NewLimiter</code> 的第一个参数是速率 limit，代表了一秒钟可以产生多少 Token。<br>
+那么简单换算一下，我们就可以知道一个 Token 的生成间隔是多少。</p>
 <p>有了这个生成间隔，我们就可以轻易地得到两个数据：<br>
-<strong>1. 生成N个新的Token一共需要多久。</strong><code>time/rate</code>中对应的实现函数为<code>durationFromTokens</code>。<br>
-<strong>2. 给定一段时长，这段时间一共可以生成多少个Token。</strong><code>time/rate</code>中对应的实现函数为<code>tokensFromDuration</code>。</p>
+<strong>1. 生成 N 个新的 Token 一共需要多久。</strong><code>time/rate</code> 中对应的实现函数为 <code>durationFromTokens</code>。<br>
+<strong>2. 给定一段时长，这段时间一共可以生成多少个 Token。</strong><code>time/rate</code> 中对应的实现函数为 <code>tokensFromDuration</code>。</p>
 <p>那么，有了这些转换函数，整个过程就很清晰了，如下：</p>
 <ol>
 <li>
-<p>计算从上次取Token的时间到当前时刻，期间一共新产生了多少Token：<br>
-我们只在取Token之前生成新的Token，也就意味着每次取Token的间隔，实际上也是生成Token的间隔。我们可以利用<code>tokensFromDuration</code>, 轻易的算出这段时间一共产生Token的数目。<br>
-那么，当前Token数目 = 新产生的Token数目 + 之前剩余的Token数目 - 要消费的Token数目。</p>
+<p>计算从上次取 Token 的时间到当前时刻，期间一共新产生了多少 Token：<br>
+我们只在取 Token 之前生成新的 Token，也就意味着每次取 Token 的间隔，实际上也是生成 Token 的间隔。我们可以利用 <code>tokensFromDuration</code>, 轻易的算出这段时间一共产生 Token 的数目。<br>
+那么，当前 Token 数目 = 新产生的 Token 数目 + 之前剩余的 Token 数目 - 要消费的 Token 数目。</p>
 </li>
 <li>
-<p>如果消费后剩余Token数目大于零，说明此时Token桶内仍不为空，此时Token充足，无需调用侧等待。<br>
-如果Token数目小于零，则需等待一段时间。<br>
-那么这个时候，我们可以利用<code>durationFromTokens</code>将当前负值的Token数转化为需要等待的时间。</p>
+<p>如果消费后剩余 Token 数目大于零，说明此时 Token 桶内仍不为空，此时 Token 充足，无需调用侧等待。<br>
+如果 Token 数目小于零，则需等待一段时间。<br>
+那么这个时候，我们可以利用 <code>durationFromTokens</code> 将当前负值的 Token 数转化为需要等待的时间。</p>
 </li>
 <li>
 <p>将需要等待的时间等相关结果返回给调用方。</p>
 </li>
 </ol>
-<p>从上面可以看出，其实整个过程就是利用了<strong>Token数可以和时间相互转化</strong>的原理。而如果Token数为负，则需要等待相应时间即可。</p>
-<p>**注意：**如果当消费时，Token桶中的Token数目已经为负值了，依然可以按照上述流程进行消费。随着负值越来越小，等待的时间将会越来越长。<br>
-从结果来看，这个行为跟用Timer+BlockQueue实现是一样的。</p>
-<p>此外，整个过程为了保证线程安全，更新令牌桶相关数据时都用了mutex加锁。</p>
-<p>我们模拟下请求与Token数变化的关系：</p>
+<p>从上面可以看出，其实整个过程就是利用了 **Token 数可以和时间相互转化 ** 的原理。而如果 Token 数为负，则需要等待相应时间即可。</p>
+<p>** 注意：** 如果当消费时，Token 桶中的 Token 数目已经为负值了，依然可以按照上述流程进行消费。随着负值越来越小，等待的时间将会越来越长。<br>
+从结果来看，这个行为跟用 Timer+BlockQueue 实现是一样的。</p>
+<p>此外，整个过程为了保证线程安全，更新令牌桶相关数据时都用了 mutex 加锁。</p>
+<p>我们模拟下请求与 Token 数变化的关系：</p>
 <ol>
-<li>当某一时间，桶内Token数为3, 此时A线程请求5个Token。那么此时桶内Token不足，因此A线程需要等待2个Token的时间。<br>
-且此时桶内Token数变为-2。</li>
-<li>同时，B线程请求4个Token，此时桶内Token数为-2，因此B线程需要等待2+4=6个Token的时间，且此时桶内Token数变为-6。</li>
+<li>当某一时间，桶内 Token 数为 3, 此时 A 线程请求 5 个 Token。那么此时桶内 Token 不足，因此 A 线程需要等待 2 个 Token 的时间。<br>
+且此时桶内 Token 数变为 - 2。</li>
+<li>同时，B 线程请求 4 个 Token，此时桶内 Token 数为 - 2，因此 B 线程需要等待 2+4=6 个 Token 的时间，且此时桶内 Token 数变为 - 6。</li>
 </ol>
-<p>对于Allow函数实现时，只要判断需要等待的时间是否为0即可，如果大于0说明需要等待，则返回False，反之返回True。</p>
-<p>对于Wait函数，直接<code>t := time.NewTimer(delay)</code>，等待对应的时间即可。</p>
-<h1 id="float精度问题"><a class="markdownIt-Anchor" href="#float精度问题"></a> float精度问题</h1>
-<p>从上面原理讲述可以看出，在Token和时间的相互转化函数<code>durationFromTokens</code>和<code>tokensFromDuration</code>中，涉及到float64的乘除运算。<br>
-一谈到float的乘除，我们就需要小心精度问题了。</p>
-<p>而Golang在这里也踩了坑，以下是<code>tokensFromDuration</code>最初的实现版本</p>
+<p>对于 Allow 函数实现时，只要判断需要等待的时间是否为 0 即可，如果大于 0 说明需要等待，则返回 False，反之返回 True。</p>
+<p>对于 Wait 函数，直接 <code>t := time.NewTimer(delay)</code>，等待对应的时间即可。</p>
+<h1 id="float-精度问题"><a class="markdownIt-Anchor" href="#float-精度问题"></a> float 精度问题</h1>
+<p>从上面原理讲述可以看出，在 Token 和时间的相互转化函数 <code>durationFromTokens</code> 和 <code>tokensFromDuration</code> 中，涉及到 float64 的乘除运算。<br>
+一谈到 float 的乘除，我们就需要小心精度问题了。</p>
+<p>而 Golang 在这里也踩了坑，以下是 <code>tokensFromDuration</code> 最初的实现版本</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(limit Limit)</span> <span class="title">tokensFromDuration</span><span class="params">(d time.Duration)</span> <span class="title">float64</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> d.Seconds() * <span class="keyword">float64</span>(limit)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这个操作看起来一点问题都没：每秒生成的Token数乘于秒数。<br>
-然而，这里的问题在于，<code>d.Seconds()</code>已经是小数了。两个小数相乘，会带来精度的损失。</p>
-<p>所以就有了这个issue:<a href="https://github.com/golang/go/issues/34861" target="_blank" rel="noopener">golang.org/issues/34861</a>。</p>
+<p>这个操作看起来一点问题都没：每秒生成的 Token 数乘于秒数。<br>
+然而，这里的问题在于，<code>d.Seconds()</code> 已经是小数了。两个小数相乘，会带来精度的损失。</p>
+<p>所以就有了这个 issue:<a href="https://github.com/golang/go/issues/34861" target="_blank" rel="noopener">golang.org/issues/34861</a>。</p>
 <p>修改后新的版本如下：</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(limit Limit)</span> <span class="title">tokensFromDuration</span><span class="params">(d time.Duration)</span> <span class="title">float64</span></span> &#123;</span><br><span class="line">	sec := <span class="keyword">float64</span>(d/time.Second) * <span class="keyword">float64</span>(limit)</span><br><span class="line">	nsec := <span class="keyword">float64</span>(d%time.Second) * <span class="keyword">float64</span>(limit)</span><br><span class="line">	<span class="keyword">return</span> sec + nsec/<span class="number">1e9</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>time.Duration</code>是<code>int64</code>的别名，代表纳秒。分别求出秒的整数部分和小数部分，进行相乘后再相加，这样可以得到最精确的精度。</p>
+<p><code>time.Duration</code> 是 <code>int64</code> 的别名，代表纳秒。分别求出秒的整数部分和小数部分，进行相乘后再相加，这样可以得到最精确的精度。</p>
 <h1 id="数值溢出问题"><a class="markdownIt-Anchor" href="#数值溢出问题"></a> 数值溢出问题</h1>
-<p>我们讲reserveN函数的具体实现时，第一步就是计算从当前时间到上次取Token的时刻，期间一共新产生了多少Token，同时也可得出当前的Token是多少。</p>
+<p>我们讲 reserveN 函数的具体实现时，第一步就是计算从当前时间到上次取 Token 的时刻，期间一共新产生了多少 Token，同时也可得出当前的 Token 是多少。</p>
 <p>我最开始的理解是，直接可以这么做：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// elapsed表示过去的时间差</span></span><br><span class="line">elapsed := now.Sub(lim.last)</span><br><span class="line"><span class="comment">// delta表示这段时间一共新产生了多少Token</span></span><br><span class="line">delta = tokensFromDuration(now.Sub(lim.last))</span><br><span class="line"></span><br><span class="line">tokens := lim.tokens + delta</span><br><span class="line"><span class="keyword">if</span>(token &gt; lim.burst)&#123;</span><br><span class="line">	token = lim.burst</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>其中，<code>lim.tokens</code>是当前剩余的Token，<code>lim.last</code>是上次取token的时刻。<code>lim.burst</code>是Token桶的大小。<br>
-使用tokensFromDuration计算出新生成了多少Token，累加起来后，不能超过桶的容量即可。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// elapsed 表示过去的时间差</span></span><br><span class="line">elapsed := now.Sub(lim.last)</span><br><span class="line"><span class="comment">// delta 表示这段时间一共新产生了多少 Token</span></span><br><span class="line">delta = tokensFromDuration(now.Sub(lim.last))</span><br><span class="line"></span><br><span class="line">tokens := lim.tokens + delta</span><br><span class="line"><span class="keyword">if</span>(token&gt; lim.burst)&#123;</span><br><span class="line">	token = lim.burst</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，<code>lim.tokens</code> 是当前剩余的 Token，<code>lim.last</code> 是上次取 token 的时刻。<code>lim.burst</code> 是 Token 桶的大小。<br>
+使用 tokensFromDuration 计算出新生成了多少 Token，累加起来后，不能超过桶的容量即可。</p>
 <p>这么做看起来也没什么问题，然而并不是这样。</p>
-<p>在<code>time/rate</code>里面是这么做的，如下代码所示：</p>
+<p>在 <code>time/rate</code> 里面是这么做的，如下代码所示：</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">maxElapsed := lim.limit.durationFromTokens(<span class="keyword">float64</span>(lim.burst) - lim.tokens)</span><br><span class="line">elapsed := now.Sub(last)</span><br><span class="line"><span class="keyword">if</span> elapsed &gt; maxElapsed &#123;</span><br><span class="line">	elapsed = maxElapsed</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">delta := lim.limit.tokensFromDuration(elapsed)</span><br><span class="line"></span><br><span class="line">tokens := lim.tokens + delta</span><br><span class="line"><span class="keyword">if</span> burst := <span class="keyword">float64</span>(lim.burst); tokens &gt; burst &#123;</span><br><span class="line">	tokens = burst</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>与我们最开始的代码不一样的是，它没有直接用<code>now.Sub(lim.last)</code>来转化为对应的Token数，而是<br>
-先用<code>lim.limit.durationFromTokens(float64(lim.burst) - lim.tokens)</code>，计算把桶填满的时间maxElapsed。<br>
-取elapsed和maxElapsed的最小值。</p>
+<p>与我们最开始的代码不一样的是，它没有直接用 <code>now.Sub(lim.last)</code> 来转化为对应的 Token 数，而是<br>
+先用 <code>lim.limit.durationFromTokens(float64(lim.burst) - lim.tokens)</code>，计算把桶填满的时间 maxElapsed。<br>
+取 elapsed 和 maxElapsed 的最小值。</p>
 <p>这么做算出的结果肯定是正确的，但是这么做相比于我们的做法，好处在哪里？</p>
-<p>对于我们的代码，当last非常小的时候（或者当其为初始值0的时候），此时<code>now.Sub(lim.last)</code>的值就会非常大，如果<code>lim.limit</code>即每秒生成的Token数目也非常大时，直接将二者进行乘法运算，<strong>结果有可能会溢出。</strong></p>
-<p>因此，<code>time/rate</code>先计算了把桶填满的时间，将其作为时间差值的上限，这样就规避了溢出的问题。</p>
-<h1 id="token的归还"><a class="markdownIt-Anchor" href="#token的归还"></a> Token的归还</h1>
-<p>而对于Reserve函数，返回的结果中，我们可以通过<code>Reservation.Delay()</code>函数，得到需要等待时间。<br>
-同时调用方可以根据返回条件和现有情况，可以调用<code>Reservation.Cancel()</code>函数，取消此次消费。<br>
-当调用<code>Cancel()</code>函数时，消费的Token数将会尽可能归还给Token桶。</p>
-<p>此外，我们在<a href="https://www.cyhone.com/articles/usage-of-golang-rate/">上一篇文章</a>中讲到，Wait函数可以通过Context进行取消或者超时等，<br>
-当通过Context进行取消或超时时，此时消费的Token数也会归还给Token桶。</p>
-<p>然而，归还Token的时候，并不是简单的将Token数直接累加到现有Token桶的数目上，这里还有一些注意点：</p>
+<p>对于我们的代码，当 last 非常小的时候（或者当其为初始值 0 的时候），此时 <code>now.Sub(lim.last)</code> 的值就会非常大，如果 <code>lim.limit</code> 即每秒生成的 Token 数目也非常大时，直接将二者进行乘法运算，** 结果有可能会溢出。**</p>
+<p>因此，<code>time/rate</code> 先计算了把桶填满的时间，将其作为时间差值的上限，这样就规避了溢出的问题。</p>
+<h1 id="token-的归还"><a class="markdownIt-Anchor" href="#token-的归还"></a> Token 的归还</h1>
+<p>而对于 Reserve 函数，返回的结果中，我们可以通过 <code>Reservation.Delay()</code> 函数，得到需要等待时间。<br>
+同时调用方可以根据返回条件和现有情况，可以调用 <code>Reservation.Cancel()</code> 函数，取消此次消费。<br>
+当调用 <code>Cancel()</code> 函数时，消费的 Token 数将会尽可能归还给 Token 桶。</p>
+<p>此外，我们在 <a href="https://www.cyhone.com/articles/usage-of-golang-rate/">上一篇文章</a> 中讲到，Wait 函数可以通过 Context 进行取消或者超时等，<br>
+当通过 Context 进行取消或超时时，此时消费的 Token 数也会归还给 Token 桶。</p>
+<p>然而，归还 Token 的时候，并不是简单的将 Token 数直接累加到现有 Token 桶的数目上，这里还有一些注意点：</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">restoreTokens := <span class="keyword">float64</span>(r.tokens) - r.limit.tokensFromDuration(r.lim.lastEvent.Sub(r.timeToAct))</span><br><span class="line"><span class="keyword">if</span> restoreTokens &lt;= <span class="number">0</span> &#123;</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>以上代码就是计算需要归还多少的Token。其中：</p>
+<p>以上代码就是计算需要归还多少的 Token。其中：</p>
 <ol>
-<li><code>r.tokens</code>指的是本次消费的Token数</li>
-<li><code>r.timeToAct</code>指的是Token桶可以满足本次消费数目的时刻，也就是消费的时刻+等待的时长。</li>
-<li><code>r.lim.lastEvent</code>指的是最近一次消费的timeToAct值</li>
+<li><code>r.tokens</code> 指的是本次消费的 Token 数</li>
+<li><code>r.timeToAct</code> 指的是 Token 桶可以满足本次消费数目的时刻，也就是消费的时刻 + 等待的时长。</li>
+<li><code>r.lim.lastEvent</code> 指的是最近一次消费的 timeToAct 值</li>
 </ol>
-<p>其中：<code>r.limit.tokensFromDuration(r.lim.lastEvent.Sub(r.timeToAct))</code> 指的是，从该次消费到当前时间，一共又新消费了多少Token数目。</p>
-<p>根据代码来看，要归还的Token要是该次消费的Token减去新消费的Token。<br>
+<p>其中：<code>r.limit.tokensFromDuration(r.lim.lastEvent.Sub(r.timeToAct))</code> 指的是，从该次消费到当前时间，一共又新消费了多少 Token 数目。</p>
+<p>根据代码来看，要归还的 Token 要是该次消费的 Token 减去新消费的 Token。<br>
 不过这里我还没有想明白，为什么归还的时候，要减去新消费数目。</p>
-<p>按照我的理解，直接归还全部Token数目，这样对于下一次消费是无感知影响的。这块的具体原因还需要进一步探索。</p>
+<p>按照我的理解，直接归还全部 Token 数目，这样对于下一次消费是无感知影响的。这块的具体原因还需要进一步探索。</p>
 <h1 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h1>
-<p>Token Bucket其实非常适合互联网突发式请求的场景，其请求Token时并不是严格的限制为固定的速率，而是中间有一个桶作为缓冲。<br>
-只要桶中还有Token，请求就还可以一直进行。当突发量激增到一定程度，则才会按照预定速率进行消费。</p>
-<p>此外在维基百科中，也提到了分层Token Bucket(HTB)作为传统Token Bucket的进一步优化，Linux内核中也用它进行流量控制。</p>
+<p>Token Bucket 其实非常适合互联网突发式请求的场景，其请求 Token 时并不是严格的限制为固定的速率，而是中间有一个桶作为缓冲。<br>
+只要桶中还有 Token，请求就还可以一直进行。当突发量激增到一定程度，则才会按照预定速率进行消费。</p>
+<p>此外在维基百科中，也提到了分层 Token Bucket(HTB) 作为传统 Token Bucket 的进一步优化，Linux 内核中也用它进行流量控制。</p>
 <h1 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h1>
 <ul>
 <li><a href="https://en.wikipedia.org/wiki/Token_bucket" target="_blank" rel="noopener">Wiki: Token bucket</a></li>
 </ul>
 <h1 id="相关文章"><a class="markdownIt-Anchor" href="#相关文章"></a> 相关文章</h1>
 <ul>
-<li><a href="https://www.cyhone.com/articles/usage-of-golang-rate/">Golang限流器time/rate使用介绍</a></li>
-<li><a href="https://www.cyhone.com/articles/analysis-of-uber-go-ratelimit/">uber-go漏桶限流器使用与原理分析</a></li>
+<li><a href="https://www.cyhone.com/articles/usage-of-golang-rate/">Golang 限流器 time/rate 使用介绍</a></li>
+<li><a href="https://www.cyhone.com/articles/analysis-of-uber-go-ratelimit/">uber-go 漏桶限流器使用与原理分析</a></li>
 </ul>
 
     </div>
@@ -405,7 +405,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://www.cyhone.com/articles/analisys-of-golang-rate/" title="Golang限流器time/rate实现剖析">http://www.cyhone.com/articles/analisys-of-golang-rate/</a>
+    <a href="http://www.cyhone.com/articles/analisys-of-golang-rate/" title="Golang 限流器 time/rate 实现剖析">http://www.cyhone.com/articles/analisys-of-golang-rate/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -429,12 +429,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/articles/usage-of-golang-rate/" rel="prev" title="Golang限流器time/rate使用介绍">
-      <i class="fa fa-chevron-left"></i> Golang限流器time/rate使用介绍
+    <a href="/articles/usage-of-golang-rate/" rel="prev" title="Golang 限流器 time/rate 使用介绍">
+      <i class="fa fa-chevron-left"></i> Golang 限流器 time/rate 使用介绍
     </a></div>
       <div class="post-nav-item">
-    <a href="/articles/analysis-of-uber-go-ratelimit/" rel="next" title="uber-go漏桶限流器使用与原理分析">
-      uber-go漏桶限流器使用与原理分析 <i class="fa fa-chevron-right"></i>
+    <a href="/articles/analysis-of-uber-go-ratelimit/" rel="next" title="uber-go 漏桶限流器使用与原理分析">
+      uber-go 漏桶限流器使用与原理分析 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -496,7 +496,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景"><span class="nav-text"> 背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#token的生成和消费"><span class="nav-text"> Token的生成和消费</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#float精度问题"><span class="nav-text"> float精度问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数值溢出问题"><span class="nav-text"> 数值溢出问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#token的归还"><span class="nav-text"> Token的归还</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text"> 总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#相关文章"><span class="nav-text"> 相关文章</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景"><span class="nav-text"> 背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#token-的生成和消费"><span class="nav-text"> Token 的生成和消费</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#float-精度问题"><span class="nav-text"> float 精度问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数值溢出问题"><span class="nav-text"> 数值溢出问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#token-的归还"><span class="nav-text"> Token 的归还</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text"> 总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#相关文章"><span class="nav-text"> 相关文章</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -570,7 +570,6 @@
 
   
   <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
 <script src="/js/utils.js"></script>
 <script src="/js/schemes/pisces.js"></script>
 <script src="/js/next-boot.js"></script>

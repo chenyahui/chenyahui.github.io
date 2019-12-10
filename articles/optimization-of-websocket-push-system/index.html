@@ -33,7 +33,7 @@
     fancybox: false,
     mediumzoom: false,
     lazyload: false,
-    pangu: true,
+    pangu: false,
     comments: {"style":"tabs","active":null,"storage":true,"nav":null},
     algolia: {
       appID: '',
@@ -48,18 +48,18 @@
   };
 </script>
 
-  <meta name="description" content="微信云支付Android 智能POS使用WebSocket实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用WebSocket与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致WebSocket链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系统在稳定性上进行了">
+  <meta name="description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
 <meta name="keywords" content="Websocket">
 <meta property="og:type" content="article">
-<meta property="og:title" content="WebSocket订单推送稳定性优化方案">
+<meta property="og:title" content="WebSocket 订单推送稳定性优化方案">
 <meta property="og:url" content="http://www.cyhone.com/articles/optimization-of-websocket-push-system/index.html">
 <meta property="og:site_name" content="编程沉思录">
-<meta property="og:description" content="微信云支付Android 智能POS使用WebSocket实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用WebSocket与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致WebSocket链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系统在稳定性上进行了">
+<meta property="og:description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-11-03T09:22:16.606Z">
+<meta property="og:updated_time" content="2019-12-10T05:07:50.067Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="WebSocket订单推送稳定性优化方案">
-<meta name="twitter:description" content="微信云支付Android 智能POS使用WebSocket实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用WebSocket与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致WebSocket链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系统在稳定性上进行了">
+<meta name="twitter:title" content="WebSocket 订单推送稳定性优化方案">
+<meta name="twitter:description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
 
 <link rel="canonical" href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/">
 
@@ -73,7 +73,7 @@
   };
 </script>
 
-  <title>WebSocket订单推送稳定性优化方案 | 编程沉思录</title>
+  <title>WebSocket 订单推送稳定性优化方案 | 编程沉思录</title>
   
 
 
@@ -213,7 +213,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          WebSocket订单推送稳定性优化方案
+          WebSocket 订单推送稳定性优化方案
         </h2>
 
         <div class="post-meta">
@@ -230,7 +230,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-03 17:22:16" itemprop="dateModified" datetime="2019-11-03T17:22:16+08:00">2019-11-03</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -245,7 +245,7 @@
             </span>
 
           
-            <span id="/articles/optimization-of-websocket-push-system/" class="post-meta-item leancloud_visitors" data-flag-title="WebSocket订单推送稳定性优化方案" title="阅读次数">
+            <span id="/articles/optimization-of-websocket-push-system/" class="post-meta-item leancloud_visitors" data-flag-title="WebSocket 订单推送稳定性优化方案" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -276,67 +276,67 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><a href="https://cloud.tencent.com/document/product/569/33102" target="_blank" rel="noopener">微信云支付Android 智能POS</a>使用WebSocket实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。</p>
-<p>客户端利用WebSocket与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。</p>
-<p>然而，商户网络环境的多样性会导致WebSocket链路出现各种异常，从而引发漏单问题。</p>
+        <p><a href="https://cloud.tencent.com/document/product/569/33102" target="_blank" rel="noopener">微信云支付 Android 智能 POS</a> 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。</p>
+<p>客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。</p>
+<p>然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。</p>
 <p>我们根据实际的场景，对此订单推送系统在稳定性上进行了大量优化，尽可能地提升了服务的可用性及自我恢复的能力。</p>
 <a id="more"></a>
 <h2 id="客户端的弱网环境"><a class="markdownIt-Anchor" href="#客户端的弱网环境"></a> 客户端的弱网环境</h2>
 <p>在网络应用的开发过程中，网络的稳定性始终是不可靠的。这点在网络环境多样的客户侧来说，特点尤为明显。</p>
 <ol>
-<li>客户往往会基于成本考虑，所使用的网络质量不高。如部分用户还会使用2G、3G网络。</li>
-<li>在移动设备中，客户会进行网络切换。例如，从wifi切换到移动数据，或暂时把网络关闭掉。</li>
-<li>后端服务变更或者其他问题可能会引起WebSocket链接暂时不可用。</li>
+<li>客户往往会基于成本考虑，所使用的网络质量不高。如部分用户还会使用 2G、3G 网络。</li>
+<li>在移动设备中，客户会进行网络切换。例如，从 wifi 切换到移动数据，或暂时把网络关闭掉。</li>
+<li>后端服务变更或者其他问题可能会引起 WebSocket 链接暂时不可用。</li>
 </ol>
-<p>对于以上几种场景，都会引起WebSocket连接异常，导致连接关闭，从而会引发漏单现象。</p>
+<p>对于以上几种场景，都会引起 WebSocket 连接异常，导致连接关闭，从而会引发漏单现象。</p>
 <p>一旦订单没有得到及时推送，店员虽然可以到交易查询中确认订单状态，但这样的异常行为如果频发，对于客户来说也是很难接受的。</p>
 <p>我们引入了以下多种措施来解决此问题</p>
 <h2 id="一-应用层心跳尽快发现问题"><a class="markdownIt-Anchor" href="#一-应用层心跳尽快发现问题"></a> 一、应用层心跳：尽快发现问题</h2>
-<p>在浏览器端WebSocket相关接口非常简单，但缺了一个设置心跳的接口。我们需要设计一个应用层的心跳机制，来保证线路质量。</p>
+<p>在浏览器端 WebSocket 相关接口非常简单，但缺了一个设置心跳的接口。我们需要设计一个应用层的心跳机制，来保证线路质量。</p>
 <p>在设计应用层心跳时，主要出于以下几个方面：</p>
 <ol>
-<li><strong>nginx的proxy_read_timeout参数</strong>:<br>
-nginx在反向代理WebSocket请求时，有一个proxy_read_timeout参数。当连接在此超时时间内没有数据传输，则会主动断开，<br>
-默认行为是60s。因此我们需要一个应用层心跳，在proxy_read_timeout的时间内，发送心跳包，以保证连接不被断开。</li>
-<li><strong>应用层心跳可以帮助我们快速检测和发现链路的健康程度</strong> :<br>
+<li>**nginx 的 proxy_read_timeout 参数 **:<br>
+nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数。当连接在此超时时间内没有数据传输，则会主动断开，<br>
+默认行为是 60s。因此我们需要一个应用层心跳，在 proxy_read_timeout 的时间内，发送心跳包，以保证连接不被断开。</li>
+<li>** 应用层心跳可以帮助我们快速检测和发现链路的健康程度 ** :<br>
 为了快速检测到链路的异常问题，我们可以将心跳时间缩短到可接受范围内。</li>
 </ol>
-<p>在最初的版本设计中，我们的应用层心跳只涉及了ping接口。</p>
-<p>即客户端主动发生向server端发生ping，如果发送成功，则说明链路正常，反之意味着链路不正常。</p>
-<p>整个过程中，ping是否成功，都依赖于WebSocket是否触发了onError错误回调。</p>
-<p>但在实际的开发过程中，<strong>我们发现，这样一种特殊场景</strong>：</p>
-<p>使用手机发热点供收银设备使用网络，在正常使用过程中，如果关闭手机的网络数据连接（wifi或者移动数据），但保持热点的正常开放，那么收银设备将无法快速感知到网络的异常，大概需要3-5分钟才能触发异常回调。</p>
-<p>因此，针对此情况我们对应用层心跳进行了进一步的优化，让server端收到ping之后，回复一个pong包。我们根据ping和pong的时间间隔，来决定当前链路的健康程度。</p>
+<p>在最初的版本设计中，我们的应用层心跳只涉及了 ping 接口。</p>
+<p>即客户端主动发生向 server 端发生 ping，如果发送成功，则说明链路正常，反之意味着链路不正常。</p>
+<p>整个过程中，ping 是否成功，都依赖于 WebSocket 是否触发了 onError 错误回调。</p>
+<p>但在实际的开发过程中，** 我们发现，这样一种特殊场景 **：</p>
+<p>使用手机发热点供收银设备使用网络，在正常使用过程中，如果关闭手机的网络数据连接（wifi 或者移动数据），但保持热点的正常开放，那么收银设备将无法快速感知到网络的异常，大概需要 3-5 分钟才能触发异常回调。</p>
+<p>因此，针对此情况我们对应用层心跳进行了进一步的优化，让 server 端收到 ping 之后，回复一个 pong 包。我们根据 ping 和 pong 的时间间隔，来决定当前链路的健康程度。</p>
 <h2 id="二-断线重连自我恢复"><a class="markdownIt-Anchor" href="#二-断线重连自我恢复"></a> 二、断线重连：自我恢复</h2>
-<p>当WebSocket连接一旦发生了中断，将不会自动的恢复。因此，WebSocket的断线重连机制也是我们首要考虑的一个方面。</p>
-<p>断线重连的实现过程比较简单，即当发生<strong>心跳超时</strong>、<strong>链路错误</strong>或者<strong>链路非正常关闭</strong>等问题时，我们将触发WebSocket的重连机制。</p>
-<p>重连过程也非常简单，即不断重新连接WebSocket、重新鉴权等过程，直至连接成功。</p>
-<p>这里需要注意的一个小小的点就是：在重新连接的时候, WebSocket的各种回调(onmessage、onopen)，都需要重新设置。</p>
-<p>有了断线重连机制，可以实现WebSocket简单的自我恢复功能。</p>
+<p>当 WebSocket 连接一旦发生了中断，将不会自动的恢复。因此，WebSocket 的断线重连机制也是我们首要考虑的一个方面。</p>
+<p>断线重连的实现过程比较简单，即当发生 ** 心跳超时 <strong>、</strong> 链路错误 ** 或者 ** 链路非正常关闭 ** 等问题时，我们将触发 WebSocket 的重连机制。</p>
+<p>重连过程也非常简单，即不断重新连接 WebSocket、重新鉴权等过程，直至连接成功。</p>
+<p>这里需要注意的一个小小的点就是：在重新连接的时候, WebSocket 的各种回调 (onmessage、onopen)，都需要重新设置。</p>
+<p>有了断线重连机制，可以实现 WebSocket 简单的自我恢复功能。</p>
 <h2 id="三-推拉结合兜底行为"><a class="markdownIt-Anchor" href="#三-推拉结合兜底行为"></a> 三、推拉结合：兜底行为</h2>
-<p>引入了WebSocket的应用层心跳检测和断线重连，可以快速地帮我们发现链路的异常问题，同时尽快恢复到健康状态。</p>
-<p>但是，当WebSocket服务侧发生了短时异常（如变更等），或者重连时间过长。</p>
+<p>引入了 WebSocket 的应用层心跳检测和断线重连，可以快速地帮我们发现链路的异常问题，同时尽快恢复到健康状态。</p>
+<p>但是，当 WebSocket 服务侧发生了短时异常（如变更等），或者重连时间过长。</p>
 <p>在应用层发现异常到重连成功的这个过程，整个推送服务最长可能有十秒左右的不可用时间，这个时长取决于心跳的间隔时长。且万一重连也不成功，这个不可用时间将会持续增大。</p>
 <p>在设计中，需要考虑到这种异常情况，且在商户网络环境不稳定的情况下，此问题可能会被放大。</p>
 <p>我们引入了主动拉取的方案，在网络异常时，将会切换为主动拉取模式，定时向后端拉取订单。</p>
 <p>这里需要注意的有几点：</p>
 <ol>
-<li>每次主动拉取时，最好拉取时间有重叠。即：本次拉取的开始时间，是上次拉取的结束时间前1秒。<br>
+<li>每次主动拉取时，最好拉取时间有重叠。即：本次拉取的开始时间，是上次拉取的结束时间前 1 秒。<br>
 这样可以尽量减少因为定时器等环境原因，导致漏单问题</li>
-<li>每次主动拉取后，检测当前WebSocket是否链路健康，如果健康则关闭主动拉取模式。</li>
+<li>每次主动拉取后，检测当前 WebSocket 是否链路健康，如果健康则关闭主动拉取模式。</li>
 </ol>
 <p>因为我们主动拉取的范围重叠性以及主动拉取也可能和推送模式有一段时间的重叠，我们得到的订单可能会重复。</p>
 <p>这里我们需要注意对订单进行一个简单的去重逻辑，即：</p>
 <ol>
-<li>万一订单已存在，就忽略该订单。这个可以用简单的set实现即可</li>
+<li>万一订单已存在，就忽略该订单。这个可以用简单的 set 实现即可</li>
 <li>根据订单范围的时效性，可以定时删除过期的订单号即可。</li>
 </ol>
 <p>引入主动拉取模式，一方面尽可能的减少了漏单可能的发生，另一方面对主动推送来说，也是一个兜底行为。</p>
 <h2 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h2>
-<p>总结来说，我们选择使用了WebSocket长连接的方式，实现了支付订单的实时推送，为了解决推送的不稳定性，我们主要采取了以下几种措施：</p>
+<p>总结来说，我们选择使用了 WebSocket 长连接的方式，实现了支付订单的实时推送，为了解决推送的不稳定性，我们主要采取了以下几种措施：</p>
 <ul>
 <li>定时发送应用层心跳，来快速地帮我们发现链路的异常问题</li>
-<li>引入了断线重连机制，实现了WebSocket自我恢复</li>
+<li>引入了断线重连机制，实现了 WebSocket 自我恢复</li>
 <li>加入主动拉取模式，尽可能的减少了漏单可能的发生</li>
 </ul>
 <p>我们利用这几点措施，使得整个服务的可用性大大增强。</p>
@@ -363,7 +363,7 @@ nginx在反向代理WebSocket请求时，有一个proxy_read_timeout参数。当
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/" title="WebSocket订单推送稳定性优化方案">http://www.cyhone.com/articles/optimization-of-websocket-push-system/</a>
+    <a href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/" title="WebSocket 订单推送稳定性优化方案">http://www.cyhone.com/articles/optimization-of-websocket-push-system/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -384,12 +384,12 @@ nginx在反向代理WebSocket请求时，有一个proxy_read_timeout参数。当
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/articles/reunderstanding-of-non-blocking-io/" rel="prev" title="重新理解IO模型">
-      <i class="fa fa-chevron-left"></i> 重新理解IO模型
+    <a href="/articles/reunderstanding-of-non-blocking-io/" rel="prev" title="重新理解 IO 模型">
+      <i class="fa fa-chevron-left"></i> 重新理解 IO 模型
     </a></div>
       <div class="post-nav-item">
-    <a href="/articles/analysis-of-cloudwu-coroutine/" rel="next" title="云风coroutine协程库源码分析">
-      云风coroutine协程库源码分析 <i class="fa fa-chevron-right"></i>
+    <a href="/articles/analysis-of-cloudwu-coroutine/" rel="next" title="云风 coroutine 协程库源码分析">
+      云风 coroutine 协程库源码分析 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -525,7 +525,6 @@ nginx在反向代理WebSocket请求时，有一个proxy_read_timeout参数。当
 
   
   <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
 <script src="/js/utils.js"></script>
 <script src="/js/schemes/pisces.js"></script>
 <script src="/js/next-boot.js"></script>

@@ -33,7 +33,7 @@
     fancybox: false,
     mediumzoom: false,
     lazyload: false,
-    pangu: true,
+    pangu: false,
     comments: {"style":"tabs","active":null,"storage":true,"nav":null},
     algolia: {
       appID: '',
@@ -48,20 +48,20 @@
   };
 </script>
 
-  <meta name="description" content="muduo是陈硕大神个人开发的C++的TCP网络编程库。muduo基于Reactor模式实现。Reactor模式也是目前大多数Linux端高性能网络编程框架和网络应用所选择的主要架构，例如内存数据库Redis和Java的Netty库等。 陈硕的《Linux多线程服务器端编程》一书对muduo整个架构进行了非常详尽的介绍和分析，可以说是学习muduo源码和设计理念最好的资料了。这本书也非常推荐大家购">
+  <meta name="description" content="muduo是 陈硕 大神个人开发的 C++ 的 TCP 网络编程库。muduo 基于 Reactor 模式实现。Reactor 模式也是目前大多数 Linux 端高性能网络编程框架和网络应用所选择的主要架构，例如内存数据库 Redis 和 Java 的 Netty 库等。 陈硕的《Linux 多线程服务器端编程》一书对 muduo 整个架构进行了非常详尽的介绍和分析，可以说是学习 muduo 源码">
 <meta name="keywords" content="源码,TCP,网络编程,Reactor">
 <meta property="og:type" content="article">
-<meta property="og:title" content="muduo源码剖析">
+<meta property="og:title" content="muduo 源码剖析">
 <meta property="og:url" content="http://www.cyhone.com/articles/analysis-of-muduo/index.html">
 <meta property="og:site_name" content="编程沉思录">
-<meta property="og:description" content="muduo是陈硕大神个人开发的C++的TCP网络编程库。muduo基于Reactor模式实现。Reactor模式也是目前大多数Linux端高性能网络编程框架和网络应用所选择的主要架构，例如内存数据库Redis和Java的Netty库等。 陈硕的《Linux多线程服务器端编程》一书对muduo整个架构进行了非常详尽的介绍和分析，可以说是学习muduo源码和设计理念最好的资料了。这本书也非常推荐大家购">
+<meta property="og:description" content="muduo是 陈硕 大神个人开发的 C++ 的 TCP 网络编程库。muduo 基于 Reactor 模式实现。Reactor 模式也是目前大多数 Linux 端高性能网络编程框架和网络应用所选择的主要架构，例如内存数据库 Redis 和 Java 的 Netty 库等。 陈硕的《Linux 多线程服务器端编程》一书对 muduo 整个架构进行了非常详尽的介绍和分析，可以说是学习 muduo 源码">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/reactor/single_thread_reactor.png">
 <meta property="og:image" content="http://www.cyhone.com/img/reactor/main_sub_reactor.jpg">
-<meta property="og:updated_time" content="2019-11-20T03:18:33.103Z">
+<meta property="og:updated_time" content="2019-12-10T05:07:50.063Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="muduo源码剖析">
-<meta name="twitter:description" content="muduo是陈硕大神个人开发的C++的TCP网络编程库。muduo基于Reactor模式实现。Reactor模式也是目前大多数Linux端高性能网络编程框架和网络应用所选择的主要架构，例如内存数据库Redis和Java的Netty库等。 陈硕的《Linux多线程服务器端编程》一书对muduo整个架构进行了非常详尽的介绍和分析，可以说是学习muduo源码和设计理念最好的资料了。这本书也非常推荐大家购">
+<meta name="twitter:title" content="muduo 源码剖析">
+<meta name="twitter:description" content="muduo是 陈硕 大神个人开发的 C++ 的 TCP 网络编程库。muduo 基于 Reactor 模式实现。Reactor 模式也是目前大多数 Linux 端高性能网络编程框架和网络应用所选择的主要架构，例如内存数据库 Redis 和 Java 的 Netty 库等。 陈硕的《Linux 多线程服务器端编程》一书对 muduo 整个架构进行了非常详尽的介绍和分析，可以说是学习 muduo 源码">
 <meta name="twitter:image" content="http://www.cyhone.com/img/reactor/single_thread_reactor.png">
 
 <link rel="canonical" href="http://www.cyhone.com/articles/analysis-of-muduo/">
@@ -76,7 +76,7 @@
   };
 </script>
 
-  <title>muduo源码剖析 | 编程沉思录</title>
+  <title>muduo 源码剖析 | 编程沉思录</title>
   
 
 
@@ -216,7 +216,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          muduo源码剖析
+          muduo 源码剖析
         </h2>
 
         <div class="post-meta">
@@ -233,7 +233,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-20 11:18:33" itemprop="dateModified" datetime="2019-11-20T11:18:33+08:00">2019-11-20</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -248,7 +248,7 @@
             </span>
 
           
-            <span id="/articles/analysis-of-muduo/" class="post-meta-item leancloud_visitors" data-flag-title="muduo源码剖析" title="阅读次数">
+            <span id="/articles/analysis-of-muduo/" class="post-meta-item leancloud_visitors" data-flag-title="muduo 源码剖析" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -279,199 +279,199 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><a href="https://github.com/chenshuo/muduo" target="_blank" rel="noopener">muduo</a>是<a href="http://chenshuo.com" target="_blank" rel="noopener">陈硕</a>大神个人开发的C++的TCP网络编程库。muduo基于Reactor模式实现。Reactor模式也是目前大多数Linux端高性能网络编程框架和网络应用所选择的主要架构，例如内存数据库Redis和Java的Netty库等。</p>
-<p>陈硕的《Linux多线程服务器端编程》一书对muduo整个架构进行了非常详尽的介绍和分析，可以说是学习muduo源码和设计理念最好的资料了。这本书也非常推荐大家购买阅读，感觉是后台开发的必读书目了。</p>
-<p>而本文则主要是从源码角度辅助理解整个muduo的实现，同时也姑且算是对muduo的一个小小的补充。</p>
-<p>同时我也提供了一个<a href="https://github.com/chenyahui/AnnotatedCode/tree/master/muduo" target="_blank" rel="noopener">muduo注释版</a>，用以辅助理解muduo的源码。</p>
+        <p><a href="https://github.com/chenshuo/muduo" target="_blank" rel="noopener">muduo</a>是 <a href="http://chenshuo.com" target="_blank" rel="noopener">陈硕</a> 大神个人开发的 C++ 的 TCP 网络编程库。muduo 基于 Reactor 模式实现。Reactor 模式也是目前大多数 Linux 端高性能网络编程框架和网络应用所选择的主要架构，例如内存数据库 Redis 和 Java 的 Netty 库等。</p>
+<p>陈硕的《Linux 多线程服务器端编程》一书对 muduo 整个架构进行了非常详尽的介绍和分析，可以说是学习 muduo 源码和设计理念最好的资料了。这本书也非常推荐大家购买阅读，感觉是后台开发的必读书目了。</p>
+<p>而本文则主要是从源码角度辅助理解整个 muduo 的实现，同时也姑且算是对 muduo 的一个小小的补充。</p>
+<p>同时我也提供了一个 <a href="https://github.com/chenyahui/AnnotatedCode/tree/master/muduo" target="_blank" rel="noopener">muduo 注释版</a>，用以辅助理解 muduo 的源码。</p>
 <a id="more"></a>
-<h1 id="muduo的架构和概念"><a class="markdownIt-Anchor" href="#muduo的架构和概念"></a> muduo的架构和概念</h1>
-<p>muduo中类的职责和概念划分的非常清晰，在《Linux多线程服务器端编程》一书的6.3.1章节有详细的介绍。实际上目前很多网络库的接口设计也都受到了muduo的影响，例如360的evpp等。</p>
-<p>而muduo的整体风格受到netty的影响，整个架构依照Reactor模式，基本与如下图所示相符：</p>
-<p><img src="/img/reactor/single_thread_reactor.png" alt="单线程Reactor模式"></p>
-<p>所谓Reactor模式，是有一个循环的过程，监听对应事件是否触发，触发时调用对应的callback进行处理。</p>
-<p>这里的事件在muduo中包括Socket可读写事件、定时器事件。在其他网络库中如libevent也包括了signal、用户自定义事件等。</p>
-<p>负责事件循环的部分在muduo命名为<code>EventLoop</code>，其他库如netty、libevent也都有对应的组件。</p>
-<p>负责监听事件是否触发的部分，在muduo中叫做<code>Poller</code>。muduo提供了epoll和poll两种来实现，默认是epoll实现。<br>
-通过环境变量<code>MUDUO_USE_POLL</code>来决定是否使用poll:</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">Poller* Poller::newDefaultPoller(EventLoop* loop)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// 通过此环境变量来决定使用poll还是epoll</span></span><br><span class="line">  <span class="keyword">if</span> (::getenv(<span class="string">"MUDUO_USE_POLL"</span>))</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> PollPoller(loop);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> EPollPoller(loop);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>此外，图中的acceptor负责accept新连接，并将新连接分发到subReactor。这个组件在muduo中也叫做<code>Acceptor</code>。<br>
-关于图中的其他部分，会在<a href="#muduo%E7%9A%84%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B">muduo的线程模型</a>一节有详细介绍。</p>
+<h1 id="muduo-的架构和概念"><a class="markdownIt-Anchor" href="#muduo-的架构和概念"></a> muduo 的架构和概念</h1>
+<p>muduo 中类的职责和概念划分的非常清晰，在《Linux 多线程服务器端编程》一书的 6.3.1 章节有详细的介绍。实际上目前很多网络库的接口设计也都受到了 muduo 的影响，例如 360 的 evpp 等。</p>
+<p>而 muduo 的整体风格受到 netty 的影响，整个架构依照 Reactor 模式，基本与如下图所示相符：</p>
+<p><img src="/img/reactor/single_thread_reactor.png" alt="单线程 Reactor 模式"></p>
+<p>所谓 Reactor 模式，是有一个循环的过程，监听对应事件是否触发，触发时调用对应的 callback 进行处理。</p>
+<p>这里的事件在 muduo 中包括 Socket 可读写事件、定时器事件。在其他网络库中如 libevent 也包括了 signal、用户自定义事件等。</p>
+<p>负责事件循环的部分在 muduo 命名为 <code>EventLoop</code>，其他库如 netty、libevent 也都有对应的组件。</p>
+<p>负责监听事件是否触发的部分，在 muduo 中叫做 <code>Poller</code>。muduo 提供了 epoll 和 poll 两种来实现，默认是 epoll 实现。<br>
+通过环境变量 <code>MUDUO_USE_POLL</code> 来决定是否使用 poll:</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">Poller* Poller::newDefaultPoller(EventLoop* loop)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// 通过此环境变量来决定使用 poll 还是 epoll</span></span><br><span class="line">  <span class="keyword">if</span> (::getenv(<span class="string">"MUDUO_USE_POLL"</span>))</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> PollPoller(loop);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> EPollPoller(loop);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此外，图中的 acceptor 负责 accept 新连接，并将新连接分发到 subReactor。这个组件在 muduo 中也叫做 <code>Acceptor</code>。<br>
+关于图中的其他部分，会在 [muduo 的线程模型](#muduo 的线程模型) 一节有详细介绍。</p>
 <h1 id="一个简单的例子"><a class="markdownIt-Anchor" href="#一个简单的例子"></a> 一个简单的例子</h1>
-<p>本文首先从最简单的echo server入手，来介绍muduo的基本使用，同时也方便后面概念的理解。</p>
+<p>本文首先从最简单的 echo server 入手，来介绍 muduo 的基本使用，同时也方便后面概念的理解。</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(<span class="keyword">const</span> muduo::net::TcpConnectionPtr&amp; conn,</span></span></span><br><span class="line"><span class="function"><span class="params">                           muduo::net::Buffer* buf,</span></span></span><br><span class="line"><span class="function"><span class="params">                           muduo::Timestamp time)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  conn-&gt;send(buf);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    muduo::net::EventLoop loop;</span><br><span class="line">    muduo::net::<span class="function">InetAddress <span class="title">listenAddr</span><span class="params">(<span class="number">2007</span>)</span></span>;</span><br><span class="line">    <span class="function">TcpServer <span class="title">server</span><span class="params">(&amp;loop, listenAddr)</span></span>;</span><br><span class="line">    server.setMessageCallback(onMessage);</span><br><span class="line">    server.start();</span><br><span class="line">    loop.loop();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>echo-server的代码量非常简洁。一个典型的muduo的TcpServer工作流程如下：</p>
+<p>echo-server 的代码量非常简洁。一个典型的 muduo 的 TcpServer 工作流程如下：</p>
 <ol>
-<li>建立一个事件循环器EventLoop</li>
-<li>建立对应的业务服务器TcpServer</li>
-<li>设置TcpServer的Callback</li>
-<li>启动server</li>
+<li>建立一个事件循环器 EventLoop</li>
+<li>建立对应的业务服务器 TcpServer</li>
+<li>设置 TcpServer 的 Callback</li>
+<li>启动 server</li>
 <li>开启事件循环</li>
 </ol>
-<p>陈硕认为，TCP网络编程的本质是处理三个半事件，即：</p>
+<p>陈硕认为，TCP 网络编程的本质是处理三个半事件，即：</p>
 <ol>
 <li>连接的建立</li>
 <li>连接的断开：包括主动断开和被动断开</li>
 <li>消息到达，文件描述符可读。</li>
 <li>消息发送完毕。这个算半个事件。</li>
 </ol>
-<p>我们接下来分析下muduo是怎么处理和实现这三个半事件的</p>
+<p>我们接下来分析下 muduo 是怎么处理和实现这三个半事件的</p>
 <h1 id="连接的建立"><a class="markdownIt-Anchor" href="#连接的建立"></a> 连接的建立</h1>
-<p>在我们单纯使用linux的API，编写一个简单的Tcp服务器时，建立一个新的连接通常需要四步：</p>
+<p>在我们单纯使用 linux 的 API，编写一个简单的 Tcp 服务器时，建立一个新的连接通常需要四步：</p>
 <blockquote>
-<p>步骤1. socket() // 调用socket函数建立监听socket<br>
-步骤2. bind()   // 绑定地址和端口<br>
-步骤3. listen() // 开始监听端口<br>
-步骤4. accept() // 返回新建立连接的fd</p>
+<p>步骤 1. socket() // 调用 socket 函数建立监听 socket<br>
+步骤 2. bind()   // 绑定地址和端口<br>
+步骤 3. listen() // 开始监听端口<br>
+步骤 4. accept() // 返回新建立连接的 fd</p>
 </blockquote>
-<p>我们接下来分析下，这四个步骤在muduo中都是何时进行的：</p>
-<p>首先在TcpServer对象构建时，TcpServer的属性acceptor同时也被建立。<br>
-在Acceptor的构造函数中分别调用了socket函数和bind函数完成了<strong>步骤1</strong>和<strong>步骤2</strong>。<br>
-即，当<code>TcpServer server(&amp;loop, listenAddr);</code>执行结束时，监听socket已经建立好，并已绑定到对应地址和端口了。</p>
-<p>而当执行<code>server.start()</code>时，主要做了两个工作：</p>
+<p>我们接下来分析下，这四个步骤在 muduo 中都是何时进行的：</p>
+<p>首先在 TcpServer 对象构建时，TcpServer 的属性 acceptor 同时也被建立。<br>
+在 Acceptor 的构造函数中分别调用了 socket 函数和 bind 函数完成了 ** 步骤 1** 和 ** 步骤 2**。<br>
+即，当 <code>TcpServer server(&amp;loop, listenAddr);</code> 执行结束时，监听 socket 已经建立好，并已绑定到对应地址和端口了。</p>
+<p>而当执行 <code>server.start()</code> 时，主要做了两个工作：</p>
 <ol>
-<li>在监听socket上启动listen函数，也就是<strong>步骤3</strong>；</li>
-<li>将监听socket的可读事件注册到EventLoop中。</li>
+<li>在监听 socket 上启动 listen 函数，也就是 ** 步骤 3**；</li>
+<li>将监听 socket 的可读事件注册到 EventLoop 中。</li>
 </ol>
-<p>此时，程序已完成对地址的监听，但还不够，因为此时程序的主角<code>EventLoop</code>尚未启动。<br>
-当调用<code>loop.loop()</code>时，程序开始监听该socket的可读事件。</p>
-<p>当新连接请求建立时，可读事件触发，此时该事件对应的callback在EventLoop::loop()中被调用。<br>
-该事件的callback实际上就是Acceptor::handleRead()方法。</p>
-<p>在Acceptor::handleRead()方法中，做了三件事：</p>
+<p>此时，程序已完成对地址的监听，但还不够，因为此时程序的主角 <code>EventLoop</code> 尚未启动。<br>
+当调用 <code>loop.loop()</code> 时，程序开始监听该 socket 的可读事件。</p>
+<p>当新连接请求建立时，可读事件触发，此时该事件对应的 callback 在 EventLoop::loop() 中被调用。<br>
+该事件的 callback 实际上就是 Acceptor::handleRead() 方法。</p>
+<p>在 Acceptor::handleRead() 方法中，做了三件事：</p>
 <ol>
-<li>调用了accept函数，完成了<strong>步骤4</strong>，实现了连接的建立。得到一个已连接socket的fd</li>
-<li>创建TcpConnection对象</li>
-<li>将已连接socket的可读事件注册到EventLoop中。</li>
+<li>调用了 accept 函数，完成了 ** 步骤 4**，实现了连接的建立。得到一个已连接 socket 的 fd</li>
+<li>创建 TcpConnection 对象</li>
+<li>将已连接 socket 的可读事件注册到 EventLoop 中。</li>
 </ol>
-<p>这里还有一个需要注意的点，创建的TcpConnnection对象是个shared_ptr，该对象会被保存在TcpServer的connections中。这样才能保证引用计数大于0，对象不被释放。</p>
-<p>至此，一个新的连接已完全建立好，其可读事件也已注册到EventLoop中了。</p>
+<p>这里还有一个需要注意的点，创建的 TcpConnnection 对象是个 shared_ptr，该对象会被保存在 TcpServer 的 connections 中。这样才能保证引用计数大于 0，对象不被释放。</p>
+<p>至此，一个新的连接已完全建立好，其可读事件也已注册到 EventLoop 中了。</p>
 <h1 id="消息的读取"><a class="markdownIt-Anchor" href="#消息的读取"></a> 消息的读取</h1>
-<p>上节讲到，在新连接建立的时候，会将新连接的socket的可读事件注册到EventLoop中。<br>
-假如客户端发送消息，导致已连接socket的可读事件触发，该事件对应的callback同样也会在EventLoop::loop()中被调用。</p>
-<p>该事件的callback实际上就是TcpConnection::handleRead方法。<br>
-在TcpConnection::handleRead方法中，主要做了两件事：</p>
+<p>上节讲到，在新连接建立的时候，会将新连接的 socket 的可读事件注册到 EventLoop 中。<br>
+假如客户端发送消息，导致已连接 socket 的可读事件触发，该事件对应的 callback 同样也会在 EventLoop::loop() 中被调用。</p>
+<p>该事件的 callback 实际上就是 TcpConnection::handleRead 方法。<br>
+在 TcpConnection::handleRead 方法中，主要做了两件事：</p>
 <ol>
-<li>从socket中读取数据，并将其放入inputbuffer中</li>
-<li>调用messageCallback，执行业务逻辑。</li>
+<li>从 socket 中读取数据，并将其放入 inputbuffer 中</li>
+<li>调用 messageCallback，执行业务逻辑。</li>
 </ol>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> n = inputBuffer_.readFd(channel_-&gt;fd(), &amp;savedErrno);</span><br><span class="line"><span class="keyword">if</span> (n &gt; <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    messageCallback_(shared_from_this(), &amp;inputBuffer_, receiveTime);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>messageCallback是在建立新连接时，将<code>TcpServer::messageCallback</code>方法bind到了<code>TcpConnection::messageCallback</code>的方法。</p>
-<p>TcpServer::messageCallback就是业务逻辑的主要实现函数。通常情况下，我们可以在里面实现消息的编解码、消息的分发等工作，这里就不再深入探讨了。</p>
-<p>在我们上面给出的示例代码中，echo-server的messageCallback非常简单，就是直接将得到的数据，重新send回去。在实际的业务处理中，一般都会调用TcpConnection::send()方法，给客户端回复消息。</p>
-<p>这里需要注意的是，在messageCallback中，用户会有可能会把任务抛给自定义的Worker线程池处理。<br>
-但是这个在Worker线程池中任务，切忌直接对Buffer的操作。因为Buffer并不是线程安全的。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> n = inputBuffer_.readFd(channel_-&gt;fd(), &amp;savedErrno);</span><br><span class="line"><span class="keyword">if</span> (n&gt; <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    messageCallback_(shared_from_this(), &amp;inputBuffer_, receiveTime);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>messageCallback 是在建立新连接时，将 <code>TcpServer::messageCallback</code> 方法 bind 到了 <code>TcpConnection::messageCallback</code> 的方法。</p>
+<p>TcpServer::messageCallback 就是业务逻辑的主要实现函数。通常情况下，我们可以在里面实现消息的编解码、消息的分发等工作，这里就不再深入探讨了。</p>
+<p>在我们上面给出的示例代码中，echo-server 的 messageCallback 非常简单，就是直接将得到的数据，重新 send 回去。在实际的业务处理中，一般都会调用 TcpConnection::send() 方法，给客户端回复消息。</p>
+<p>这里需要注意的是，在 messageCallback 中，用户会有可能会把任务抛给自定义的 Worker 线程池处理。<br>
+但是这个在 Worker 线程池中任务，切忌直接对 Buffer 的操作。因为 Buffer 并不是线程安全的。</p>
 <p>我们需要记住一个准则:</p>
 <blockquote>
-<p>所有对IO和buffer的读写，都应该在IO线程中完成。</p>
+<p>所有对 IO 和 buffer 的读写，都应该在 IO 线程中完成。</p>
 </blockquote>
-<p>一般情况下，先在交给Worker线程池之前，应该现在IO线程中把Buffer进行切分解包等动作。将解包后的消息交由线程池处理，避免多个线程操作同一个资源。</p>
+<p>一般情况下，先在交给 Worker 线程池之前，应该现在 IO 线程中把 Buffer 进行切分解包等动作。将解包后的消息交由线程池处理，避免多个线程操作同一个资源。</p>
 <h1 id="消息的发送"><a class="markdownIt-Anchor" href="#消息的发送"></a> 消息的发送</h1>
-<p>用户通过调用TcpConnection::send()向客户端回复消息。由于muduo中使用了OutputBuffer，因此消息的发送过程比较复杂。</p>
-<p>首先需要注意的是线程安全问题, 对于消息的读写必须都在EventLoop的同一个线程(通常称为IO线程)中进行：<br>
-因此，TcpConnection::send保证了线程安全性，它是这么做的：</p>
+<p>用户通过调用 TcpConnection::send() 向客户端回复消息。由于 muduo 中使用了 OutputBuffer，因此消息的发送过程比较复杂。</p>
+<p>首先需要注意的是线程安全问题, 对于消息的读写必须都在 EventLoop 的同一个线程 (通常称为 IO 线程) 中进行：<br>
+因此，TcpConnection::send 保证了线程安全性，它是这么做的：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">void</span> TcpConnection::send(<span class="keyword">const</span> StringPiece&amp; message)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span> (state_ == kConnected)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> (loop_-&gt;isInLoopThread())</span><br><span class="line">    &#123;</span><br><span class="line">      sendInLoop(message);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      loop_-&gt;runInLoop(</span><br><span class="line">          boost::bind(&amp;TcpConnection::sendInLoop,</span><br><span class="line">                      <span class="keyword">this</span>,     <span class="comment">// FIXME</span></span><br><span class="line">                      message.as_string()));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>检测send的时候，是否在当前IO线程，如果是的话，直接进行写相关操作<code>sendInLoop</code>。<br>
-如果不在一个线程的话，需要将该任务抛给IO线程执行<code>runInloop</code>, 以保证write动作是在IO线程中执行的。我们后面会讲解<code>runInloop</code>的具体实现。</p>
-<p>在sendInloop中，做了下面几件事：</p>
+<p>检测 send 的时候，是否在当前 IO 线程，如果是的话，直接进行写相关操作 <code>sendInLoop</code>。<br>
+如果不在一个线程的话，需要将该任务抛给 IO 线程执行 <code>runInloop</code>, 以保证 write 动作是在 IO 线程中执行的。我们后面会讲解 <code>runInloop</code> 的具体实现。</p>
+<p>在 sendInloop 中，做了下面几件事：</p>
 <ol>
-<li>假如OutputBuffer为空，则直接向socket写数据</li>
-<li>如果向socket写数据没有写完，则统计剩余的字节个数，并进行下一步。没有写完可能是因为此时socket的TCP缓冲区已满了。</li>
-<li>如果此时OutputBuffer中的旧数据的个数和未写完字节个数之和大于highWaterMark，则将highWaterMarkCallback放入待执行队列中</li>
-<li><strong>将对应socket的可写事件注册到EventLoop中</strong></li>
+<li>假如 OutputBuffer 为空，则直接向 socket 写数据</li>
+<li>如果向 socket 写数据没有写完，则统计剩余的字节个数，并进行下一步。没有写完可能是因为此时 socket 的 TCP 缓冲区已满了。</li>
+<li>如果此时 OutputBuffer 中的旧数据的个数和未写完字节个数之和大于 highWaterMark，则将 highWaterMarkCallback 放入待执行队列中</li>
+<li>** 将对应 socket 的可写事件注册到 EventLoop 中 **</li>
 </ol>
-<p>注意，直到发送的时候，才把socket的可写事件注册到了EventLoop中。之前只注册了可读事件。</p>
-<p>连接socket的可写事件对应的callback是TcpConnection::handleWrite()<br>
-当某个socket的可写事件触发时，TcpConnection::handleWrite会做两个工作：</p>
+<p>注意，直到发送的时候，才把 socket 的可写事件注册到了 EventLoop 中。之前只注册了可读事件。</p>
+<p>连接 socket 的可写事件对应的 callback 是 TcpConnection::handleWrite()<br>
+当某个 socket 的可写事件触发时，TcpConnection::handleWrite 会做两个工作：</p>
 <ol>
-<li>尽可能将数据从OutputBuffer中向socket中write数据</li>
-<li>如果OutputBuffer没有剩余的，则<strong>将该socket的可写事件移除</strong>，并调用writeCompleteCallback</li>
+<li>尽可能将数据从 OutputBuffer 中向 socket 中 write 数据</li>
+<li>如果 OutputBuffer 没有剩余的，则 ** 将该 socket 的可写事件移除 **，并调用 writeCompleteCallback</li>
 </ol>
 <h2 id="为什么要移除可写事件"><a class="markdownIt-Anchor" href="#为什么要移除可写事件"></a> 为什么要移除可写事件</h2>
-<p>因为当OutputBuffer中没数据时，我们不需要向socket中写入数据。但是此时socket一直是处于可写状态的， 这将会导致TcpConnection::handleWrite()一直被触发。然而这个触发毫无意义，因为并没有什么可以写的。</p>
-<p>所以muduo的处理方式是，当OutputBuffer还有数据时，socket可写事件是注册状态。当OutputBuffer为空时，则将socket的可写事件移除。</p>
-<p>此外，highWaterMarkCallback和writeCompleteCallback一般配合使用，起到限流的作用。在《linux多线程服务器端编程》一书的8.9.3一节中有详细讲解。这里就不再赘述了</p>
+<p>因为当 OutputBuffer 中没数据时，我们不需要向 socket 中写入数据。但是此时 socket 一直是处于可写状态的， 这将会导致 TcpConnection::handleWrite() 一直被触发。然而这个触发毫无意义，因为并没有什么可以写的。</p>
+<p>所以 muduo 的处理方式是，当 OutputBuffer 还有数据时，socket 可写事件是注册状态。当 OutputBuffer 为空时，则将 socket 的可写事件移除。</p>
+<p>此外，highWaterMarkCallback 和 writeCompleteCallback 一般配合使用，起到限流的作用。在《linux 多线程服务器端编程》一书的 8.9.3 一节中有详细讲解。这里就不再赘述了</p>
 <h1 id="连接的断开"><a class="markdownIt-Anchor" href="#连接的断开"></a> 连接的断开</h1>
-<p>我们看下muduo对于连接的断开是怎么处理的。<br>
+<p>我们看下 muduo 对于连接的断开是怎么处理的。<br>
 连接的断开分为被动断开和主动断开。主动断开和被动断开的处理方式基本一致，因此本文只讲下被动断开的部分。</p>
-<p>被动断开即远程端断开了连接，server端需要感知到这个断开的过程，然后进行的相关的处理。</p>
-<p>其中感知远程断开这一步是在Tcp连接的可读事件处理函数<code>handleRead</code>中进行的：当对socket进行read操作时，返回值为0，则说明此时连接已断开。</p>
+<p>被动断开即远程端断开了连接，server 端需要感知到这个断开的过程，然后进行的相关的处理。</p>
+<p>其中感知远程断开这一步是在 Tcp 连接的可读事件处理函数 <code>handleRead</code> 中进行的：当对 socket 进行 read 操作时，返回值为 0，则说明此时连接已断开。</p>
 <p>接下来会做四件事情：</p>
 <ol>
-<li>将该TCP连接对应的事件从EventLoop移除</li>
-<li>调用用户的ConnectionCallback</li>
-<li>将对应的TcpConnection对象从Server移除。</li>
-<li>close对应的fd。此步骤是在析构函数中被动触发的，当TcpConnection对象被移除后，引用计数为0，对象析构时会调用close。</li>
+<li>将该 TCP 连接对应的事件从 EventLoop 移除</li>
+<li>调用用户的 ConnectionCallback</li>
+<li>将对应的 TcpConnection 对象从 Server 移除。</li>
+<li>close 对应的 fd。此步骤是在析构函数中被动触发的，当 TcpConnection 对象被移除后，引用计数为 0，对象析构时会调用 close。</li>
 </ol>
-<h1 id="runinloop的实现"><a class="markdownIt-Anchor" href="#runinloop的实现"></a> runInLoop的实现</h1>
-<p>在讲解消息的发送过程时候，我们讲到为了保证对buffer和socket的写动作是在io线程中进行，使用了一个<code>runInLoop</code>函数，将该写任务抛给了io线程处理。</p>
-<p>我们接下来看下<code>runInLoop</code>的实现：</p>
+<h1 id="runinloop-的实现"><a class="markdownIt-Anchor" href="#runinloop-的实现"></a> runInLoop 的实现</h1>
+<p>在讲解消息的发送过程时候，我们讲到为了保证对 buffer 和 socket 的写动作是在 io 线程中进行，使用了一个 <code>runInLoop</code> 函数，将该写任务抛给了 io 线程处理。</p>
+<p>我们接下来看下 <code>runInLoop</code> 的实现：</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">void</span> EventLoop::runInLoop(<span class="keyword">const</span> Functor&amp; cb)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span> (isInLoopThread())</span><br><span class="line">  &#123;</span><br><span class="line">    cb();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    queueInLoop(cb);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里可以看到，做了一层判断。如果调用时是此EventLoop的运行线程，则直接执行此函数。<br>
-否则调用<code>queueInLoop</code>函数。我们看下<code>queueInLoop</code>的实现。</p>
+<p>这里可以看到，做了一层判断。如果调用时是此 EventLoop 的运行线程，则直接执行此函数。<br>
+否则调用 <code>queueInLoop</code> 函数。我们看下 <code>queueInLoop</code> 的实现。</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">void</span> EventLoop::queueInLoop(<span class="keyword">const</span> Functor&amp; cb)</span><br><span class="line">&#123;</span><br><span class="line">  &#123;</span><br><span class="line">  <span class="function">MutexLockGuard <span class="title">lock</span><span class="params">(mutex_)</span></span>;</span><br><span class="line">  pendingFunctors_.push_back(cb);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!isInLoopThread() || callingPendingFunctors_)</span><br><span class="line">  &#123;</span><br><span class="line">    wakeup();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这里有两个动作：</p>
 <ol>
-<li>加锁，然后将该函数放到该EventLoop的pendingFunctors_队列中。</li>
-<li>判断是否要唤醒EventLoop，如果是则调用wakeup()唤醒该EventLoop。</li>
+<li>加锁，然后将该函数放到该 EventLoop 的 pendingFunctors_队列中。</li>
+<li>判断是否要唤醒 EventLoop，如果是则调用 wakeup() 唤醒该 EventLoop。</li>
 </ol>
 <p>这里有几个问题：</p>
 <ul>
-<li>为什么要唤醒EventLoop？</li>
-<li>wakeup是怎么实现的?</li>
+<li>为什么要唤醒 EventLoop？</li>
+<li>wakeup 是怎么实现的?</li>
 <li>pendingFunctors_是如何被消费的?</li>
 </ul>
-<h2 id="为什么要唤醒eventloop"><a class="markdownIt-Anchor" href="#为什么要唤醒eventloop"></a> 为什么要唤醒EventLoop</h2>
-<p>我们首先调用了<code>pendingFunctors_.push_back(cb);</code>, 将该函数放在pendingFunctors_中。EventLoop的每一轮循环最后会调用doPendingFunctors依次执行这些函数。</p>
-<p>而EventLoop的唤醒是通过epoll_wait实现的，如果此时该EventLoop中迟迟没有事件触发，那么epoll_wait一直就会阻塞。<br>
+<h2 id="为什么要唤醒-eventloop"><a class="markdownIt-Anchor" href="#为什么要唤醒-eventloop"></a> 为什么要唤醒 EventLoop</h2>
+<p>我们首先调用了 <code>pendingFunctors_.push_back(cb);</code>, 将该函数放在 pendingFunctors_中。EventLoop 的每一轮循环最后会调用 doPendingFunctors 依次执行这些函数。</p>
+<p>而 EventLoop 的唤醒是通过 epoll_wait 实现的，如果此时该 EventLoop 中迟迟没有事件触发，那么 epoll_wait 一直就会阻塞。<br>
 这样会导致，pendingFunctors_迟迟不能被执行了。</p>
-<p>所以对EventLoop的唤醒是必要的。</p>
-<h2 id="wakeup是怎么实现的"><a class="markdownIt-Anchor" href="#wakeup是怎么实现的"></a> wakeup是怎么实现的</h2>
-<p>muduo这里采用了对eventfd的读写来实现对EventLoop的唤醒。</p>
-<p>在EventLoop建立之后，就创建一个eventfd，并将其可读事件注册到EventLoop中。</p>
-<p><code>wakeup()</code>的过程本质上是对这个eventfd进行写操作，以触发该eventfd的可读事件。这样就起到了唤醒EventLoop的作用。</p>
+<p>所以对 EventLoop 的唤醒是必要的。</p>
+<h2 id="wakeup-是怎么实现的"><a class="markdownIt-Anchor" href="#wakeup-是怎么实现的"></a> wakeup 是怎么实现的</h2>
+<p>muduo 这里采用了对 eventfd 的读写来实现对 EventLoop 的唤醒。</p>
+<p>在 EventLoop 建立之后，就创建一个 eventfd，并将其可读事件注册到 EventLoop 中。</p>
+<p><code>wakeup()</code> 的过程本质上是对这个 eventfd 进行写操作，以触发该 eventfd 的可读事件。这样就起到了唤醒 EventLoop 的作用。</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">void</span> EventLoop::wakeup()</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">uint64_t</span> one = <span class="number">1</span>;</span><br><span class="line">  sockets::write(wakeupFd_, &amp;one, <span class="keyword">sizeof</span> one);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>很多库为了兼容macos，往往使用pipe来实现这个功能。muduo采用了eventfd，性能更好些，但代价是不能支持macos了。不过muduo似乎从一开始的定位就不打算支持？</p>
-<h2 id="dopendingfunctors的实现"><a class="markdownIt-Anchor" href="#dopendingfunctors的实现"></a> doPendingFunctors的实现</h2>
-<p>本部分讲下<code>doPendingFunctors</code>的实现，muduo是如何处理这些待处理的函数的，以及中间用了哪些优化操作。<br>
+<p>很多库为了兼容 macos，往往使用 pipe 来实现这个功能。muduo 采用了 eventfd，性能更好些，但代价是不能支持 macos 了。不过 muduo 似乎从一开始的定位就不打算支持？</p>
+<h2 id="dopendingfunctors-的实现"><a class="markdownIt-Anchor" href="#dopendingfunctors-的实现"></a> doPendingFunctors 的实现</h2>
+<p>本部分讲下 <code>doPendingFunctors</code> 的实现，muduo 是如何处理这些待处理的函数的，以及中间用了哪些优化操作。<br>
 代码如下所示：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">void</span> EventLoop::doPendingFunctors()</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Functor&gt; functors;</span><br><span class="line"> </span><br><span class="line">  callingPendingFunctors_ = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">  <span class="function">MutexLockGuard <span class="title">lock</span><span class="params">(mutex_)</span></span>;</span><br><span class="line">  functors.swap(pendingFunctors_);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; functors.size(); ++i)</span><br><span class="line">  &#123;</span><br><span class="line">    functors[i]();</span><br><span class="line">  &#125;</span><br><span class="line">  callingPendingFunctors_ = <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">void</span> EventLoop::doPendingFunctors()</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Functor&gt; functors;</span><br><span class="line"></span><br><span class="line">  callingPendingFunctors_ = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">  <span class="function">MutexLockGuard <span class="title">lock</span><span class="params">(mutex_)</span></span>;</span><br><span class="line">  functors.swap(pendingFunctors_);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; functors.size(); ++i)</span><br><span class="line">  &#123;</span><br><span class="line">    functors[i]();</span><br><span class="line">  &#125;</span><br><span class="line">  callingPendingFunctors_ = <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>从代码可以看到，函数非常简单。大概只有十行代码，但是这十行却有两个非常巧妙的措施。</p>
-<p><strong>callingPendingFunctors_的作用</strong></p>
-<p>从代码可以看出，如果callingPendingFunctors_为false，则说明此时尚未开始执行doPendingFunctors函数。<br>
-这个有什么作用呢，我们需要结合下queueInLoop中，对是否执行wakeup()的判断</p>
+<p>**callingPendingFunctors_的作用 **</p>
+<p>从代码可以看出，如果 callingPendingFunctors_为 false，则说明此时尚未开始执行 doPendingFunctors 函数。<br>
+这个有什么作用呢，我们需要结合下 queueInLoop 中，对是否执行 wakeup() 的判断</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">if (!isInLoopThread() || callingPendingFunctors_)</span><br><span class="line">&#123;</span><br><span class="line">  wakeup();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里还需要结合下EventLoop循环的实现，其中<code>doPendingFunctors()</code>是<strong>每轮循环的最后一步处理</strong>。<br>
-如果调用queueInLoop和EventLoop在同一个线程，且callingPendingFunctors_为false时，则说明：<strong>此时尚未执行到doPendingFunctors()。</strong><br>
-那么此时即使不用wakeup，也可以在之后照旧执行doPendingFunctors()了。</p>
-<p>这么做的好处非常明显，可以减少对eventfd的io读写。</p>
-<p><strong>锁范围的减少</strong><br>
+<p>这里还需要结合下 EventLoop 循环的实现，其中 <code>doPendingFunctors()</code> 是 ** 每轮循环的最后一步处理 <strong>。<br>
+如果调用 queueInLoop 和 EventLoop 在同一个线程，且 callingPendingFunctors_为 false 时，则说明：</strong> 此时尚未执行到 doPendingFunctors()。**<br>
+那么此时即使不用 wakeup，也可以在之后照旧执行 doPendingFunctors() 了。</p>
+<p>这么做的好处非常明显，可以减少对 eventfd 的 io 读写。</p>
+<p>** 锁范围的减少 **<br>
 在此函数中，有一段特别的代码：</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Functor&gt; functors;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="function">MutexLockGuard <span class="title">lock</span><span class="params">(mutex_)</span></span>;</span><br><span class="line">  functors.swap(pendingFunctors_);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这个作用是pendingFunctors_和functors的内容进行交换，实际上就是此时functors持有了pendingFunctors_的内容，而pendingFunctors_被清空了。</p>
+<p>这个作用是 pendingFunctors_和 functors 的内容进行交换，实际上就是此时 functors 持有了 pendingFunctors_的内容，而 pendingFunctors_被清空了。</p>
 <p>这个好处是什么呢？<br>
-如果不这么做，直接遍历pendingFunctors_,然后处理对应的函数。这样的话，锁会一直等到所有函数处理完才会被释放。在此期间，queueInLoop将不可用。</p>
-<p>而以上的写法，可以极大减小锁范围，整个锁的持有时间就是swap那一下的时间。待处理函数执行的时候，其他线程还是可以继续调用queueInLoop。</p>
-<h1 id="muduo的线程模型"><a class="markdownIt-Anchor" href="#muduo的线程模型"></a> muduo的线程模型</h1>
-<p>muduo默认是单线程模型的，即只有一个线程，里面对应一个EventLoop。这样整体对于线程安全的考虑可能就比较简单了，<br>
-但是muduo也可以支持以下几种线程模型：</p>
-<h2 id="主从reactor模式"><a class="markdownIt-Anchor" href="#主从reactor模式"></a> 主从reactor模式</h2>
-<p>主从reactor是netty的默认模型，一个reactor对应一个EventLoop。主Reactor只有一个，只负责监听新的连接，accept后将这个连接分配到子Reactor上。子Reactor可以有多个。这样可以分摊一个Eventloop的压力，性能方面可能会更好。如下图所示：</p>
-<p><img src="/img/reactor/main_sub_reactor.jpg" alt="主从Reactor模式"></p>
-<p>在muduo中也可以支持主从Reactor，其中主Reactor的EventLoop就是TcpServer的构造函数中的<code>EventLoop*</code>参数。Acceptor会在此EventLoop中运行。</p>
-<p>而子Reactor可以通过<code>TcpServer::setThreadNum(int)</code>来设置其个数。因为一个Eventloop只能在一个线程中运行，所以线程的个数就是子Reactor的个数。</p>
-<p>如果设置了子Reactor，新的连接会通过Round Robin的方式分配给其中一个EventLoop来管理。如果没有设置子Reactor，则是默认的单线程模型，新的连接会再由主Reactor进行管理。</p>
-<p>但其实这里似乎有些不合适的地方：多个TcpServer之间可以共享同一个主EventLoop，但是子Eventloop线程池却不能共享，这个是每个TcpServer独有的。<br>
-这里不太清楚是muduo的设计问题，还是作者有意为之。不过netty的主EventLoop和子Eventloop池都是可以共享的。</p>
+如果不这么做，直接遍历 pendingFunctors_, 然后处理对应的函数。这样的话，锁会一直等到所有函数处理完才会被释放。在此期间，queueInLoop 将不可用。</p>
+<p>而以上的写法，可以极大减小锁范围，整个锁的持有时间就是 swap 那一下的时间。待处理函数执行的时候，其他线程还是可以继续调用 queueInLoop。</p>
+<h1 id="muduo-的线程模型"><a class="markdownIt-Anchor" href="#muduo-的线程模型"></a> muduo 的线程模型</h1>
+<p>muduo 默认是单线程模型的，即只有一个线程，里面对应一个 EventLoop。这样整体对于线程安全的考虑可能就比较简单了，<br>
+但是 muduo 也可以支持以下几种线程模型：</p>
+<h2 id="主从-reactor-模式"><a class="markdownIt-Anchor" href="#主从-reactor-模式"></a> 主从 reactor 模式</h2>
+<p>主从 reactor 是 netty 的默认模型，一个 reactor 对应一个 EventLoop。主 Reactor 只有一个，只负责监听新的连接，accept 后将这个连接分配到子 Reactor 上。子 Reactor 可以有多个。这样可以分摊一个 Eventloop 的压力，性能方面可能会更好。如下图所示：</p>
+<p><img src="/img/reactor/main_sub_reactor.jpg" alt="主从 Reactor 模式"></p>
+<p>在 muduo 中也可以支持主从 Reactor，其中主 Reactor 的 EventLoop 就是 TcpServer 的构造函数中的 <code>EventLoop*</code> 参数。Acceptor 会在此 EventLoop 中运行。</p>
+<p>而子 Reactor 可以通过 <code>TcpServer::setThreadNum(int)</code> 来设置其个数。因为一个 Eventloop 只能在一个线程中运行，所以线程的个数就是子 Reactor 的个数。</p>
+<p>如果设置了子 Reactor，新的连接会通过 Round Robin 的方式分配给其中一个 EventLoop 来管理。如果没有设置子 Reactor，则是默认的单线程模型，新的连接会再由主 Reactor 进行管理。</p>
+<p>但其实这里似乎有些不合适的地方：多个 TcpServer 之间可以共享同一个主 EventLoop，但是子 Eventloop 线程池却不能共享，这个是每个 TcpServer 独有的。<br>
+这里不太清楚是 muduo 的设计问题，还是作者有意为之。不过 netty 的主 EventLoop 和子 Eventloop 池都是可以共享的。</p>
 <h2 id="业务线程池"><a class="markdownIt-Anchor" href="#业务线程池"></a> 业务线程池</h2>
-<p>对于一些阻塞型或者耗时型的任务，例如MySQL操作等。这些显然是不能放在IO线程（即EventLoop所在的线程）中运行的，因为会严重影响EventLoop的正常运行。具体原理可以查看<a href="http://www.cyhone.com/articles/reunderstanding-of-non-blocking-io/">另外一篇博客</a>。</p>
-<p>对于这类耗时型的任务，一般做法是可以放在另外单独线程池中运行，这样就不会阻塞IO线程的运行了。我们一般把这种处理耗时任务的线程叫做Worker线程。</p>
-<p>muduo本身没有提供一套直接使用Worker线程池的方式，但是muduo本身提供了线程池的相关类<code>ThreadPool</code>。muduo官方的推荐做法是，在OnMessage中，自行进行包的切分，然后将数据和对应的处理函数打包成Task的方式提交给线程池。</p>
+<p>对于一些阻塞型或者耗时型的任务，例如 MySQL 操作等。这些显然是不能放在 IO 线程（即 EventLoop 所在的线程）中运行的，因为会严重影响 EventLoop 的正常运行。具体原理可以查看 <a href="http://www.cyhone.com/articles/reunderstanding-of-non-blocking-io/">另外一篇博客</a>。</p>
+<p>对于这类耗时型的任务，一般做法是可以放在另外单独线程池中运行，这样就不会阻塞 IO 线程的运行了。我们一般把这种处理耗时任务的线程叫做 Worker 线程。</p>
+<p>muduo 本身没有提供一套直接使用 Worker 线程池的方式，但是 muduo 本身提供了线程池的相关类 <code>ThreadPool</code>。muduo 官方的推荐做法是，在 OnMessage 中，自行进行包的切分，然后将数据和对应的处理函数打包成 Task 的方式提交给线程池。</p>
 <h1 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h1>
-<p>个人认为，muduo源码对于学习网络编程和项目设计非常有帮助, 里面几乎包含了大部分网络编程和框架设计的最佳实践，配合《Linux多线程服务器端编程》一书，可以学到很多东西。<br>
-基于这几个方面来说，muduo绝对是一个值得一探究竟的优质源码。<br>
-此外，不但是网络编程方面，如何将复杂的底层细节封装好，暴露出友好的通用业务层接口，如何设计类的职责，对象的生命周期管理等方面，muduo都给了我们一个很好的示范。</p>
+<p>个人认为，muduo 源码对于学习网络编程和项目设计非常有帮助, 里面几乎包含了大部分网络编程和框架设计的最佳实践，配合《Linux 多线程服务器端编程》一书，可以学到很多东西。<br>
+基于这几个方面来说，muduo 绝对是一个值得一探究竟的优质源码。<br>
+此外，不但是网络编程方面，如何将复杂的底层细节封装好，暴露出友好的通用业务层接口，如何设计类的职责，对象的生命周期管理等方面，muduo 都给了我们一个很好的示范。</p>
 <h1 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h1>
 <ul>
-<li>《Linux多线程服务器端编程》</li>
+<li>《Linux 多线程服务器端编程》</li>
 <li><a href="http://gee.cs.oswego.edu/dl/cpjslides/nio.pdf" target="_blank" rel="noopener">Scalable IO in Java</a></li>
 </ul>
 
@@ -493,7 +493,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://www.cyhone.com/articles/analysis-of-muduo/" title="muduo源码剖析">http://www.cyhone.com/articles/analysis-of-muduo/</a>
+    <a href="http://www.cyhone.com/articles/analysis-of-muduo/" title="muduo 源码剖析">http://www.cyhone.com/articles/analysis-of-muduo/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -584,7 +584,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#muduo的架构和概念"><span class="nav-text"> muduo的架构和概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一个简单的例子"><span class="nav-text"> 一个简单的例子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#连接的建立"><span class="nav-text"> 连接的建立</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#消息的读取"><span class="nav-text"> 消息的读取</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#消息的发送"><span class="nav-text"> 消息的发送</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要移除可写事件"><span class="nav-text"> 为什么要移除可写事件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#连接的断开"><span class="nav-text"> 连接的断开</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#runinloop的实现"><span class="nav-text"> runInLoop的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要唤醒eventloop"><span class="nav-text"> 为什么要唤醒EventLoop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wakeup是怎么实现的"><span class="nav-text"> wakeup是怎么实现的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dopendingfunctors的实现"><span class="nav-text"> doPendingFunctors的实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#muduo的线程模型"><span class="nav-text"> muduo的线程模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#主从reactor模式"><span class="nav-text"> 主从reactor模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#业务线程池"><span class="nav-text"> 业务线程池</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text"> 总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#muduo-的架构和概念"><span class="nav-text"> muduo 的架构和概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一个简单的例子"><span class="nav-text"> 一个简单的例子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#连接的建立"><span class="nav-text"> 连接的建立</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#消息的读取"><span class="nav-text"> 消息的读取</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#消息的发送"><span class="nav-text"> 消息的发送</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要移除可写事件"><span class="nav-text"> 为什么要移除可写事件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#连接的断开"><span class="nav-text"> 连接的断开</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#runinloop-的实现"><span class="nav-text"> runInLoop 的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要唤醒-eventloop"><span class="nav-text"> 为什么要唤醒 EventLoop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wakeup-是怎么实现的"><span class="nav-text"> wakeup 是怎么实现的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dopendingfunctors-的实现"><span class="nav-text"> doPendingFunctors 的实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#muduo-的线程模型"><span class="nav-text"> muduo 的线程模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#主从-reactor-模式"><span class="nav-text"> 主从 reactor 模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#业务线程池"><span class="nav-text"> 业务线程池</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text"> 总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -658,7 +658,6 @@
 
   
   <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
 <script src="/js/utils.js"></script>
 <script src="/js/schemes/pisces.js"></script>
 <script src="/js/next-boot.js"></script>

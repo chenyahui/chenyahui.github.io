@@ -33,7 +33,7 @@
     fancybox: false,
     mediumzoom: false,
     lazyload: false,
-    pangu: true,
+    pangu: false,
     comments: {"style":"tabs","active":null,"storage":true,"nav":null},
     algolia: {
       appID: '',
@@ -48,18 +48,18 @@
   };
 </script>
 
-  <meta name="description" content="最近在写C++时，有这样一个代码需求：在lambda中，将一个捕获参数move给另外一个变量。 看似一个很简单常规的操作，然而这个move动作却没有生效。 具体代码如下： std::vector&amp;lt;int&amp;gt; vec = &amp;#123;1,2,3&amp;#125;;    auto func = [=]()&amp;#123;    auto vec2 = std::move(vec);    std::">
+  <meta name="description" content="最近在写 C++ 时，有这样一个代码需求：在 lambda 中，将一个捕获参数 move 给另外一个变量。 看似一个很简单常规的操作，然而这个 move 动作却没有生效。 具体代码如下： std::vector&amp;lt;int&amp;gt; vec = &amp;#123;1,2,3&amp;#125;;auto func = [=]()&amp;#123;    auto vec2 = std::move(vec);    s">
 <meta name="keywords" content="cpp">
 <meta property="og:type" content="article">
-<meta property="og:title" content="c++ lambda内std::move失效问题的思考">
+<meta property="og:title" content="c++ lambda 内 std::move 失效问题的思考">
 <meta property="og:url" content="http://www.cyhone.com/articles/why-move-no-work-in-lambda/index.html">
 <meta property="og:site_name" content="编程沉思录">
-<meta property="og:description" content="最近在写C++时，有这样一个代码需求：在lambda中，将一个捕获参数move给另外一个变量。 看似一个很简单常规的操作，然而这个move动作却没有生效。 具体代码如下： std::vector&amp;lt;int&amp;gt; vec = &amp;#123;1,2,3&amp;#125;;    auto func = [=]()&amp;#123;    auto vec2 = std::move(vec);    std::">
+<meta property="og:description" content="最近在写 C++ 时，有这样一个代码需求：在 lambda 中，将一个捕获参数 move 给另外一个变量。 看似一个很简单常规的操作，然而这个 move 动作却没有生效。 具体代码如下： std::vector&amp;lt;int&amp;gt; vec = &amp;#123;1,2,3&amp;#125;;auto func = [=]()&amp;#123;    auto vec2 = std::move(vec);    s">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-11-09T13:40:52.594Z">
+<meta property="og:updated_time" content="2019-12-10T05:07:50.067Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="c++ lambda内std::move失效问题的思考">
-<meta name="twitter:description" content="最近在写C++时，有这样一个代码需求：在lambda中，将一个捕获参数move给另外一个变量。 看似一个很简单常规的操作，然而这个move动作却没有生效。 具体代码如下： std::vector&amp;lt;int&amp;gt; vec = &amp;#123;1,2,3&amp;#125;;    auto func = [=]()&amp;#123;    auto vec2 = std::move(vec);    std::">
+<meta name="twitter:title" content="c++ lambda 内 std::move 失效问题的思考">
+<meta name="twitter:description" content="最近在写 C++ 时，有这样一个代码需求：在 lambda 中，将一个捕获参数 move 给另外一个变量。 看似一个很简单常规的操作，然而这个 move 动作却没有生效。 具体代码如下： std::vector&amp;lt;int&amp;gt; vec = &amp;#123;1,2,3&amp;#125;;auto func = [=]()&amp;#123;    auto vec2 = std::move(vec);    s">
 
 <link rel="canonical" href="http://www.cyhone.com/articles/why-move-no-work-in-lambda/">
 
@@ -73,7 +73,7 @@
   };
 </script>
 
-  <title>c++ lambda内std::move失效问题的思考 | 编程沉思录</title>
+  <title>c++ lambda 内 std::move 失效问题的思考 | 编程沉思录</title>
   
 
 
@@ -213,7 +213,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          c++ lambda内std::move失效问题的思考
+          c++ lambda 内 std::move 失效问题的思考
         </h2>
 
         <div class="post-meta">
@@ -230,7 +230,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-09 21:40:52" itemprop="dateModified" datetime="2019-11-09T21:40:52+08:00">2019-11-09</time>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -245,7 +245,7 @@
             </span>
 
           
-            <span id="/articles/why-move-no-work-in-lambda/" class="post-meta-item leancloud_visitors" data-flag-title="c++ lambda内std::move失效问题的思考" title="阅读次数">
+            <span id="/articles/why-move-no-work-in-lambda/" class="post-meta-item leancloud_visitors" data-flag-title="c++ lambda 内 std::move 失效问题的思考" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -276,55 +276,55 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>最近在写C++时，有这样一个代码需求：在lambda中，将一个捕获参数move给另外一个变量。<br>
-看似一个很简单常规的操作，然而这个move动作却没有生效。</p>
+        <p>最近在写 C++ 时，有这样一个代码需求：在 lambda 中，将一个捕获参数 move 给另外一个变量。<br>
+看似一个很简单常规的操作，然而这个 move 动作却没有生效。</p>
 <p>具体代码如下：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">auto</span> func = [=]()&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; vec.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; vec2.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>代码可在<a href="https://wandbox.org/permlink/et6ZTBhwpz5SH6w0" target="_blank" rel="noopener">wandbox</a>运行。</p>
-<p>我们期望的是，将对变量<code>vec</code>调用std::move后，数据将会移动至变量<code>vec2</code>, 此时<code>vec</code>里面应该没有数据了。但是通过打印<code>vec.size()</code>发现vec中的数据并没有按预期移走。</p>
-<p>这也就意味着，构造vec2时并没有按预期调用移动构造函数，而是调用了拷贝构造函数。</p>
-<p>为什么会造成这个问题呢, 我们需要结合<code>std::move</code>和<code>lambda</code>的原理看下。（最终的解决方案可以直接看<a href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">这里</a>）</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> func = [=]()&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec2.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>代码可在 <a href="https://wandbox.org/permlink/et6ZTBhwpz5SH6w0" target="_blank" rel="noopener">wandbox</a> 运行。</p>
+<p>我们期望的是，将对变量 <code>vec</code> 调用 std::move 后，数据将会移动至变量 <code>vec2</code>, 此时 <code>vec</code> 里面应该没有数据了。但是通过打印 <code>vec.size()</code> 发现 vec 中的数据并没有按预期移走。</p>
+<p>这也就意味着，构造 vec2 时并没有按预期调用移动构造函数，而是调用了拷贝构造函数。</p>
+<p>为什么会造成这个问题呢, 我们需要结合 <code>std::move</code> 和 <code>lambda</code> 的原理看下。（最终的解决方案可以直接看 [这里](# 解决方案)）</p>
 <a id="more"></a>
-<h1 id="stdmove的本质"><a class="markdownIt-Anchor" href="#stdmove的本质"></a> std::move的本质</h1>
-<p>对于std::move，有两点需要注意：</p>
+<h1 id="stdmove-的本质"><a class="markdownIt-Anchor" href="#stdmove-的本质"></a> std::move 的本质</h1>
+<p>对于 std::move，有两点需要注意：</p>
 <ol>
-<li>std::move中到底做了什么事情</li>
-<li>std::move是否可以保证数据一定能移动成功</li>
+<li>std::move 中到底做了什么事情</li>
+<li>std::move 是否可以保证数据一定能移动成功</li>
 </ol>
-<p>对于第二点来说，答案显然是不能。这也是本文的问题所在。那么std::move实际上是做了什么事情呢？</p>
-<p>对于std::move，其实现大致如下：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span><br><span class="line"><span class="keyword">decltype</span>(<span class="keyword">auto</span>) move(T&amp;&amp; param)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> ReturnType = <span class="keyword">remove_reference_t</span>&lt;T&gt;&amp;&amp;;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">static_cast</span>&lt;ReturnType&gt;(param);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>从代码可以看出，std::move本质上是调用了static_cast做了一层强制转换，强制转换的目标类型是<code>remove_reference_t&lt;T&gt;&amp;&amp;</code>，remove_reference_t是为了去除类型本身的引用，例如左值引用。总结来说，std::move本质上是将对象强制转换为了右值引用。</p>
-<p>那么，为什么我们通常使用std::move实现移动语义，可以将一个对象的数据移给另外一个对象？</p>
-<p>这是因为std::move配合了移动构造函数使用，本质上是移动构造函数起了作用。移动构造函数的一般定义如下：</p>
+<p>对于第二点来说，答案显然是不能。这也是本文的问题所在。那么 std::move 实际上是做了什么事情呢？</p>
+<p>对于 std::move，其实现大致如下：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">decltype</span>(<span class="keyword">auto</span>) move(T&amp;&amp; param)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> ReturnType = <span class="keyword">remove_reference_t</span>&lt;T&gt;&amp;&amp;;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">static_cast</span>&lt;ReturnType&gt;(param);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从代码可以看出，std::move 本质上是调用了 static_cast 做了一层强制转换，强制转换的目标类型是 <code>remove_reference_t&lt;T&gt;&amp;&amp;</code>，remove_reference_t 是为了去除类型本身的引用，例如左值引用。总结来说，std::move 本质上是将对象强制转换为了右值引用。</p>
+<p>那么，为什么我们通常使用 std::move 实现移动语义，可以将一个对象的数据移给另外一个对象？</p>
+<p>这是因为 std::move 配合了移动构造函数使用，本质上是移动构造函数起了作用。移动构造函数的一般定义如下：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">class A&#123;</span><br><span class="line">public:</span><br><span class="line">    A(A &amp;&amp;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>可以看到移动构造函数的参数就是个右值引用<code>A&amp;&amp;</code>，因此 <code>A a = std::move(b);</code>, 本质上是先将b强制转化了右值引用<code>A&amp;&amp;</code>,<br>
-然后触发了移动构造函数，在移动构造函数中，完成了对象b的数据到对象a的移动。</p>
-<p>那么，在哪些情况下，<code>A a = std::move(b);</code>会失效呢？<br>
-显然是，当std::move强转后的类型不是<code>A&amp;&amp;</code>，这样就不会命中移动构造函数。</p>
+<p>可以看到移动构造函数的参数就是个右值引用 <code>A&amp;&amp;</code>，因此 <code>A a = std::move(b);</code>, 本质上是先将 b 强制转化了右值引用 <code>A&amp;&amp;</code>,<br>
+然后触发了移动构造函数，在移动构造函数中，完成了对象 b 的数据到对象 a 的移动。</p>
+<p>那么，在哪些情况下，<code>A a = std::move(b);</code> 会失效呢？<br>
+显然是，当 std::move 强转后的类型不是 <code>A&amp;&amp;</code>，这样就不会命中移动构造函数。</p>
 <p>例如：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> str = <span class="string">"123"</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> str2(<span class="built_in">std</span>::move(str));</span><br></pre></td></tr></table></figure>
-<p>这个时候，对str对象调用<code>std::move</code>，强转出来的类型将会是<code>const string&amp;&amp;</code>, 这样移动构造函数就不会起作用了，但是这个类型却可以令复制构造函数生效。</p>
-<p>结合本文最初的问题，在lambda中move没有生效，显然也是std::move强转的类型不是<code>std::vector&lt;int&gt;&amp;&amp;</code>, 才导致了没有move成功。</p>
-<p>那么，为什么会出现这个问题呢，我们需要理解下lambda的工作原理。</p>
-<h1 id="lambda闭包原理"><a class="markdownIt-Anchor" href="#lambda闭包原理"></a> lambda闭包原理</h1>
-<p>对于c++的lambda，编译器会将lambda转化为一个独一无二的闭包类。而lambda对象最终会转化成这个闭包类的对象。<br>
-对于本文最初的这个lambda来说，最终实际上转化成了这么一个类型</p>
+<p>这个时候，对 str 对象调用 <code>std::move</code>，强转出来的类型将会是 <code>const string&amp;&amp;</code>, 这样移动构造函数就不会起作用了，但是这个类型却可以令复制构造函数生效。</p>
+<p>结合本文最初的问题，在 lambda 中 move 没有生效，显然也是 std::move 强转的类型不是 <code>std::vector&lt;int&gt;&amp;&amp;</code>, 才导致了没有 move 成功。</p>
+<p>那么，为什么会出现这个问题呢，我们需要理解下 lambda 的工作原理。</p>
+<h1 id="lambda-闭包原理"><a class="markdownIt-Anchor" href="#lambda-闭包原理"></a> lambda 闭包原理</h1>
+<p>对于 c++ 的 lambda，编译器会将 lambda 转化为一个独一无二的闭包类。而 lambda 对象最终会转化成这个闭包类的对象。<br>
+对于本文最初的这个 lambda 来说，最终实际上转化成了这么一个类型</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 转换前</span></span><br><span class="line"><span class="keyword">auto</span> func = [=]()&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 转换后</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClosureFunc</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">operator</span><span class="params">()</span> <span class="keyword">const</span></span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">ClosureFunc func;</span><br></pre></td></tr></table></figure>
-<p>这里需要注意, lambda的默认行为是，<strong>生成的闭包类的<code>operator()</code>默认被const修饰</strong>。</p>
-<p>那么这里问题就来了，当调用<code>operator()</code>时, 该闭包类所有的成员变量也是被const修饰的，此时对成员变量调用<code>std::move</code>将会引发上文中提到的，<strong>强转出来的类型将会是<code>const string&amp;&amp;</code>问题</strong>。因此，移动构造函数将不会被匹配到。</p>
-<p>我们最初的问题lambda中std::move失效的问题，也是因为这个原因。这也很符合const函数的语义: const函数是不能修改成员变量的值。</p>
+<p>这里需要注意, lambda 的默认行为是，** 生成的闭包类的 <code>operator()</code> 默认被 const 修饰 **。</p>
+<p>那么这里问题就来了，当调用 <code>operator()</code> 时, 该闭包类所有的成员变量也是被 const 修饰的，此时对成员变量调用 <code>std::move</code> 将会引发上文中提到的，** 强转出来的类型将会是 <code>const string&amp;&amp;</code> 问题 **。因此，移动构造函数将不会被匹配到。</p>
+<p>我们最初的问题 lambda 中 std::move 失效的问题，也是因为这个原因。这也很符合 const 函数的语义: const 函数是不能修改成员变量的值。</p>
 <h1 id="解决方案"><a class="markdownIt-Anchor" href="#解决方案"></a> 解决方案</h1>
-<p>那么，这个应该怎么解决呢？答案是<code>mutable</code>。即在lambda尾部声明一个mutable，如下：</p>
+<p>那么，这个应该怎么解决呢？答案是 <code>mutable</code>。即在 lambda 尾部声明一个 mutable，如下：</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">auto</span> func = [=]() <span class="keyword">mutable</span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>这样编译器生成的闭包类的<code>operator()</code>将会不带const了。我们的std::move也可以正常转换，实现移动语义了。</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">auto</span> func = [=]() <span class="keyword">mutable</span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; vec.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：0</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; vec2.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>代码可以在<a href="https://wandbox.org/permlink/ox4SBxNrAi8M8ZLp" target="_blank" rel="noopener">wandbox</a>运行。</p>
+<p>这样编译器生成的闭包类的 <code>operator()</code> 将会不带 const 了。我们的 std::move 也可以正常转换，实现移动语义了。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> func = [=]() <span class="keyword">mutable</span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：0</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec2.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>代码可以在 <a href="https://wandbox.org/permlink/ox4SBxNrAi8M8ZLp" target="_blank" rel="noopener">wandbox</a> 运行。</p>
 <h1 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h1>
 <ul>
-<li><a href="https://zh.cppreference.com/w/cpp/language/lambda" target="_blank" rel="noopener">Lambda 表达式-cppreference</a></li>
+<li><a href="https://zh.cppreference.com/w/cpp/language/lambda" target="_blank" rel="noopener">Lambda 表达式 - cppreference</a></li>
 <li>Effective Modern c++</li>
-<li><a href="https://www.zhihu.com/question/50652989" target="_blank" rel="noopener">关于C++右值及std::move()的疑问？</a></li>
+<li><a href="https://www.zhihu.com/question/50652989" target="_blank" rel="noopener">关于 C++ 右值及 std::move() 的疑问？</a></li>
 </ul>
 
     </div>
@@ -345,7 +345,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://www.cyhone.com/articles/why-move-no-work-in-lambda/" title="c++ lambda内std::move失效问题的思考">http://www.cyhone.com/articles/why-move-no-work-in-lambda/</a>
+    <a href="http://www.cyhone.com/articles/why-move-no-work-in-lambda/" title="c++ lambda 内 std::move 失效问题的思考">http://www.cyhone.com/articles/why-move-no-work-in-lambda/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -366,12 +366,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/articles/analysis-of-cloudwu-coroutine/" rel="prev" title="云风coroutine协程库源码分析">
-      <i class="fa fa-chevron-left"></i> 云风coroutine协程库源码分析
+    <a href="/articles/analysis-of-cloudwu-coroutine/" rel="prev" title="云风 coroutine 协程库源码分析">
+      <i class="fa fa-chevron-left"></i> 云风 coroutine 协程库源码分析
     </a></div>
       <div class="post-nav-item">
-    <a href="/articles/right-way-to-use-cpp-smart-pointer/" rel="next" title="C++智能指针的正确使用方式">
-      C++智能指针的正确使用方式 <i class="fa fa-chevron-right"></i>
+    <a href="/articles/right-way-to-use-cpp-smart-pointer/" rel="next" title="C++ 智能指针的正确使用方式">
+      C++ 智能指针的正确使用方式 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -433,7 +433,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#stdmove的本质"><span class="nav-text"> std::move的本质</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#lambda闭包原理"><span class="nav-text"> lambda闭包原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解决方案"><span class="nav-text"> 解决方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#stdmove-的本质"><span class="nav-text"> std::move 的本质</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#lambda-闭包原理"><span class="nav-text"> lambda 闭包原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解决方案"><span class="nav-text"> 解决方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -507,7 +507,6 @@
 
   
   <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
 <script src="/js/utils.js"></script>
 <script src="/js/schemes/pisces.js"></script>
 <script src="/js/next-boot.js"></script>
