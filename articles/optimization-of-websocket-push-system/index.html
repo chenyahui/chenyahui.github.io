@@ -1,4 +1,415 @@
-<!-- build time:Wed Dec 11 2019 16:38:38 GMT+0800 (China Standard Time) --><!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 3.7.1"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="google-site-verification" content="gcDrMPbZlMtAIc7xAPBwFUjnApzpvfqSbVIKT3R8fbA"><meta name="baidu-site-verification" content="F7xr7OXgnX"><link rel="stylesheet" href="/css/main.css?v="><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:new URL("http://www.cyhone.com").hostname,root:"/",scheme:"Gemini",version:"7.6.2",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!1,show_result:!1,style:"default"},back2top:{enable:!0,sidebar:!1,scrollpercent:!1},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!1,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,nav:null},algolia:{appID:"",apiKey:"",indexName:"",hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},path:"",motion:{enable:!1,async:!1,transition:{post_block:null,post_header:null,post_body:null,coll_header:null,sidebar:null}}}</script><meta name="description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。我们根据实际的场景，对此订单推送系统在稳"><meta name="keywords" content="Websocket"><meta property="og:type" content="article"><meta property="og:title" content="WebSocket 订单推送稳定性优化方案"><meta property="og:url" content="http://www.cyhone.com/articles/optimization-of-websocket-push-system/index.html"><meta property="og:site_name" content="编程沉思录"><meta property="og:description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。我们根据实际的场景，对此订单推送系统在稳"><meta property="og:locale" content="zh-CN"><meta property="og:updated_time" content="2019-12-10T05:07:50.067Z"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="WebSocket 订单推送稳定性优化方案"><meta name="twitter:description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。我们根据实际的场景，对此订单推送系统在稳"><link rel="canonical" href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0}</script><title>WebSocket 订单推送稳定性优化方案 | 编程沉思录</title><script>var _hmt=_hmt||[];!function(){var e=document.createElement("script");e.src="https://hm.baidu.com/hm.js?ec99ce8d168c9260e5d744401582acc9";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)}()</script><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-meta"><div><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span> <span class="site-title">编程沉思录</span> <span class="logo-line-after"><i></i></span></a></div><h1 class="site-subtitle" itemprop="description">一些思考和总结</h1></div><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div></div><nav class="site-nav"><ul id="menu" class="menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">10</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">24</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">26</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a></li></ul></nav></div></header><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span>0%</span></div><a href="https://github.com/chenyahui" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content"><div class="posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/img/avatar.jpg"><meta itemprop="name" content="cyhone"><meta itemprop="description" content="每有会意，便欣然忘食"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="编程沉思录"></span><header class="post-header"><h2 class="post-title" itemprop="name headline">WebSocket 订单推送稳定性优化方案</h2><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="fa fa-calendar-o"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2019-08-17 14:36:12" itemprop="dateCreated datePublished" datetime="2019-08-17T14:36:12+08:00">2019-08-17</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="fa fa-calendar-check-o"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="fa fa-folder-o"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/开发经验/" itemprop="url" rel="index"><span itemprop="name">开发经验</span> </a></span></span><span id="/articles/optimization-of-websocket-push-system/" class="post-meta-item leancloud_visitors" data-flag-title="WebSocket 订单推送稳定性优化方案" title="阅读次数"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span class="leancloud-visitors-count"></span> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="fa fa-comment-o"></i> </span><span class="post-meta-item-text">评论数：</span> <a title="valine" href="/articles/optimization-of-websocket-push-system/#comments" itemprop="discussionUrl"><span class="post-comments-count valine-comment-count" data-xid="/articles/optimization-of-websocket-push-system/" itemprop="commentCount"></span></a></span></div></header><div class="post-body" itemprop="articleBody"><p><a href="https://cloud.tencent.com/document/product/569/33102" target="_blank" rel="noopener">微信云支付 Android 智能 POS</a> 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。</p><p>客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。</p><p>然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。</p><p>我们根据实际的场景，对此订单推送系统在稳定性上进行了大量优化，尽可能地提升了服务的可用性及自我恢复的能力。</p><a id="more"></a><h2 id="客户端的弱网环境"><a class="markdownIt-Anchor" href="#客户端的弱网环境"></a> 客户端的弱网环境</h2><p>在网络应用的开发过程中，网络的稳定性始终是不可靠的。这点在网络环境多样的客户侧来说，特点尤为明显。</p><ol><li>客户往往会基于成本考虑，所使用的网络质量不高。如部分用户还会使用 2G、3G 网络。</li><li>在移动设备中，客户会进行网络切换。例如，从 wifi 切换到移动数据，或暂时把网络关闭掉。</li><li>后端服务变更或者其他问题可能会引起 WebSocket 链接暂时不可用。</li></ol><p>对于以上几种场景，都会引起 WebSocket 连接异常，导致连接关闭，从而会引发漏单现象。</p><p>一旦订单没有得到及时推送，店员虽然可以到交易查询中确认订单状态，但这样的异常行为如果频发，对于客户来说也是很难接受的。</p><p>我们引入了以下多种措施来解决此问题</p><h2 id="一-应用层心跳尽快发现问题"><a class="markdownIt-Anchor" href="#一-应用层心跳尽快发现问题"></a> 一、应用层心跳：尽快发现问题</h2><p>在浏览器端 WebSocket 相关接口非常简单，但缺了一个设置心跳的接口。我们需要设计一个应用层的心跳机制，来保证线路质量。</p><p>在设计应用层心跳时，主要出于以下几个方面：</p><ol><li>**nginx 的 proxy_read_timeout 参数 **:<br>nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数。当连接在此超时时间内没有数据传输，则会主动断开，<br>默认行为是 60s。因此我们需要一个应用层心跳，在 proxy_read_timeout 的时间内，发送心跳包，以保证连接不被断开。</li><li>** 应用层心跳可以帮助我们快速检测和发现链路的健康程度 ** :<br>为了快速检测到链路的异常问题，我们可以将心跳时间缩短到可接受范围内。</li></ol><p>在最初的版本设计中，我们的应用层心跳只涉及了 ping 接口。</p><p>即客户端主动发生向 server 端发生 ping，如果发送成功，则说明链路正常，反之意味着链路不正常。</p><p>整个过程中，ping 是否成功，都依赖于 WebSocket 是否触发了 onError 错误回调。</p><p>但在实际的开发过程中，** 我们发现，这样一种特殊场景 **：</p><p>使用手机发热点供收银设备使用网络，在正常使用过程中，如果关闭手机的网络数据连接（wifi 或者移动数据），但保持热点的正常开放，那么收银设备将无法快速感知到网络的异常，大概需要 3-5 分钟才能触发异常回调。</p><p>因此，针对此情况我们对应用层心跳进行了进一步的优化，让 server 端收到 ping 之后，回复一个 pong 包。我们根据 ping 和 pong 的时间间隔，来决定当前链路的健康程度。</p><h2 id="二-断线重连自我恢复"><a class="markdownIt-Anchor" href="#二-断线重连自我恢复"></a> 二、断线重连：自我恢复</h2><p>当 WebSocket 连接一旦发生了中断，将不会自动的恢复。因此，WebSocket 的断线重连机制也是我们首要考虑的一个方面。</p><p>断线重连的实现过程比较简单，即当发生 ** 心跳超时 <strong>、</strong> 链路错误 ** 或者 ** 链路非正常关闭 ** 等问题时，我们将触发 WebSocket 的重连机制。</p><p>重连过程也非常简单，即不断重新连接 WebSocket、重新鉴权等过程，直至连接成功。</p><p>这里需要注意的一个小小的点就是：在重新连接的时候, WebSocket 的各种回调 (onmessage、onopen)，都需要重新设置。</p><p>有了断线重连机制，可以实现 WebSocket 简单的自我恢复功能。</p><h2 id="三-推拉结合兜底行为"><a class="markdownIt-Anchor" href="#三-推拉结合兜底行为"></a> 三、推拉结合：兜底行为</h2><p>引入了 WebSocket 的应用层心跳检测和断线重连，可以快速地帮我们发现链路的异常问题，同时尽快恢复到健康状态。</p><p>但是，当 WebSocket 服务侧发生了短时异常（如变更等），或者重连时间过长。</p><p>在应用层发现异常到重连成功的这个过程，整个推送服务最长可能有十秒左右的不可用时间，这个时长取决于心跳的间隔时长。且万一重连也不成功，这个不可用时间将会持续增大。</p><p>在设计中，需要考虑到这种异常情况，且在商户网络环境不稳定的情况下，此问题可能会被放大。</p><p>我们引入了主动拉取的方案，在网络异常时，将会切换为主动拉取模式，定时向后端拉取订单。</p><p>这里需要注意的有几点：</p><ol><li>每次主动拉取时，最好拉取时间有重叠。即：本次拉取的开始时间，是上次拉取的结束时间前 1 秒。<br>这样可以尽量减少因为定时器等环境原因，导致漏单问题</li><li>每次主动拉取后，检测当前 WebSocket 是否链路健康，如果健康则关闭主动拉取模式。</li></ol><p>因为我们主动拉取的范围重叠性以及主动拉取也可能和推送模式有一段时间的重叠，我们得到的订单可能会重复。</p><p>这里我们需要注意对订单进行一个简单的去重逻辑，即：</p><ol><li>万一订单已存在，就忽略该订单。这个可以用简单的 set 实现即可</li><li>根据订单范围的时效性，可以定时删除过期的订单号即可。</li></ol><p>引入主动拉取模式，一方面尽可能的减少了漏单可能的发生，另一方面对主动推送来说，也是一个兜底行为。</p><h2 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h2><p>总结来说，我们选择使用了 WebSocket 长连接的方式，实现了支付订单的实时推送，为了解决推送的不稳定性，我们主要采取了以下几种措施：</p><ul><li>定时发送应用层心跳，来快速地帮我们发现链路的异常问题</li><li>引入了断线重连机制，实现了 WebSocket 自我恢复</li><li>加入主动拉取模式，尽可能的减少了漏单可能的发生</li></ul><p>我们利用这几点措施，使得整个服务的可用性大大增强。</p><h2 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h2><ul><li><a href="http://nginx.org/en/docs/http/WebSocket.html" target="_blank" rel="noopener">WebSocket proxying</a></li></ul></div><div id="wechat_subscriber" style="display:block;padding:10px 0;margin:20px auto;width:100%;text-align:center"><img id="wechat_subscriber_qcode" src="/img/wechat_subscriber_search.png" alt="cyhone wechat" style="width:750px;max-width:100%"></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>cyhone</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/" title="WebSocket 订单推送稳定性优化方案">http://www.cyhone.com/articles/optimization-of-websocket-push-system/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/Websocket/" rel="tag"><i class="fa fa-tag"></i> Websocket</a></div><div class="post-nav"><div class="post-nav-item"><a href="/articles/reunderstanding-of-non-blocking-io/" rel="prev" title="重新理解 IO 模型"><i class="fa fa-chevron-left"></i> 重新理解 IO 模型</a></div><div class="post-nav-item"><a href="/articles/analysis-of-cloudwu-coroutine/" rel="next" title="云风 coroutine 协程库源码分析">云风 coroutine 协程库源码分析 <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div></div><div class="comments" id="valine-comments"></div><script>window.addEventListener('tabs:register', () => {
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#464159">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#464159">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="google-site-verification" content="gcDrMPbZlMtAIc7xAPBwFUjnApzpvfqSbVIKT3R8fbA">
+  <meta name="baidu-site-verification" content="F7xr7OXgnX">
+
+<link rel="stylesheet" href="/css/main.css?v=">
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.cyhone.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.6.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":"default"},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}
+  };
+</script>
+
+  <meta name="description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
+<meta name="keywords" content="Websocket">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebSocket 订单推送稳定性优化方案">
+<meta property="og:url" content="http://www.cyhone.com/articles/optimization-of-websocket-push-system/index.html">
+<meta property="og:site_name" content="编程沉思录">
+<meta property="og:description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-10T05:07:50.067Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WebSocket 订单推送稳定性优化方案">
+<meta name="twitter:description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
+
+<link rel="canonical" href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>WebSocket 订单推送稳定性优化方案 | 编程沉思录</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ec99ce8d168c9260e5d744401582acc9";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">编程沉思录</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">一些思考和总结</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">10</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">24</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">26</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/chenyahui" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          WebSocket 订单推送稳定性优化方案
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-08-17 14:36:12" itemprop="dateCreated datePublished" datetime="2019-08-17T14:36:12+08:00">2019-08-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/开发经验/" itemprop="url" rel="index">
+                    <span itemprop="name">开发经验</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/optimization-of-websocket-push-system/" class="post-meta-item leancloud_visitors" data-flag-title="WebSocket 订单推送稳定性优化方案" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">评论数：</span>
+    
+    <a title="valine" href="/articles/optimization-of-websocket-push-system/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/articles/optimization-of-websocket-push-system/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://cloud.tencent.com/document/product/569/33102" target="_blank" rel="noopener">微信云支付 Android 智能 POS</a> 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。</p>
+<p>客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。</p>
+<p>然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。</p>
+<p>我们根据实际的场景，对此订单推送系统在稳定性上进行了大量优化，尽可能地提升了服务的可用性及自我恢复的能力。</p>
+<a id="more"></a>
+<h2 id="客户端的弱网环境"><a class="markdownIt-Anchor" href="#客户端的弱网环境"></a> 客户端的弱网环境</h2>
+<p>在网络应用的开发过程中，网络的稳定性始终是不可靠的。这点在网络环境多样的客户侧来说，特点尤为明显。</p>
+<ol>
+<li>客户往往会基于成本考虑，所使用的网络质量不高。如部分用户还会使用 2G、3G 网络。</li>
+<li>在移动设备中，客户会进行网络切换。例如，从 wifi 切换到移动数据，或暂时把网络关闭掉。</li>
+<li>后端服务变更或者其他问题可能会引起 WebSocket 链接暂时不可用。</li>
+</ol>
+<p>对于以上几种场景，都会引起 WebSocket 连接异常，导致连接关闭，从而会引发漏单现象。</p>
+<p>一旦订单没有得到及时推送，店员虽然可以到交易查询中确认订单状态，但这样的异常行为如果频发，对于客户来说也是很难接受的。</p>
+<p>我们引入了以下多种措施来解决此问题</p>
+<h2 id="一-应用层心跳尽快发现问题"><a class="markdownIt-Anchor" href="#一-应用层心跳尽快发现问题"></a> 一、应用层心跳：尽快发现问题</h2>
+<p>在浏览器端 WebSocket 相关接口非常简单，但缺了一个设置心跳的接口。我们需要设计一个应用层的心跳机制，来保证线路质量。</p>
+<p>在设计应用层心跳时，主要出于以下几个方面：</p>
+<ol>
+<li>**nginx 的 proxy_read_timeout 参数 **:<br>
+nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数。当连接在此超时时间内没有数据传输，则会主动断开，<br>
+默认行为是 60s。因此我们需要一个应用层心跳，在 proxy_read_timeout 的时间内，发送心跳包，以保证连接不被断开。</li>
+<li>** 应用层心跳可以帮助我们快速检测和发现链路的健康程度 ** :<br>
+为了快速检测到链路的异常问题，我们可以将心跳时间缩短到可接受范围内。</li>
+</ol>
+<p>在最初的版本设计中，我们的应用层心跳只涉及了 ping 接口。</p>
+<p>即客户端主动发生向 server 端发生 ping，如果发送成功，则说明链路正常，反之意味着链路不正常。</p>
+<p>整个过程中，ping 是否成功，都依赖于 WebSocket 是否触发了 onError 错误回调。</p>
+<p>但在实际的开发过程中，** 我们发现，这样一种特殊场景 **：</p>
+<p>使用手机发热点供收银设备使用网络，在正常使用过程中，如果关闭手机的网络数据连接（wifi 或者移动数据），但保持热点的正常开放，那么收银设备将无法快速感知到网络的异常，大概需要 3-5 分钟才能触发异常回调。</p>
+<p>因此，针对此情况我们对应用层心跳进行了进一步的优化，让 server 端收到 ping 之后，回复一个 pong 包。我们根据 ping 和 pong 的时间间隔，来决定当前链路的健康程度。</p>
+<h2 id="二-断线重连自我恢复"><a class="markdownIt-Anchor" href="#二-断线重连自我恢复"></a> 二、断线重连：自我恢复</h2>
+<p>当 WebSocket 连接一旦发生了中断，将不会自动的恢复。因此，WebSocket 的断线重连机制也是我们首要考虑的一个方面。</p>
+<p>断线重连的实现过程比较简单，即当发生 ** 心跳超时 <strong>、</strong> 链路错误 ** 或者 ** 链路非正常关闭 ** 等问题时，我们将触发 WebSocket 的重连机制。</p>
+<p>重连过程也非常简单，即不断重新连接 WebSocket、重新鉴权等过程，直至连接成功。</p>
+<p>这里需要注意的一个小小的点就是：在重新连接的时候, WebSocket 的各种回调 (onmessage、onopen)，都需要重新设置。</p>
+<p>有了断线重连机制，可以实现 WebSocket 简单的自我恢复功能。</p>
+<h2 id="三-推拉结合兜底行为"><a class="markdownIt-Anchor" href="#三-推拉结合兜底行为"></a> 三、推拉结合：兜底行为</h2>
+<p>引入了 WebSocket 的应用层心跳检测和断线重连，可以快速地帮我们发现链路的异常问题，同时尽快恢复到健康状态。</p>
+<p>但是，当 WebSocket 服务侧发生了短时异常（如变更等），或者重连时间过长。</p>
+<p>在应用层发现异常到重连成功的这个过程，整个推送服务最长可能有十秒左右的不可用时间，这个时长取决于心跳的间隔时长。且万一重连也不成功，这个不可用时间将会持续增大。</p>
+<p>在设计中，需要考虑到这种异常情况，且在商户网络环境不稳定的情况下，此问题可能会被放大。</p>
+<p>我们引入了主动拉取的方案，在网络异常时，将会切换为主动拉取模式，定时向后端拉取订单。</p>
+<p>这里需要注意的有几点：</p>
+<ol>
+<li>每次主动拉取时，最好拉取时间有重叠。即：本次拉取的开始时间，是上次拉取的结束时间前 1 秒。<br>
+这样可以尽量减少因为定时器等环境原因，导致漏单问题</li>
+<li>每次主动拉取后，检测当前 WebSocket 是否链路健康，如果健康则关闭主动拉取模式。</li>
+</ol>
+<p>因为我们主动拉取的范围重叠性以及主动拉取也可能和推送模式有一段时间的重叠，我们得到的订单可能会重复。</p>
+<p>这里我们需要注意对订单进行一个简单的去重逻辑，即：</p>
+<ol>
+<li>万一订单已存在，就忽略该订单。这个可以用简单的 set 实现即可</li>
+<li>根据订单范围的时效性，可以定时删除过期的订单号即可。</li>
+</ol>
+<p>引入主动拉取模式，一方面尽可能的减少了漏单可能的发生，另一方面对主动推送来说，也是一个兜底行为。</p>
+<h2 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h2>
+<p>总结来说，我们选择使用了 WebSocket 长连接的方式，实现了支付订单的实时推送，为了解决推送的不稳定性，我们主要采取了以下几种措施：</p>
+<ul>
+<li>定时发送应用层心跳，来快速地帮我们发现链路的异常问题</li>
+<li>引入了断线重连机制，实现了 WebSocket 自我恢复</li>
+<li>加入主动拉取模式，尽可能的减少了漏单可能的发生</li>
+</ul>
+<p>我们利用这几点措施，使得整个服务的可用性大大增强。</p>
+<h2 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h2>
+<ul>
+<li><a href="http://nginx.org/en/docs/http/WebSocket.html" target="_blank" rel="noopener">WebSocket proxying</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+    <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
+        <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber_search.png" alt="cyhone wechat" style="width: 750px;max-width:100%;">
+    <!--div>欢迎关注公众号【编程沉思录】</div-->
+    </div>
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>cyhone
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/" title="WebSocket 订单推送稳定性优化方案">http://www.cyhone.com/articles/optimization-of-websocket-push-system/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Websocket/" rel="tag"><i class="fa fa-tag"></i> Websocket</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/reunderstanding-of-non-blocking-io/" rel="prev" title="重新理解 IO 模型">
+      <i class="fa fa-chevron-left"></i> 重新理解 IO 模型
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/analysis-of-cloudwu-coroutine/" rel="next" title="云风 coroutine 协程库源码分析">
+      云风 coroutine 协程库源码分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
     let activeClass = CONFIG.comments.activeClass;
     if (CONFIG.comments.storage) {
       activeClass = localStorage.getItem('comments_active') || activeClass;
@@ -16,7 +427,137 @@
       let commentClass = event.target.classList[1];
       localStorage.setItem('comments_active', commentClass);
     });
-  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#客户端的弱网环境"><span class="nav-text">客户端的弱网环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一-应用层心跳尽快发现问题"><span class="nav-text">一、应用层心跳：尽快发现问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二-断线重连自我恢复"><span class="nav-text">二、断线重连：自我恢复</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三-推拉结合兜底行为"><span class="nav-text">三、推拉结合：兜底行为</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-text">参考</span></a></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><img class="site-author-image" itemprop="image" alt="cyhone" src="/img/avatar.jpg"><p class="site-author-name" itemprop="name">cyhone</p><div class="site-description" itemprop="description">每有会意，便欣然忘食</div></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/chenyahui" title="GitHub → https://github.com/chenyahui" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a> </span><span class="links-of-author-item"><a href="mailto:cyhone@qq.com" title="E-Mail → mailto:cyhone@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a> </span><span class="links-of-author-item"><a href="https://zhuanlan.zhihu.com/ruminations-on-code" title="Zhihu → https://zhuanlan.zhihu.com/ruminations-on-code" rel="noopener" target="_blank"><i class="fa fa-fw fa-custom zhihu"></i></a> </span><span class="links-of-author-item"><a href="/atom.xml" title="rss → /atom.xml"><i class="fa fa-fw fa-rss"></i></a></span></div><div id="wechat_subscriber" style="display:block;padding:10px 0;margin:20px auto;width:100%;text-align:center"><img id="wechat_subscriber_qcode" src="/img/wechat_subscriber.jpg" alt="cyhone wechat" style="width:200px;max-width:100%"><div style="color:#999;font-size:14px">欢迎关注公众号【编程沉思录】</div></div></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="beian"><a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">豫ICP备18011028号</a></div><div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">cyhone</span></div></div></footer></div><script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script><script src="/js/utils.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#客户端的弱网环境"><span class="nav-text"> 客户端的弱网环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一-应用层心跳尽快发现问题"><span class="nav-text"> 一、应用层心跳：尽快发现问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二-断线重连自我恢复"><span class="nav-text"> 二、断线重连：自我恢复</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三-推拉结合兜底行为"><span class="nav-text"> 三、推拉结合：兜底行为</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-text"> 总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="cyhone"
+      src="/img/avatar.jpg">
+  <p class="site-author-name" itemprop="name">cyhone</p>
+  <div class="site-description" itemprop="description">每有会意，便欣然忘食</div>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chenyahui" title="GitHub → https://github.com/chenyahui" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cyhone@qq.com" title="E-Mail → mailto:cyhone@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhuanlan.zhihu.com/ruminations-on-code" title="Zhihu → https://zhuanlan.zhihu.com/ruminations-on-code" rel="noopener" target="_blank"><i class="fa fa-fw fa-custom zhihu"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="rss → /atom.xml"><i class="fa fa-fw fa-rss"></i></a>
+      </span>
+  </div>
+
+
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
+    <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber.jpg" alt="cyhone wechat" style="width: 200px; max-width: 100%;">
+    <div style="color: #999;font-size: 14px;">
+      欢迎关注公众号【编程沉思录】
+    </div>
+</div>
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">豫ICP备18011028号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cyhone</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
   NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
     var GUEST = ['nick', 'mail', 'link'];
     var guest = 'nick,mail';
@@ -40,4 +581,8 @@
       serverURLs: ''
     });
   }, window.Valine);
-});</script></body></html><!-- rebuild by neat -->
+});
+</script>
+
+</body>
+</html>
