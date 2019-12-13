@@ -53,14 +53,14 @@
   <meta name="description" content="本文主要介绍 Filebeat 7.5 版本中 Log 相关的各个配置项的含义以及其应用场景。 一般情况下，我们使用 log input 的方式如下，只需要指定一系列 paths 即可。 filebeat.inputs:- type: log  paths:    - /var/log/messages    - /var/log/*.log 但其实除了基本的 paths 配置外，log inpu">
 <meta name="keywords" content="Golang,Filebeat,Elasticsearch,大数据">
 <meta property="og:type" content="article">
-<meta property="og:title" content="FileBeat-Log 相关配置介绍">
+<meta property="og:title" content="FileBeat-Log 相关配置指南">
 <meta property="og:url" content="http://www.cyhone.com/articles/usage-of-filebeat-log-config/index.html">
 <meta property="og:site_name" content="编程沉思录">
 <meta property="og:description" content="本文主要介绍 Filebeat 7.5 版本中 Log 相关的各个配置项的含义以及其应用场景。 一般情况下，我们使用 log input 的方式如下，只需要指定一系列 paths 即可。 filebeat.inputs:- type: log  paths:    - /var/log/messages    - /var/log/*.log 但其实除了基本的 paths 配置外，log inpu">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-13T09:50:42.782Z">
+<meta property="og:updated_time" content="2019-12-13T12:39:09.254Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="FileBeat-Log 相关配置介绍">
+<meta name="twitter:title" content="FileBeat-Log 相关配置指南">
 <meta name="twitter:description" content="本文主要介绍 Filebeat 7.5 版本中 Log 相关的各个配置项的含义以及其应用场景。 一般情况下，我们使用 log input 的方式如下，只需要指定一系列 paths 即可。 filebeat.inputs:- type: log  paths:    - /var/log/messages    - /var/log/*.log 但其实除了基本的 paths 配置外，log inpu">
 
 <link rel="canonical" href="http://www.cyhone.com/articles/usage-of-filebeat-log-config/">
@@ -75,7 +75,7 @@
   };
 </script>
 
-  <title>FileBeat-Log 相关配置介绍 | 编程沉思录</title>
+  <title>FileBeat-Log 相关配置指南 | 编程沉思录</title>
   
 
 
@@ -215,7 +215,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          FileBeat-Log 相关配置介绍
+          FileBeat-Log 相关配置指南
         </h2>
 
         <div class="post-meta">
@@ -232,7 +232,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-13 17:50:42" itemprop="dateModified" datetime="2019-12-13T17:50:42+08:00">2019-12-13</time>
+                <time title="修改时间：2019-12-13 20:39:09" itemprop="dateModified" datetime="2019-12-13T20:39:09+08:00">2019-12-13</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,7 +247,7 @@
             </span>
 
           
-            <span id="/articles/usage-of-filebeat-log-config/" class="post-meta-item leancloud_visitors" data-flag-title="FileBeat-Log 相关配置介绍" title="阅读次数">
+            <span id="/articles/usage-of-filebeat-log-config/" class="post-meta-item leancloud_visitors" data-flag-title="FileBeat-Log 相关配置指南" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -359,6 +359,11 @@
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *Harvester)</span> <span class="title">shouldExportLine</span><span class="params">(line <span class="keyword">string</span>)</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(h.config.IncludeLines) &gt; <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> !harvester.MatchAny(h.config.IncludeLines, line) &#123;</span><br><span class="line">			<span class="comment">// drop line</span></span><br><span class="line">			<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(h.config.ExcludeLines) &gt; <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> harvester.MatchAny(h.config.ExcludeLines, line) &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="exclude_files"><a class="markdownIt-Anchor" href="#exclude_files"></a> exclude_files</h2>
 <p>可指定多个正则表达式，匹配到的文件名将不会被处理。</p>
+<p>例如:</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">exclude_files:</span> <span class="string">['.gz$']</span></span><br></pre></td></tr></table></figure>
+<div class="note danger">
+            <p>这里需要注意的是，不管是exclude_files，还是exclude_lines、include_lines, 声明正则的时候，最好使用单引号引用正则表达式，不要用双引号。否则yaml会报转义问题</p>
+          </div>
 <h2 id="harvester_buffer_size"><a class="markdownIt-Anchor" href="#harvester_buffer_size"></a> harvester_buffer_size</h2>
 <p>读文件时的 buffer 大小，最终会应用在 golang 的 <code>File.Read</code> 函数上面。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(f *File)</span> <span class="title">Read</span><span class="params">(b []<span class="keyword">byte</span>)</span> <span class="params">(n <span class="keyword">int</span>, err error)</span></span></span><br></pre></td></tr></table></figure>
@@ -523,7 +528,7 @@ input 会按照此频率，启动定时器定时扫描路径，以发现新文�
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://www.cyhone.com/articles/usage-of-filebeat-log-config/" title="FileBeat-Log 相关配置介绍">http://www.cyhone.com/articles/usage-of-filebeat-log-config/</a>
+    <a href="http://www.cyhone.com/articles/usage-of-filebeat-log-config/" title="FileBeat-Log 相关配置指南">http://www.cyhone.com/articles/usage-of-filebeat-log-config/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
