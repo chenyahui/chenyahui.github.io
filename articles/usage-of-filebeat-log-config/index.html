@@ -51,14 +51,14 @@
 </script>
 
   <meta name="description" content="本文主要介绍 Filebeat 7.5 版本中 Log 相关的各个配置项的含义以及其应用场景。 一般情况下，我们使用 log input 的方式如下，只需要指定一系列 paths 即可。 filebeat.inputs:- type: log  paths:    - /var/log/messages    - /var/log/*.log 但其实除了基本的 paths 配置外，log inpu">
-<meta name="keywords" content="Golang,Filebeat,ElasticSearch,大数据">
+<meta name="keywords" content="Golang,Filebeat,Elasticsearch,大数据">
 <meta property="og:type" content="article">
 <meta property="og:title" content="FileBeat-Log 相关配置介绍">
 <meta property="og:url" content="http://www.cyhone.com/articles/usage-of-filebeat-log-config/index.html">
 <meta property="og:site_name" content="编程沉思录">
 <meta property="og:description" content="本文主要介绍 Filebeat 7.5 版本中 Log 相关的各个配置项的含义以及其应用场景。 一般情况下，我们使用 log input 的方式如下，只需要指定一系列 paths 即可。 filebeat.inputs:- type: log  paths:    - /var/log/messages    - /var/log/*.log 但其实除了基本的 paths 配置外，log inpu">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-10T05:07:50.067Z">
+<meta property="og:updated_time" content="2019-12-13T09:50:42.782Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="FileBeat-Log 相关配置介绍">
 <meta name="twitter:description" content="本文主要介绍 Filebeat 7.5 版本中 Log 相关的各个配置项的含义以及其应用场景。 一般情况下，我们使用 log input 的方式如下，只需要指定一系列 paths 即可。 filebeat.inputs:- type: log  paths:    - /var/log/messages    - /var/log/*.log 但其实除了基本的 paths 配置外，log inpu">
@@ -156,7 +156,7 @@
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">10</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">11</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
@@ -232,7 +232,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
+                <time title="修改时间：2019-12-13 17:50:42" itemprop="dateModified" datetime="2019-12-13T17:50:42+08:00">2019-12-13</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -240,8 +240,8 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ElasticSearch/" itemprop="url" rel="index">
-                    <span itemprop="name">ElasticSearch</span>
+                  <a href="/categories/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
                   </a>
                 </span>
             </span>
@@ -452,9 +452,15 @@ input 会按照此频率，启动定时器定时扫描路径，以发现新文�
 <p>注意，这里指定的只是 registry 的目录，最终的 registry 文件的路径会是这样:</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$&#123;filebeat.registry.path&#125;/filebeat/data.json</span><br></pre></td></tr></table></figure>
 <ol start="2">
-<li>filebeat.registry.flush<br>
+<li>
+<p>filebeat.registry.flush<br>
 将 registry 文件内容定时刷新到磁盘中。默认为 0s，代表每次更新时直接写文件。<br>
-配置了该选项可以提高些 filebeat 的性能，避免频繁写磁盘，但是也增加了一定数据丢失的风险。</li>
+配置了该选项可以提高些 filebeat 的性能，避免频繁写磁盘，但是也增加了一定数据丢失的风险。</p>
+</li>
+<li>
+<p>filebeat.registry.file_permissions<br>
+默认为0600，即只有拥有者可以读写该用户, 其他用户不可以修改。</p>
+</li>
 </ol>
 <h2 id="日志相关配置"><a class="markdownIt-Anchor" href="#日志相关配置"></a> 日志相关配置</h2>
 <p>filebeat 可以对输出日志的进行相关配置，filebeat 提供了如下日志相关的配置:</p>
@@ -531,7 +537,7 @@ input 会按照此频率，启动定时器定时扫描路径，以发现新文�
           <div class="post-tags">
               <a href="/tags/Golang/" rel="tag"><i class="fa fa-tag"></i> Golang</a>
               <a href="/tags/Filebeat/" rel="tag"><i class="fa fa-tag"></i> Filebeat</a>
-              <a href="/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+              <a href="/tags/Elasticsearch/" rel="tag"><i class="fa fa-tag"></i> Elasticsearch</a>
               <a href="/tags/大数据/" rel="tag"><i class="fa fa-tag"></i> 大数据</a>
           </div>
 
