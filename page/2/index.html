@@ -200,6 +200,209 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/right-way-to-use-cpp-smart-pointer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/right-way-to-use-cpp-smart-pointer/" class="post-title-link" itemprop="url">C++ 智能指针的正确使用方式</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-10-05 11:00:54" itemprop="dateCreated datePublished" datetime="2019-10-05T11:00:54+08:00">2019-10-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/cpp/" itemprop="url" rel="index">
+                    <span itemprop="name">cpp</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/right-way-to-use-cpp-smart-pointer/" class="post-meta-item leancloud_visitors" data-flag-title="C++ 智能指针的正确使用方式" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>C++11 中推出了三种智能指针，unique_ptr、shared_ptr 和 weak_ptr，同时也将 auto_ptr 置为废弃 (deprecated)。</p>
+<p>但是在实际的使用过程中，很多人都会有这样的问题：</p>
+<ol>
+<li>不知道三种智能指针的具体使用场景</li>
+<li>无脑只使用 shared_ptr</li>
+<li>认为应该禁用 raw pointer(裸指针，即 Widget * 这种形式)，全部使用智能指针</li>
+</ol>
+<p>本文将从这几方面讲解智能指针：</p>
+<ol>
+<li>智能指针的应用场景分析</li>
+<li>智能指针的性能分析: 为什么 shared_ptr 性能比 unique_ptr 差</li>
+<li>指针作为函数参数时应该传，传值、传引用，还是裸指针？</li>
+</ol>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/right-way-to-use-cpp-smart-pointer/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/why-move-no-work-in-lambda/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/why-move-no-work-in-lambda/" class="post-title-link" itemprop="url">c++ lambda 内 std::move 失效问题的思考</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-09-29 18:07:00" itemprop="dateCreated datePublished" datetime="2019-09-29T18:07:00+08:00">2019-09-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/cpp/" itemprop="url" rel="index">
+                    <span itemprop="name">cpp</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/why-move-no-work-in-lambda/" class="post-meta-item leancloud_visitors" data-flag-title="c++ lambda 内 std::move 失效问题的思考" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>最近在写 C++ 时，有这样一个代码需求：在 lambda 中，将一个捕获参数 move 给另外一个变量。<br>
+看似一个很简单常规的操作，然而这个 move 动作却没有生效。</p>
+<p>具体代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> func = [=]()&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec2.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>代码可在 <a href="https://wandbox.org/permlink/et6ZTBhwpz5SH6w0" target="_blank" rel="noopener">wandbox</a> 运行。</p>
+<p>我们期望的是，将对变量 <code>vec</code> 调用 std::move 后，数据将会移动至变量 <code>vec2</code>, 此时 <code>vec</code> 里面应该没有数据了。但是通过打印 <code>vec.size()</code> 发现 vec 中的数据并没有按预期移走。</p>
+<p>这也就意味着，构造 vec2 时并没有按预期调用移动构造函数，而是调用了拷贝构造函数。</p>
+<p>为什么会造成这个问题呢, 我们需要结合 <code>std::move</code> 和 <code>lambda</code> 的原理看下。（最终的解决方案可以直接看 [这里](# 解决方案)）</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/why-move-no-work-in-lambda/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -761,403 +964,11 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/2017-reading-records/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/avatar.jpg">
-      <meta itemprop="name" content="cyhone">
-      <meta itemprop="description" content="每有会意，便欣然忘食">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程沉思录">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/articles/2017-reading-records/" class="post-title-link" itemprop="url">2017 年读了哪些书？</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2018-01-03 14:00:54" itemprop="dateCreated datePublished" datetime="2018-01-03T14:00:54+08:00">2018-01-03</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/生活和思考/" itemprop="url" rel="index">
-                    <span itemprop="name">生活和思考</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/articles/2017-reading-records/" class="post-meta-item leancloud_visitors" data-flag-title="2017 年读了哪些书？" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>2017 年总共阅读了 21 本书，相比于 2016 年减少了 4 本。<br>
-今年读的这些书相对于去年来说种类比较全而且质量比较高, 但是有一个非常大的缺点就是没有留下可用的笔记，尤其是像《北宋名家词选讲》这种书，没有好的笔记留下，书里的精髓就会流失很多。<br>
-希望 2018 年的阅读能够做到以下几点:</p>
-<ol>
-<li>读的每本非小说类书，都要认真的做笔记或者思维图</li>
-<li>2018 年可以阅读 30 本书以上</li>
-<li>多把空闲时间放在用 kindle 读书上</li>
-</ol>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/articles/2017-reading-records/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/classviewer/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/avatar.jpg">
-      <meta itemprop="name" content="cyhone">
-      <meta itemprop="description" content="每有会意，便欣然忘食">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程沉思录">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/articles/classviewer/" class="post-title-link" itemprop="url">ClassViewer 的介绍及实现</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2018-01-01 11:45:00" itemprop="dateCreated datePublished" datetime="2018-01-01T11:45:00+08:00">2018-01-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/开发经验/" itemprop="url" rel="index">
-                    <span itemprop="name">开发经验</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/articles/classviewer/" class="post-meta-item leancloud_visitors" data-flag-title="ClassViewer 的介绍及实现" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a href="https://chenyahui.github.io/ClassViewer" target="_blank" rel="noopener">ClassViewer</a>是我最近开发的一个用于展示 jvm class 字节码的小工具。它是一个单纯的静态网页，完全使用浏览器端的 Javascript 开发。之所以开发这款工具，是因为我在开发 <a href="https://github.com/chenyahui/ToyJVM" target="_blank" rel="noopener">ToyJVM</a> 的时候，需要常常校验 class 文件某一部分的字节码, 所以如果一款工具能够很方便的显示 class 文件各个部分的信息和字节码，对于 ToyJVM 的开发将会是一个非常大的帮助。</p>
-<p>在开始写代码之前调研了一些类似的产品，主要有 jdk 自带的 javap、国外的 Java-Class-Viewer 以及国人开发的 classpy，它们都是非常不错的 class 文件分析工具，但是也存在着一些算不上缺陷的小问题。所以最终还是决定自己写一个适合自己小工具，同时也加深下 class 结构的理解。</p>
-<p>在调研了目前的产品后，我也更加清晰了自己的目标。首先它的受众应该是有兴趣研究 jvm 的程序员，而它应该有这些特性:</p>
-<ul>
-<li>不依赖于特定操作系统平台<br>
-它应该具备基本的跨平台的能力，因为程序员的 Mac 和 Linux 使用率很高。</li>
-<li>无需复杂的安装和编译，无需用户有特定的知识背景<br>
-我不太希望用户拿到我的代码后，还需要安装相应的环境、了解一堆无关知识。</li>
-</ul>
-<p>最终实现出来的工具是这样的:</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/articles/classviewer/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/my-first-half-marathon/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/avatar.jpg">
-      <meta itemprop="name" content="cyhone">
-      <meta itemprop="description" content="每有会意，便欣然忘食">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程沉思录">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/articles/my-first-half-marathon/" class="post-title-link" itemprop="url">首次半马记</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2017-04-17 22:20:47" itemprop="dateCreated datePublished" datetime="2017-04-17T22:20:47+08:00">2017-04-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/生活和思考/" itemprop="url" rel="index">
-                    <span itemprop="name">生活和思考</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/articles/my-first-half-marathon/" class="post-meta-item leancloud_visitors" data-flag-title="首次半马记" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>4 月 9 号，在武汉参加了人生第一次半程马拉松，风里雨里的 21.0975 公里。虽然已时隔一周，但想到那天一路的奔跑、疲惫、欣喜，还是想记记这半马的流水账。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/articles/my-first-half-marathon/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/introduction-of-bloomfilter/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/avatar.jpg">
-      <meta itemprop="name" content="cyhone">
-      <meta itemprop="description" content="每有会意，便欣然忘食">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程沉思录">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/articles/introduction-of-bloomfilter/" class="post-title-link" itemprop="url">结合 Guava 源码解读布隆过滤器</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2017-02-07 16:51:51" itemprop="dateCreated datePublished" datetime="2017-02-07T16:51:51+08:00">2017-02-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/算法/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/articles/introduction-of-bloomfilter/" class="post-meta-item leancloud_visitors" data-flag-title="结合 Guava 源码解读布隆过滤器" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="介绍"><a class="markdownIt-Anchor" href="#介绍"></a> 介绍</h1>
-<blockquote>
-<p>BloomFilter（布隆过滤器）是一种可以高效地判断元素是否在某个集合中的算法。</p>
-</blockquote>
-<p>在很多日常场景中，都大量存在着布隆过滤器的应用。例如：检查单词是否拼写正确、网络爬虫的 URL 去重、黑名单检验，微博中昵称不能重复的检测等。</p>
-<p>在工业界中，Google 著名的分布式数据库 BigTable 也用了布隆过滤器来查找不存在的行或列，以减少磁盘查找的 IO 次数；Google Chrome 浏览器使用 BloomFilter 来判断一个网站是否为恶意网站。</p>
-<p>对于以上场景，可能很多人会说，用 HashSet 甚至简单的链表、数组做存储，然后判断是否存在不就可以了吗？</p>
-<p>当然，对于少量数据来说，HashSet 是很好的选择。但是对于海量数据来说，BloomFilter 相比于其他数据结构在空间效率和时间效率方面都有着明显的优势。</p>
-<p>但是，布隆过滤器具有一定的误判率，有可能会将本不存在的元素判定为存在。因此，对于那些需要 “零错误” 的应用场景，布隆过滤器将不太适用。具体的原因将会在第二部分中介绍。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/articles/introduction-of-bloomfilter/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1308,9 +1119,6 @@
   
 
   
-      
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css">
-
 
   
 
