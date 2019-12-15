@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.cyhone.com/"/>
-  <updated>2019-12-13T12:39:09.254Z</updated>
+  <updated>2019-12-15T05:32:48.330Z</updated>
   <id>http://www.cyhone.com/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>libco 的定时器实现——时间轮</title>
+    <link href="http://www.cyhone.com/articles/time-wheel-in-libco/"/>
+    <id>http://www.cyhone.com/articles/time-wheel-in-libco/</id>
+    <published>2019-12-15T05:17:26.000Z</published>
+    <updated>2019-12-15T05:32:48.330Z</updated>
+    
+    <content type="html"><![CDATA[<p>定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。</p><p>定时器有许多经典高效的实现。例如，libevent 采用了小根堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。</p><p>时间轮也是一个非常经典的定时器实现，Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，也用了单级时间轮来处理其内部的超时事件。</p><p>在 libco 的时间轮中，对超时事件的添加删除查询操作均可以达到 <code>O(1)</code> 的时间复杂度，是一个非常高效的数据结构。</p><a id="more"></a><h1 id="时间轮的表示"><a class="markdownIt-Anchor" href="#时间轮的表示"></a> 时间轮的表示</h1><p>libco 的时间轮的数据结构定义如下：</p><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stTimeout_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">stTimeoutItemLink_t *pItems;</span><br><span class="line"><span class="keyword">int</span> iItemSize;</span><br><span class="line"></span><br><span class="line"><span class="keyword">long</span> <span class="keyword">long</span> llStartIdx;</span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> ullStart;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><p>时间轮 <code>stTimeout_t</code> 负责 libco 中所有超时事件的管理, 其中各属性的意义如下:</p><ol><li><code>pItems</code> 是一个数组，数组长度为 iItemSize。而数组中的每个元素是 <code>stTimeoutItemLink_t</code> 类型，这是一个双向链表实现。而同一个链表中的每个元素，它们的超时时间都是相同的。</li><li><code>llStartIdx</code> 代表当前最近超时时间对应的 index。</li><li><code>ullStart</code> 代表当前最近超时时间的时间戳，单位是毫秒</li></ol><p>总体来说，libco 的时间轮是一个环形数组的实现，如下图所示：</p><p><img src="/img/libco/time-wheel.png" alt="time wheel"></p><p>在这个环形数组中，数组中每个元素代表 1ms。而 libco 将环形数组的总长度设为 <code>60*1000</code>, 即最多可以表达 1 分钟以内的超时事件，且超时精度是毫秒。</p><p>而且，有可能会有多个超时事件在同一时刻发生，因此数组中的元素是个链表，代表同在该时刻触发的超时事件。</p><p>在 libco 初始化时，<code>ullStart</code> 被初始化为当前时刻的时间戳 (单位为毫秒)，<code>llStartIdx</code> 初始化为 0。</p><h1 id="添加一个超时事件"><a class="markdownIt-Anchor" href="#添加一个超时事件"></a> 添加一个超时事件</h1><p>我们看下 libco 是怎么添加一个超时事件的：</p><ol><li>将相对时间转化为时间戳，代码如下：</li></ol><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> now = GetTickMS();</span><br><span class="line">apItem.ullExpireTime = now + timeout;</span><br></pre></td></tr></table></figure><p>这点不难理解，只有统一成标准的时间表示，才可以和其他超时事件统一的放在一起。</p><ol start="2"><li>计算该超时事件的触发时间距离时间轮中最近的超时时间 <code>ullStart</code> 的时间差值</li></ol><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> diff = apItem-&gt;ullExpireTime - apTimeout-&gt;ullStart;</span><br></pre></td></tr></table></figure><p>计算得到了这个时间差值，才可以进一步计算新的超时事件在时间轮中的位置。<br>当然，在把超时事件放入时间轮之前，需要先判断下该超时事件是否越界了。如果比 <code>ullStart</code> 大于 1 分钟, 则 libco 时间轮没有办法表示这个超时事件，将会报错。相关代码如下</p><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(diff&gt;= apTimeout-&gt;iItemSize )</span><br><span class="line">&#123;</span><br><span class="line">co_log_err(<span class="string">"CO_ERR: AddTimeout line %d diff %d"</span>,__LINE__,diff);</span><br><span class="line"><span class="keyword">return</span> __LINE__;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><ol start="3"><li>计算得出该超时事件在时间轮中的位置，并将其插入到时间轮中。</li></ol><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">AddTail(apTimeout-&gt;pItems + ( apTimeout-&gt;llStartIdx + diff ) % apTimeout-&gt;iItemSize , apItem );</span><br></pre></td></tr></table></figure><p>这里其实有两步:</p><ul><li>计算在时间轮中的位置。其实很简单，就是一个简单的取余过程，这个也是环形数组的普遍做法。得到的 <code>apTimeout-&gt;pItems + ${index}</code>，即是该超时事件所在的位置。</li><li>将该超时事件追加在该位置上的链表最后。前面讲过，有可能多个超时事件可能会在同一时刻触发。</li></ul><h1 id="超时事件的判断及取出"><a class="markdownIt-Anchor" href="#超时事件的判断及取出"></a> 超时事件的判断及取出</h1><p>libco 是如何判断事件是否超时以及取出所有已超时的事件呢？过程如下：</p><ul><li>如果当前的时间小于 <code>ullStart</code>，说明目前没有事件超时</li><li>如果大于等于 <code>ullStart</code>，用当前时间减去 <code>ullStart</code>，就可以得出一共过去了多少毫秒，一毫秒代表一个数组元素，从 <code>llStartIdx</code> 开始遍历即可。</li></ul><p>时间轮是典型的空间换时间的做法，需要预先把环形数组的内存空间都分配好，这也是 libco 的超时事件存取高效的原因。</p><p>讲到这里，其实 libco 的整个时间轮算法已经全部分析完成了。</p><p>但是对于 libco 的时间轮大家可能会有一些疑问：</p><ol><li>libco 的时间轮最多只能支持 1 分钟的超时时间。虽然这个时间对于后台服务的场景已经完全足够了，但是如果我们在其他场景需要更长的超时时间呢？</li><li>libco 中的一个数组元素代表 1ms。如果我们需要更长的时间那岂不是内存空间也随之线性增长了？</li></ol><p>那接下来我们就简单讲下对于时间轮的进一步优化:</p><ol><li>单级时间轮的优化。我们可以对 libco 的单级时间轮做一些简单的优化，例如给每个超时事件加一个 rotation 参数，代表该超时事件会在第几轮触发，这样就可以在一个单级时间轮中存放无限长的超时事件了。但这样代价是超时事件的判断和取出将不会是 <code>O(1)</code> 了。</li><li>多级时间轮。Linux 内核中就采用了多级时间轮的机制，模拟了现实生活中水表刻度。即第一级的时间轮与普通的单级时间轮相同，而第二级时间轮的每个元素的时长等于第一级时间轮的全部总时长，依次类推。Linux 内核中一共采用了五级时间轮。第一级的时间轮所有事件消耗完成后，会触发第二级时间轮的事件迁移。</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。&lt;/p&gt;
+&lt;p&gt;定时器有许多经典高效的实现。例如，libevent 采用了小根堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。&lt;/p&gt;
+&lt;p&gt;时间轮也是一个非常经典的定时器实现，Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，也用了单级时间轮来处理其内部的超时事件。&lt;/p&gt;
+&lt;p&gt;在 libco 的时间轮中，对超时事件的添加删除查询操作均可以达到 &lt;code&gt;O(1)&lt;/code&gt; 的时间复杂度，是一个非常高效的数据结构。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="网络编程" scheme="http://www.cyhone.com/categories/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/"/>
+    
+    
+      <category term="源码" scheme="http://www.cyhone.com/tags/%E6%BA%90%E7%A0%81/"/>
+    
+      <category term="定时器" scheme="http://www.cyhone.com/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/"/>
+    
+  </entry>
   
   <entry>
     <title>FileBeat-Log 相关配置指南</title>
@@ -569,28 +596,6 @@ Redis 内置了一个高性能事件循环器，叫做 AE。其定义和实现�
       <category term="BloomFilter" scheme="http://www.cyhone.com/tags/BloomFilter/"/>
     
       <category term="算法" scheme="http://www.cyhone.com/tags/%E7%AE%97%E6%B3%95/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>2016 年度总结</title>
-    <link href="http://www.cyhone.com/articles/2016-summary/"/>
-    <id>http://www.cyhone.com/articles/2016-summary/</id>
-    <published>2017-01-01T05:00:54.000Z</published>
-    <updated>2019-12-10T05:07:50.063Z</updated>
-    
-    <content type="html"><![CDATA[<p>2016 年过去了。真的是转瞬即逝，一眨眼的功夫，365 个日夜。总结 2016 年，平平凡凡但踏踏实实。</p><a id="more"></a><h2 id="学习"><a class="markdownIt-Anchor" href="#学习"></a> 学习</h2><p>在学习方面今年有最大的两个变化。第一个是本科毕业，研究生入学。第二个是决定成为 Javaer。</p><p>研究生生活的学习生活没有什么值得说的。最大的体会就是没有在研究生的任何课上学到有价值的东西。。<br>中间穿插了几个横向的项目，蛮忙的。研究生期间学会了合理地规划自己的时间，也更懂得了不断学习的重要性。<br>虽然留给自己的时间不多，但还是自学了很多东西。</p><p>开始全心做 Java 开发的原因有很多，一方面因为实验室的项目大多以 Java 为主，对于常用的语言熟悉掌握才可以有更高的开发效率。<br>另外一个原因是 Java 在学习曲线上并不陡峭，而且开源库十分丰富。</p><p>我在大二下学期开始学习 PHP，使用 PHP 可以很简单的打造出一个网站后台。但是个人觉得 PHP 始终不是一个适合<br>研究学习的语言。在 C++ 语言的学习方面，虽然看了一些 C++ 的相关书，《C++ primer》、<br>《STL 源码剖析》、《Effective C++》等，但始终进步不大，最终还是选择了暂时放弃。</p><p>在 Java 的学习过程中，看了《Thinking in Java》、《Effective Java》、《Java 并发编程实践》、《Java 并发编程实战》，对于<br>整个语言有了清晰的脉络，虽然还远远的称不上熟知 Java 语言，但是它确实已经成为我的主开发语言了。</p><p>当然今年除了 Java 也大量地使用了 Python、GO 语言。对不同语言的使用，体会了不同语言的魅力，也更容易看清楚<br>一个语言的优点在哪，缺点又是什么。</p><h2 id="项目"><a class="markdownIt-Anchor" href="#项目"></a> 项目</h2><p>2016 年进行的项目和作品有：</p><ul><li>毕业设计 - 同类网站推荐系统的设计和研究</li><li>基于 SpringMVC 的轻量级 CMS （已完成，未开源）</li><li>爬虫系统新内核的编写 （进行中）</li><li><a href="http://ecic.org.cn" target="_blank" rel="noopener">ecic.org.cn</a> 官网 (已上线)</li><li><a href="http://ecra.com.cn/" target="_blank" rel="noopener">ecra.com.cn</a> 官网 (已上线)</li><li>MIT 6.824 Lab (完成 lab1)</li></ul><p>看了 <a href="https://www.zhihu.com/question/26983024/answer/85772802" target="_blank" rel="noopener">如何成为 @RednaxelaFX 一样的大牛? - 知乎</a><br>RednaxelaFX 大的回答后，觉得 R 大的状态是一个技术人最好的状态了。愿意花时间和精力去穷尽这行业的每一点知识。</p><h2 id="读书"><a class="markdownIt-Anchor" href="#读书"></a> 读书</h2><p>今年共读了 25 本书。大部分为 kindle 和微信读书的电子书。具体关于读书的总结在 <a href="http://www.cyhone.com/2017/01/01/2016-summary/">另外一篇博客</a> 中。</p><h2 id="生活"><a class="markdownIt-Anchor" href="#生活"></a> 生活</h2><p>我在 2015 年的三月份左右也就是旧历年，给自己定了两个目标：编程能力提高以及减肥。</p><p>编程能力方面，在上一部分已经总结过。虽然总体并没有大的提高，但是自己确实能实实在在地感受到进步。</p><p>之所以下定决心减肥是因为过年的时候一度胖到心里压抑。<br>从 2016 年的四月份到 2016 年 7 月份，三个月的时间减了大概 24 斤左右。达到了一个小小的目标，<br>虽然现在依然蛮胖。。但是身心得到了很大的调节。</p><p>健身这件事情是要坚持一辈子的事情。我从 11 月中旬开始除了下月每天都跑步 5 公里以上，<br>在精神和专注力上明显的充沛了很多。</p><p>自己从本科就一直想学一门乐器，今年生日女朋友送了一把尤克里里。非常惭愧半年过去了依然是<br>小星星水平。</p><h2 id="其他"><a class="markdownIt-Anchor" href="#其他"></a> 其他</h2><p>今年最惭愧的就是除了一个总结外一篇博客都没产出。很大程度上也是因为目前学习的内容实在没有拿的出手总结的东西。<br>在接下来的一年内，已经有了一些想要分享的内容，希望自己可以好好总结发表。</p><h2 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h2><p>2016 年就这么过去了。并不曲折，并不离奇，在个人的时间线也几乎没有大事发生。<br>新的一年，还可以再努力一点~</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;2016 年过去了。真的是转瞬即逝，一眨眼的功夫，365 个日夜。总结 2016 年，平平凡凡但踏踏实实。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="生活和思考" scheme="http://www.cyhone.com/categories/%E7%94%9F%E6%B4%BB%E5%92%8C%E6%80%9D%E8%80%83/"/>
-    
-    
-      <category term="总结" scheme="http://www.cyhone.com/tags/%E6%80%BB%E7%BB%93/"/>
     
   </entry>
   
