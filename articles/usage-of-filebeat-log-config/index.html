@@ -58,7 +58,7 @@
 <meta property="og:site_name" content="编程沉思录">
 <meta property="og:description" content="本文主要介绍 Filebeat 7.5 版本中 Log 相关的各个配置项的含义以及其应用场景。 一般情况下，我们使用 log input 的方式如下，只需要指定一系列 paths 即可。 filebeat.inputs:- type: log  paths:    - /var/log/messages    - /var/log/*.log 但其实除了基本的 paths 配置外，log inpu">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-13T12:39:09.254Z">
+<meta property="og:updated_time" content="2019-12-16T08:48:02.922Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="FileBeat-Log 相关配置指南">
 <meta name="twitter:description" content="本文主要介绍 Filebeat 7.5 版本中 Log 相关的各个配置项的含义以及其应用场景。 一般情况下，我们使用 log input 的方式如下，只需要指定一系列 paths 即可。 filebeat.inputs:- type: log  paths:    - /var/log/messages    - /var/log/*.log 但其实除了基本的 paths 配置外，log inpu">
@@ -232,7 +232,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-13 20:39:09" itemprop="dateModified" datetime="2019-12-13T20:39:09+08:00">2019-12-13</time>
+                <time title="修改时间：2019-12-16 16:48:02" itemprop="dateModified" datetime="2019-12-16T16:48:02+08:00">2019-12-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -373,7 +373,7 @@
 默认值为 10485760(即 10MB)。</p>
 <h2 id="multiline"><a class="markdownIt-Anchor" href="#multiline"></a> multiline</h2>
 <p>multiline 是为了解决需要多行聚合在一起发送的情况，例如 Java Stack Traces 信息等。<br>
-虽然 filebeat 默认不开启 multiline，但是官方的配置文件给了一个例子，可以支持 Java Stack Traces 或者是 C 语言式的换行连续符 <code>\</code>,  可在 <a href="https://github.com/elastic/beats/blob/7.5/filebeat/filebeat.reference.yml#L494" target="_blank" rel="noopener">filebeat.reference.yml</a> 中查看。</p>
+虽然 filebeat 默认不开启 multiline，但是官方的配置文件给了一个例子，可以支持 Java Stack Traces 或者是 C 语言式的换行连续符 <code>\</code>,  可在 <a href="https://www.elastic.co/guide/en/beats/filebeat/master/_examples_of_multiline_configuration.html" target="_blank" rel="noopener">Examples of multiline configuration</a> 中查看。</p>
 <p>由于大部分场景不涉及 multiline，本文不再进行深入讨论。关于 multiline 配置的详细资料可查看官方文档：<br>
 <a href="https://www.elastic.co/guide/en/beats/filebeat/7.5/multiline-examples.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/beats/filebeat/7.5/multiline-examples.html</a></p>
 <h2 id="ignore_older"><a class="markdownIt-Anchor" href="#ignore_older"></a> ignore_older</h2>
@@ -516,7 +516,7 @@ input 会按照此频率，启动定时器定时扫描路径，以发现新文�
     
     
     <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
-        <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber_search.webp" alt="cyhone wechat" style="width: 750px;max-width:100%;">
+        <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber_search.png" alt="cyhone wechat" style="width: 750px;max-width:100%;">
     <!--div>欢迎关注公众号【编程沉思录】</div-->
     </div>
         
@@ -647,7 +647,7 @@ input 会按照此频率，启动定时器定时扫描路径，以发现新文�
 
 
 <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
-    <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber.webp" alt="cyhone wechat" style="width: 200px; max-width: 100%;">
+    <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber.png" alt="cyhone wechat" style="width: 200px; max-width: 100%;">
     <div style="color: #999;font-size: 14px;">
       欢迎关注公众号【编程沉思录】
     </div>
