@@ -58,7 +58,7 @@
 <meta property="og:site_name" content="编程沉思录">
 <meta property="og:description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-10T05:07:50.067Z">
+<meta property="og:updated_time" content="2019-12-17T10:57:36.458Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WebSocket 订单推送稳定性优化方案">
 <meta name="twitter:description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
@@ -232,7 +232,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
+                <time title="修改时间：2019-12-17 18:57:36" itemprop="dateModified" datetime="2019-12-17T18:57:36+08:00">2019-12-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -300,18 +300,18 @@
 <li>**nginx 的 proxy_read_timeout 参数 **:<br>
 nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数。当连接在此超时时间内没有数据传输，则会主动断开，<br>
 默认行为是 60s。因此我们需要一个应用层心跳，在 proxy_read_timeout 的时间内，发送心跳包，以保证连接不被断开。</li>
-<li>** 应用层心跳可以帮助我们快速检测和发现链路的健康程度 ** :<br>
+<li><strong>应用层心跳可以帮助我们快速检测和发现链路的健康程度</strong> :<br>
 为了快速检测到链路的异常问题，我们可以将心跳时间缩短到可接受范围内。</li>
 </ol>
 <p>在最初的版本设计中，我们的应用层心跳只涉及了 ping 接口。</p>
 <p>即客户端主动发生向 server 端发生 ping，如果发送成功，则说明链路正常，反之意味着链路不正常。</p>
 <p>整个过程中，ping 是否成功，都依赖于 WebSocket 是否触发了 onError 错误回调。</p>
-<p>但在实际的开发过程中，** 我们发现，这样一种特殊场景 **：</p>
+<p>但在实际的开发过程中，<strong>我们发现，这样一种特殊场景</strong>：</p>
 <p>使用手机发热点供收银设备使用网络，在正常使用过程中，如果关闭手机的网络数据连接（wifi 或者移动数据），但保持热点的正常开放，那么收银设备将无法快速感知到网络的异常，大概需要 3-5 分钟才能触发异常回调。</p>
 <p>因此，针对此情况我们对应用层心跳进行了进一步的优化，让 server 端收到 ping 之后，回复一个 pong 包。我们根据 ping 和 pong 的时间间隔，来决定当前链路的健康程度。</p>
 <h2 id="二-断线重连自我恢复"><a class="markdownIt-Anchor" href="#二-断线重连自我恢复"></a> 二、断线重连：自我恢复</h2>
 <p>当 WebSocket 连接一旦发生了中断，将不会自动的恢复。因此，WebSocket 的断线重连机制也是我们首要考虑的一个方面。</p>
-<p>断线重连的实现过程比较简单，即当发生 ** 心跳超时 <strong>、</strong> 链路错误 ** 或者 ** 链路非正常关闭 ** 等问题时，我们将触发 WebSocket 的重连机制。</p>
+<p>断线重连的实现过程比较简单，即当发生 <strong>心跳超时</strong>、<strong>链路错误</strong> 或者 <strong>链路非正常关闭</strong> 等问题时，我们将触发 WebSocket 的重连机制。</p>
 <p>重连过程也非常简单，即不断重新连接 WebSocket、重新鉴权等过程，直至连接成功。</p>
 <p>这里需要注意的一个小小的点就是：在重新连接的时候, WebSocket 的各种回调 (onmessage、onopen)，都需要重新设置。</p>
 <p>有了断线重连机制，可以实现 WebSocket 简单的自我恢复功能。</p>

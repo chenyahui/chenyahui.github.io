@@ -58,7 +58,7 @@
 <meta property="og:site_name" content="编程沉思录">
 <meta property="og:description" content="C++11 中推出了三种智能指针，unique_ptr、shared_ptr 和 weak_ptr，同时也将 auto_ptr 置为废弃 (deprecated)。 但是在实际的使用过程中，很多人都会有这样的问题：  不知道三种智能指针的具体使用场景 无脑只使用 shared_ptr 认为应该禁用 raw pointer(裸指针，即 Widget * 这种形式)，全部使用智能指针  本文将从这几方">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-17T10:40:38.022Z">
+<meta property="og:updated_time" content="2019-12-17T10:57:36.458Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="C++ 智能指针的正确使用方式">
 <meta name="twitter:description" content="C++11 中推出了三种智能指针，unique_ptr、shared_ptr 和 weak_ptr，同时也将 auto_ptr 置为废弃 (deprecated)。 但是在实际的使用过程中，很多人都会有这样的问题：  不知道三种智能指针的具体使用场景 无脑只使用 shared_ptr 认为应该禁用 raw pointer(裸指针，即 Widget * 这种形式)，全部使用智能指针  本文将从这几方">
@@ -232,7 +232,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-17 18:40:38" itemprop="dateModified" datetime="2019-12-17T18:40:38+08:00">2019-12-17</time>
+                <time title="修改时间：2019-12-17 18:57:36" itemprop="dateModified" datetime="2019-12-17T18:57:36+08:00">2019-12-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -335,16 +335,16 @@ unique_ptr 代表的是专属所有权，即由 unique_ptr 管理的内存，只
 <h2 id="性能-2"><a class="markdownIt-Anchor" href="#性能-2"></a> 性能</h2>
 <ol>
 <li>
-<p>** 内存占用高 **<br>
+<p><strong>内存占用高</strong><br>
 shared_ptr 的内存占用是裸指针的两倍。因为除了要管理一个裸指针外，还要维护一个引用计数。<br>
 因此相比于 unique_ptr, shared_ptr 的内存占用更高</p>
 </li>
 <li>
-<p>** 原子操作性能低 **<br>
+<p><strong>原子操作性能低</strong><br>
 考虑到线程安全问题，引用计数的增减必须是原子操作。而原子操作一般情况下都比非原子操作慢。</p>
 </li>
 <li>
-<p>** 使用移动优化性能 **<br>
+<p><strong>使用移动优化性能</strong><br>
 shared_ptr 在性能上固然是低于 unique_ptr。而通常情况，我们也可以尽量避免 shared_ptr 复制。<br>
 如果，一个 shared_ptr 需要将所有权共享给另外一个新的 shared_ptr，而我们确定在之后的代码中都不再使用这个 shared_ptr，那么这是一个非常鲜明的移动语义。<br>
 对于此种场景，我们尽量使用 std::move，将 shared_ptr 转移给新的对象。因为移动不用增加引用计数，因此性能比复制更好。</p>

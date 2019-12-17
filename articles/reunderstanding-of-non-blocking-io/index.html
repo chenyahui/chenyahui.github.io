@@ -59,7 +59,7 @@
 <meta property="og:description" content="在进行 Linux 网络编程开发的时候，免不了会涉及到 IO 模型的讨论。《Unix 网络编程》一书中提到的几种 IO 模型，我们在开发过程中，讨论最多的应该就是三种： 阻塞 IO、非阻塞 IO 以及 异步 IO。 本文试图理清楚几种 IO 模型的根本性区别，同时分析了为什么在 Linux 网络编程中最好要用非阻塞式 IO。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/noblocking-io/block-read.png">
-<meta property="og:updated_time" content="2019-12-10T05:07:50.067Z">
+<meta property="og:updated_time" content="2019-12-17T10:57:36.458Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="重新理解 IO 模型">
 <meta name="twitter:description" content="在进行 Linux 网络编程开发的时候，免不了会涉及到 IO 模型的讨论。《Unix 网络编程》一书中提到的几种 IO 模型，我们在开发过程中，讨论最多的应该就是三种： 阻塞 IO、非阻塞 IO 以及 异步 IO。 本文试图理清楚几种 IO 模型的根本性区别，同时分析了为什么在 Linux 网络编程中最好要用非阻塞式 IO。">
@@ -234,7 +234,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
+                <time title="修改时间：2019-12-17 18:57:36" itemprop="dateModified" datetime="2019-12-17T18:57:36+08:00">2019-12-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -302,8 +302,8 @@
 <p>这些名词非常容易混淆，为什么一个 IO 会有两个限定词：同步和阻塞？同步和阻塞分别代表什么意思？<br>
 简单来说：</p>
 <ol>
-<li>等待 ** 阻塞 **: 在 socket 操作的第一个阶段，也就是用户等待 socket 可读可写事件成立的这个阶段。如果一直等待下去，直到成立后，才进行下个阶段，则称为阻塞式 IO；如果发现 socket 非可读可写状态，则直接返回，不等待，也不进行下个阶段，则称为非阻塞式 IO。</li>
-<li>拷贝 ** 同步 **: 从内核拷贝到用户空间的这个阶段，如果直到从开始拷贝直到拷贝结束，read 函数才返回，则称为同步 IO。如果在调用 read 的时候就直接返回了，等到数据拷贝结束，才通过某种方式 (例如回调) 通知到用户，这种被称为异步 IO。</li>
+<li>等待 <strong>阻塞</strong>: 在 socket 操作的第一个阶段，也就是用户等待 socket 可读可写事件成立的这个阶段。如果一直等待下去，直到成立后，才进行下个阶段，则称为阻塞式 IO；如果发现 socket 非可读可写状态，则直接返回，不等待，也不进行下个阶段，则称为非阻塞式 IO。</li>
+<li>拷贝 <strong>同步</strong>: 从内核拷贝到用户空间的这个阶段，如果直到从开始拷贝直到拷贝结束，read 函数才返回，则称为同步 IO。如果在调用 read 的时候就直接返回了，等到数据拷贝结束，才通过某种方式 (例如回调) 通知到用户，这种被称为异步 IO。</li>
 </ol>
 <p>所谓异步，实际上就是非同步非阻塞。</p>
 <h2 id="同步阻塞-io"><a class="markdownIt-Anchor" href="#同步阻塞-io"></a> 同步阻塞 IO</h2>
