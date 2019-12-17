@@ -60,7 +60,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/reactor/single_thread_reactor.png">
 <meta property="og:image" content="http://www.cyhone.com/img/reactor/main_sub_reactor.jpg">
-<meta property="og:updated_time" content="2019-12-17T10:57:36.458Z">
+<meta property="og:updated_time" content="2019-12-17T11:00:17.502Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="muduo 源码剖析">
 <meta name="twitter:description" content="muduo是 陈硕 大神个人开发的 C++ 的 TCP 网络编程库。muduo 基于 Reactor 模式实现。Reactor 模式也是目前大多数 Linux 端高性能网络编程框架和网络应用所选择的主要架构，例如内存数据库 Redis 和 Java 的 Netty 库等。 陈硕的《Linux 多线程服务器端编程》一书对 muduo 整个架构进行了非常详尽的介绍和分析，可以说是学习 muduo 源码">
@@ -235,7 +235,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-17 18:57:36" itemprop="dateModified" datetime="2019-12-17T18:57:36+08:00">2019-12-17</time>
+                <time title="修改时间：2019-12-17 19:00:17" itemprop="dateModified" datetime="2019-12-17T19:00:17+08:00">2019-12-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -378,14 +378,14 @@
 <li>假如 OutputBuffer 为空，则直接向 socket 写数据</li>
 <li>如果向 socket 写数据没有写完，则统计剩余的字节个数，并进行下一步。没有写完可能是因为此时 socket 的 TCP 缓冲区已满了。</li>
 <li>如果此时 OutputBuffer 中的旧数据的个数和未写完字节个数之和大于 highWaterMark，则将 highWaterMarkCallback 放入待执行队列中</li>
-<li>** 将对应 socket 的可写事件注册到 EventLoop 中 **</li>
+<li><strong>将对应 socket 的可写事件注册到 EventLoop 中</strong></li>
 </ol>
 <p>注意，直到发送的时候，才把 socket 的可写事件注册到了 EventLoop 中。之前只注册了可读事件。</p>
 <p>连接 socket 的可写事件对应的 callback 是 TcpConnection::handleWrite()<br>
 当某个 socket 的可写事件触发时，TcpConnection::handleWrite 会做两个工作：</p>
 <ol>
 <li>尽可能将数据从 OutputBuffer 中向 socket 中 write 数据</li>
-<li>如果 OutputBuffer 没有剩余的，则 ** 将该 socket 的可写事件移除 **，并调用 writeCompleteCallback</li>
+<li>如果 OutputBuffer 没有剩余的，则 <strong>将该 socket 的可写事件移除</strong>，并调用 writeCompleteCallback</li>
 </ol>
 <h2 id="为什么要移除可写事件"><a class="markdownIt-Anchor" href="#为什么要移除可写事件"></a> 为什么要移除可写事件</h2>
 <p>因为当 OutputBuffer 中没数据时，我们不需要向 socket 中写入数据。但是此时 socket 一直是处于可写状态的， 这将会导致 TcpConnection::handleWrite() 一直被触发。然而这个触发毫无意义，因为并没有什么可以写的。</p>
