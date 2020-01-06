@@ -376,6 +376,7 @@ NexT.utils = {
 
   loadComments: function(element, callback) {
     if (!CONFIG.comments.lazyload || !element) {
+      console.log(callback)
       callback();
       return;
     }
