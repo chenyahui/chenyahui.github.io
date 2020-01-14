@@ -281,7 +281,7 @@
 <a id="more"></a>
 <h1 id="时间轮的表示"><a class="markdownIt-Anchor" href="#时间轮的表示"></a> 时间轮的表示</h1>
 <p>libco 的时间轮的数据结构定义如下：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stTimeout_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	stTimeoutItemLink_t *pItems;</span><br><span class="line">	<span class="keyword">int</span> iItemSize;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">long</span> <span class="keyword">long</span> llStartIdx;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> ullStart;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stTimeout_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	stTimeoutItemLink_t *pItems;</span><br><span class="line">	<span class="keyword">int</span> iItemSize;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">long</span> <span class="keyword">long</span> llStartIdx;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> ullStart;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>时间轮 <code>stTimeout_t</code> 负责 libco 中所有超时事件的管理, 其中各属性的意义如下:</p>
 <ol>
 <li><code>pItems</code> 是一个数组，数组长度为 iItemSize。而数组中的每个元素是 <code>stTimeoutItemLink_t</code> 类型，这是一个双向链表实现。而同一个链表中的每个元素，它们的超时时间都是相同的。</li>
@@ -298,19 +298,19 @@
 <ol>
 <li>将相对时间转化为时间戳，代码如下：</li>
 </ol>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> now = GetTickMS();</span><br><span class="line">apItem.ullExpireTime = now + timeout;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> now = GetTickMS();</span><br><span class="line">apItem.ullExpireTime = now + timeout;</span><br></pre></td></tr></table></figure>
 <p>这点不难理解，只有统一成标准的时间表示，才可以和其他超时事件统一的放在一起。</p>
 <ol start="2">
 <li>计算该超时事件的触发时间距离时间轮中最近的超时时间 <code>ullStart</code> 的时间差值</li>
 </ol>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> diff = apItem-&gt;ullExpireTime - apTimeout-&gt;ullStart;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> diff = apItem-&gt;ullExpireTime - apTimeout-&gt;ullStart;</span><br></pre></td></tr></table></figure>
 <p>计算得到了这个时间差值，才可以进一步计算新的超时事件在时间轮中的位置。<br>
 当然，在把超时事件放入时间轮之前，需要先判断下该超时事件是否越界了。如果比 <code>ullStart</code> 大于 1 分钟, 则 libco 时间轮没有办法表示这个超时事件，将会报错。相关代码如下</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(diff&gt;= apTimeout-&gt;iItemSize )</span><br><span class="line">&#123;</span><br><span class="line">	co_log_err(<span class="string">"CO_ERR: AddTimeout line %d diff %d"</span>,__LINE__,diff);</span><br><span class="line">	<span class="keyword">return</span> __LINE__;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(diff&gt;= apTimeout-&gt;iItemSize )</span><br><span class="line">&#123;</span><br><span class="line">	co_log_err(<span class="string">"CO_ERR: AddTimeout line %d diff %d"</span>,__LINE__,diff);</span><br><span class="line">	<span class="keyword">return</span> __LINE__;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ol start="3">
 <li>计算得出该超时事件在时间轮中的位置，并将其插入到时间轮中。</li>
 </ol>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">AddTail(apTimeout-&gt;pItems + ( apTimeout-&gt;llStartIdx + diff ) % apTimeout-&gt;iItemSize , apItem );</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AddTail(apTimeout-&gt;pItems + ( apTimeout-&gt;llStartIdx + diff ) % apTimeout-&gt;iItemSize , apItem );</span><br></pre></td></tr></table></figure>
 <p>这里其实有两步:</p>
 <ul>
 <li>计算在时间轮中的位置。其实很简单，就是一个简单的取余过程，这个也是环形数组的普遍做法。得到的 <code>apTimeout-&gt;pItems + ${index}</code>，即是该超时事件所在的位置。</li>

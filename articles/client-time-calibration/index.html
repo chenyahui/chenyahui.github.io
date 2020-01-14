@@ -293,7 +293,7 @@
 记此时的服务器时间为 <code>server_init_time</code>，同时获取到当前客户端的时间, 记为 <code>local_init_time</code>。</p>
 <p>当客户端需要获取当前的准确时间的时候，首先得到客户端的当前时间 记为 local_now_time<br>
 那么，当前最准确的时间就可以通过一个简单的差值计算得到。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">server_now_time = server_init_time + (local_now_time - local_init_time)</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server_now_time = server_init_time + (local_now_time - local_init_time)</span><br></pre></td></tr></table></figure>
 <p>通过计算两次本地时间的差值，就可以推出当前服务器的时间了。</p>
 <h2 id="网络时延的损耗"><a class="markdownIt-Anchor" href="#网络时延的损耗"></a> 网络时延的损耗</h2>
 <p>上述方案实际上已经能够准确的获取到当前服务器的时间了。<br>
@@ -305,7 +305,7 @@ server_init_time 和 local_init_time 还差一个请求返回时间。</p>
 <p>我们都知道网络是不可靠的，严重情况下，一次网络时延可以达到数秒。这对于时间校准的也会造成一些小小的干扰。</p>
 <p>基于这个问题，我们可以假设 <code>客户端发出请求到服务器的时间</code> 与 <code>服务器回复请求到客户端的时间</code> 基本是一致的。虽然在实际情况下，有可能存在偏差。</p>
 <p>此时</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">server_init_time = server_init_time - delta / <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server_init_time = server_init_time - delta / <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
 <p>其中 delta 是指一次请求的总时延。</p>
 <h2 id="防止客户端运行期间时间改变"><a class="markdownIt-Anchor" href="#防止客户端运行期间时间改变"></a> 防止客户端运行期间时间改变</h2>
 <p>基于以上考虑，我们的时间校准方案已经基本上可以满足大多数客户端的需求了。</p>
@@ -313,7 +313,7 @@ server_init_time 和 local_init_time 还差一个请求返回时间。</p>
 假如，在软件运行期间，无论是出于被动还是用户有意主动的修改，客户端的时间发生了变化。那么，以上通过计算两次本地时间差值来获取准确时间的方案将会失效。</p>
 <p>因此，我们需要使用一个不随本地时间变化的维度作为校对的标准。我们首先想到了开机时长，开机时长是指当前时刻距离设备开机时刻的毫秒数，而这个东西是不随设备的时钟变化的。<br>
 因此我们的公式可以修改为：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server_now_time = server_init_time + (local_now_tickcount - local_init_tickout)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server_now_time = server_init_time + (local_now_tickcount - local_init_tickout)</span><br></pre></td></tr></table></figure>
 <p>local_now_tickcount 和 local_init_tickout 分别指的是设备当前的开机时长和初始化阶段用户的开机时长。</p>
 <h2 id="时间溢出"><a class="markdownIt-Anchor" href="#时间溢出"></a> 时间溢出</h2>
 <p>使用开机时长作为校对的标准的方案，看似完美无缺，实际上仍然存在着一些意想不到的问题…</p>
@@ -326,7 +326,7 @@ server_init_time 和 local_init_time 还差一个请求返回时间。</p>
 <p>我们发现 C# 有一个 StopWatch 函数，常常用来统计函数运行时长。而它的时间表示 <code>stopWatch.ElapsedMilliseconds</code> 是 long 型的。同时，StopWatch 是基于 Timer 实现的时间统计，也不与本地时钟相关。</p>
 <p>那么，与利用开机时长的方案类似，我们在软件初始化时，开启一个 StopWatch。每次获取准确时间的时候，将 stopWatch 中记录的当前耗时时间与服务器初始时间相加，即可得到当前的准确时间。</p>
 <p>最终的时间校准方案如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server_init_time = server_init_time - delta / 2;</span><br><span class="line">server_now_time = server_init_time + stopWatch.ElapsedMilliseconds / 1000</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">server_init_time = server_init_time - delta / 2;</span><br><span class="line">server_now_time = server_init_time + stopWatch.ElapsedMilliseconds / 1000</span><br></pre></td></tr></table></figure>
 <h2 id="定期校准"><a class="markdownIt-Anchor" href="#定期校准"></a> 定期校准</h2>
 <p>考虑到时间越长，有可能本地时间与服务器时间的偏差逐渐加大。可以采用定时器，定时对本地时间进行重新校准。</p>
 <p>基于以上方案，我们就实现了客户端与后台时间的秒级时间同步方案。</p>

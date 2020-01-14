@@ -307,13 +307,13 @@
 </ol>
 <p>所谓异步，实际上就是非同步非阻塞。</p>
 <h2 id="同步阻塞-io"><a class="markdownIt-Anchor" href="#同步阻塞-io"></a> 同步阻塞 IO</h2>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">read(fd, buffer, count)</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">read(fd, buffer, count)</span><br></pre></td></tr></table></figure>
 <p>Linux 下面如果直接不对 fd 进行特殊处理，直接调用 read，就是同步阻塞 IO。同步阻塞 IO 的两个阶段都需要等待完成后，read 才会返回。</p>
 <p>** 也就是说，如果远程一直没有发送数据，则 read 一直就不会返回，整个线程就会阻塞到这里了。**</p>
 <h1 id="同步非阻塞-io"><a class="markdownIt-Anchor" href="#同步非阻塞-io"></a> 同步非阻塞 IO</h1>
 <p>对于同步非阻塞 IO 来说，如果没有可读可写事件，则直接返回；如果有，则进行第二个阶段，复制数据。<br>
 在 linux 下面，需要使用 fcntl 将 fd 变为非阻塞的。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> flags = fcntl(socket, F_GETFL, <span class="number">0</span>);</span><br><span class="line">fcntl(socket, F_SETFL, flags | O_NONBLOCK);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> flags = fcntl(socket, F_GETFL, <span class="number">0</span>);</span><br><span class="line">fcntl(socket, F_SETFL, flags | O_NONBLOCK);</span><br></pre></td></tr></table></figure>
 <p>同时，如果 read 的时候，fd 不可读，则 read 调用会触发一个 EWOULDBLOCK 错误 (或者 EAGAIN，EWOULDBLOCK 和 EAGAIN 是一样的)。用户只要检查下 <code>errno == EWOULDBLOCK</code>, 即可判断 read 是否返回正常。</p>
 <p>基本在 Linux 下进行网络编程，非阻塞 IO 都是不二之选。</p>
 <h2 id="异步-io"><a class="markdownIt-Anchor" href="#异步-io"></a> 异步 IO</h2>
