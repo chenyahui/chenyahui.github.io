@@ -19,36 +19,10 @@
 
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
 
-
 <script id="hexo-configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    hostname: new URL('http://www.cyhone.com').hostname,
-    root: '/',
-    scheme: 'Gemini',
-    version: '7.7.2',
-    exturl: false,
-    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
-    copycode: {"enable":false,"show_result":false,"style":"default"},
-    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
-    bookmark: {"enable":false,"color":"#222","save":"auto"},
-    fancybox: false,
-    mediumzoom: false,
-    lazyload: false,
-    pangu: false,
-    comments: {"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},
-    algolia: {
-      appID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    },
-    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
-    path: '',
-    motion: {"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}
-  };
-</script>
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
+  </script>
 
   <meta name="description" content="2017 年总共阅读了 21 本书，相比于 2016 年减少了 4 本。 今年读的这些书相对于去年来说种类比较全而且质量比较高, 但是有一个非常大的缺点就是没有留下可用的笔记，尤其是像《北宋名家词选讲》这种书，没有好的笔记留下，书里的精髓就会流失很多。 希望 2018 年的阅读能够做到以下几点:  读的每本非小说类书，都要认真的做笔记或者思维图 2018 年可以阅读 30 本书以上 多把空闲时间放">
 <meta name="keywords" content="读书">
@@ -262,7 +236,7 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/articles/2017-reading-records/#comments" itemprop="discussionUrl">
+    <a title="valine" href="/articles/2017-reading-records/#valine-comments" itemprop="discussionUrl">
       <span class="post-comments-count valine-comment-count" data-xid="/articles/2017-reading-records/" itemprop="commentCount"></span>
     </a>
   </span>
@@ -719,12 +693,12 @@
 NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
   NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
     var gitalk = new Gitalk({
-      clientID: '35a91b87ee1c4d2b4980',
+      clientID    : '35a91b87ee1c4d2b4980',
       clientSecret: 'e80145e7e64c156b4d278e67c79abfe5762115a0',
-      repo: 'chenyahui.github.io',
-      owner: 'chenyahui',
-      admin: ['chenyahui'],
-      id: 'ddd2ace8e7b26020b45af15b584762db',
+      repo        : 'chenyahui.github.io',
+      owner       : 'chenyahui',
+      admin       : ['chenyahui'],
+      id          : 'ddd2ace8e7b26020b45af15b584762db',
         language: 'zh-CN',
       distractionFreeMode: true
     });
@@ -743,20 +717,20 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
       return GUEST.includes(item);
     });
     new Valine({
-      el: '#valine-comments',
-      verify: false,
-      notify: false,
-      appId: 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
-      appKey: 'DVy4Enbaa5UpxREeLinbWIcG',
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
+      appKey     : 'DVy4Enbaa5UpxREeLinbWIcG',
       placeholder: "请在上方填写您的邮箱，邮件不会被公开",
-      avatar: 'mm',
-      meta: guest,
-      pageSize: '10' || 10,
-      visitor: true,
-      lang: 'zh-cn' || 'zh-cn',
-      path: location.pathname,
-      recordIP: false,
-      serverURLs: ''
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
     });
   }, window.Valine);
 });

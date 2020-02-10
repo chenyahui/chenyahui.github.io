@@ -19,36 +19,10 @@
 
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
 
-
 <script id="hexo-configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    hostname: new URL('http://www.cyhone.com').hostname,
-    root: '/',
-    scheme: 'Gemini',
-    version: '7.7.2',
-    exturl: false,
-    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
-    copycode: {"enable":false,"show_result":false,"style":"default"},
-    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
-    bookmark: {"enable":false,"color":"#222","save":"auto"},
-    fancybox: false,
-    mediumzoom: false,
-    lazyload: false,
-    pangu: false,
-    comments: {"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},
-    algolia: {
-      appID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    },
-    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
-    path: '',
-    motion: {"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}
-  };
-</script>
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
+  </script>
 
   <meta name="description" content="muduo是 陈硕 大神个人开发的 C++ 的 TCP 网络编程库。muduo 基于 Reactor 模式实现。Reactor 模式也是目前大多数 Linux 端高性能网络编程框架和网络应用所选择的主要架构，例如内存数据库 Redis 和 Java 的 Netty 库等。 陈硕的《Linux 多线程服务器端编程》一书对 muduo 整个架构进行了非常详尽的介绍和分析，可以说是学习 muduo 源码">
 <meta name="keywords" content="源码,TCP,网络编程,Reactor">
@@ -265,7 +239,7 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/articles/analysis-of-muduo/#comments" itemprop="discussionUrl">
+    <a title="valine" href="/articles/analysis-of-muduo/#valine-comments" itemprop="discussionUrl">
       <span class="post-comments-count valine-comment-count" data-xid="/articles/analysis-of-muduo/" itemprop="commentCount"></span>
     </a>
   </span>
@@ -707,12 +681,12 @@
 NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
   NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
     var gitalk = new Gitalk({
-      clientID: '35a91b87ee1c4d2b4980',
+      clientID    : '35a91b87ee1c4d2b4980',
       clientSecret: 'e80145e7e64c156b4d278e67c79abfe5762115a0',
-      repo: 'chenyahui.github.io',
-      owner: 'chenyahui',
-      admin: ['chenyahui'],
-      id: '4f7126e92e8f9a0e8b81ff0983580afb',
+      repo        : 'chenyahui.github.io',
+      owner       : 'chenyahui',
+      admin       : ['chenyahui'],
+      id          : '4f7126e92e8f9a0e8b81ff0983580afb',
         language: 'zh-CN',
       distractionFreeMode: true
     });
@@ -731,20 +705,20 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
       return GUEST.includes(item);
     });
     new Valine({
-      el: '#valine-comments',
-      verify: false,
-      notify: false,
-      appId: 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
-      appKey: 'DVy4Enbaa5UpxREeLinbWIcG',
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
+      appKey     : 'DVy4Enbaa5UpxREeLinbWIcG',
       placeholder: "请在上方填写您的邮箱，邮件不会被公开",
-      avatar: 'mm',
-      meta: guest,
-      pageSize: '10' || 10,
-      visitor: true,
-      lang: 'zh-cn' || 'zh-cn',
-      path: location.pathname,
-      recordIP: false,
-      serverURLs: ''
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
     });
   }, window.Valine);
 });

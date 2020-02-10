@@ -19,36 +19,10 @@
 
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
 
-
 <script id="hexo-configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    hostname: new URL('http://www.cyhone.com').hostname,
-    root: '/',
-    scheme: 'Gemini',
-    version: '7.7.2',
-    exturl: false,
-    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
-    copycode: {"enable":false,"show_result":false,"style":"default"},
-    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
-    bookmark: {"enable":false,"color":"#222","save":"auto"},
-    fancybox: false,
-    mediumzoom: false,
-    lazyload: false,
-    pangu: false,
-    comments: {"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},
-    algolia: {
-      appID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    },
-    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
-    path: '',
-    motion: {"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}
-  };
-</script>
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
+  </script>
 
   <meta name="description" content="在客户端开发中，往往会有一些功能对时间要求比较严格，客户端需要获取到当前最准确的时间。但由于客户端环境多种多样，我们无法保证直接在客户端设备上获取到的时间是最准确的时间。 对于某些问题设备来说，设备时间与比当前实际的时间差了几个小时，甚至几天的情况都存在。倘若某功能依赖于当前时间，而客户端所提供的时间不准，就往往会给客户造成一些困扰。 那么，客户端如何能够获取到当前最准确的时间呢？">
 <meta property="og:type" content="article">
@@ -263,7 +237,7 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/articles/client-time-calibration/#comments" itemprop="discussionUrl">
+    <a title="valine" href="/articles/client-time-calibration/#valine-comments" itemprop="discussionUrl">
       <span class="post-comments-count valine-comment-count" data-xid="/articles/client-time-calibration/" itemprop="commentCount"></span>
     </a>
   </span>
@@ -554,12 +528,12 @@ server_init_time 和 local_init_time 还差一个请求返回时间。</p>
 NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
   NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
     var gitalk = new Gitalk({
-      clientID: '35a91b87ee1c4d2b4980',
+      clientID    : '35a91b87ee1c4d2b4980',
       clientSecret: 'e80145e7e64c156b4d278e67c79abfe5762115a0',
-      repo: 'chenyahui.github.io',
-      owner: 'chenyahui',
-      admin: ['chenyahui'],
-      id: 'a5e2fb9e47828f934bb9b7f4dcff65fd',
+      repo        : 'chenyahui.github.io',
+      owner       : 'chenyahui',
+      admin       : ['chenyahui'],
+      id          : 'a5e2fb9e47828f934bb9b7f4dcff65fd',
         language: 'zh-CN',
       distractionFreeMode: true
     });
@@ -578,20 +552,20 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
       return GUEST.includes(item);
     });
     new Valine({
-      el: '#valine-comments',
-      verify: false,
-      notify: false,
-      appId: 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
-      appKey: 'DVy4Enbaa5UpxREeLinbWIcG',
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
+      appKey     : 'DVy4Enbaa5UpxREeLinbWIcG',
       placeholder: "请在上方填写您的邮箱，邮件不会被公开",
-      avatar: 'mm',
-      meta: guest,
-      pageSize: '10' || 10,
-      visitor: true,
-      lang: 'zh-cn' || 'zh-cn',
-      path: location.pathname,
-      recordIP: false,
-      serverURLs: ''
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
     });
   }, window.Valine);
 });

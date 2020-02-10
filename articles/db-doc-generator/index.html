@@ -19,36 +19,10 @@
 
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
 
-
 <script id="hexo-configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    hostname: new URL('http://www.cyhone.com').hostname,
-    root: '/',
-    scheme: 'Gemini',
-    version: '7.7.2',
-    exturl: false,
-    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
-    copycode: {"enable":false,"show_result":false,"style":"default"},
-    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
-    bookmark: {"enable":false,"color":"#222","save":"auto"},
-    fancybox: false,
-    mediumzoom: false,
-    lazyload: false,
-    pangu: false,
-    comments: {"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},
-    algolia: {
-      appID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    },
-    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
-    path: '',
-    motion: {"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}
-  };
-</script>
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
+  </script>
 
   <meta name="description" content="最近我用 Golang 开发了一个可以将数据库每张表的各个列信息转化成文档的小工具。开发的缘由是因为写后端时，经常需要为数据库写说明文档，对于稍微有些规模的项目来说，就动辄几十张上百张数据表，开发人员在文档中不断的写各个列的列名、类型、描述实在是无聊、枯燥和苦不堪言。所以就有了这个小工具的诞生。 项目地址在 这里">
 <meta name="keywords" content="Golang,数据库">
@@ -265,7 +239,7 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/articles/db-doc-generator/#comments" itemprop="discussionUrl">
+    <a title="valine" href="/articles/db-doc-generator/#valine-comments" itemprop="discussionUrl">
       <span class="post-comments-count valine-comment-count" data-xid="/articles/db-doc-generator/" itemprop="commentCount"></span>
     </a>
   </span>
@@ -554,12 +528,12 @@ MySQL 的读取当前数据库下的所有表名的语句是 <code>show tables</
 NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
   NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
     var gitalk = new Gitalk({
-      clientID: '35a91b87ee1c4d2b4980',
+      clientID    : '35a91b87ee1c4d2b4980',
       clientSecret: 'e80145e7e64c156b4d278e67c79abfe5762115a0',
-      repo: 'chenyahui.github.io',
-      owner: 'chenyahui',
-      admin: ['chenyahui'],
-      id: '0275954902ea4120dd3a3ed747c892c5',
+      repo        : 'chenyahui.github.io',
+      owner       : 'chenyahui',
+      admin       : ['chenyahui'],
+      id          : '0275954902ea4120dd3a3ed747c892c5',
         language: 'zh-CN',
       distractionFreeMode: true
     });
@@ -578,20 +552,20 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
       return GUEST.includes(item);
     });
     new Valine({
-      el: '#valine-comments',
-      verify: false,
-      notify: false,
-      appId: 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
-      appKey: 'DVy4Enbaa5UpxREeLinbWIcG',
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
+      appKey     : 'DVy4Enbaa5UpxREeLinbWIcG',
       placeholder: "请在上方填写您的邮箱，邮件不会被公开",
-      avatar: 'mm',
-      meta: guest,
-      pageSize: '10' || 10,
-      visitor: true,
-      lang: 'zh-cn' || 'zh-cn',
-      path: location.pathname,
-      recordIP: false,
-      serverURLs: ''
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
     });
   }, window.Valine);
 });

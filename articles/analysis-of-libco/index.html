@@ -19,36 +19,10 @@
 
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
 
-
 <script id="hexo-configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    hostname: new URL('http://www.cyhone.com').hostname,
-    root: '/',
-    scheme: 'Gemini',
-    version: '7.7.2',
-    exturl: false,
-    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
-    copycode: {"enable":false,"show_result":false,"style":"default"},
-    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
-    bookmark: {"enable":false,"color":"#222","save":"auto"},
-    fancybox: false,
-    mediumzoom: false,
-    lazyload: false,
-    pangu: false,
-    comments: {"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},
-    algolia: {
-      appID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    },
-    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
-    path: '',
-    motion: {"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}
-  };
-</script>
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
+  </script>
 
   <meta name="description" content="libco 是微信后台开发和使用的协程库，同时也是极少数的直接将 C/C++ 协程运用到如此大规模的生产环境中的案例。 在 《云风 coroutine 协程库源码分析》 中，介绍了有栈协程的实现原理。相比 coroutine，libco 在性能上号称可以调度千万级协程。 从使用上来说，不仅提供了一套类 pthread 的协程通信机制，同时可以零改造地将三方库的阻塞 IO 调用协程异步化。 本文将从">
 <meta name="keywords" content="源码,协程">
@@ -264,7 +238,7 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/articles/analysis-of-libco/#comments" itemprop="discussionUrl">
+    <a title="valine" href="/articles/analysis-of-libco/#valine-comments" itemprop="discussionUrl">
       <span class="post-comments-count valine-comment-count" data-xid="/articles/analysis-of-libco/" itemprop="commentCount"></span>
     </a>
   </span>
@@ -655,12 +629,12 @@ iCallStackSize 代表当前的调用深度。</p>
 NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
   NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
     var gitalk = new Gitalk({
-      clientID: '35a91b87ee1c4d2b4980',
+      clientID    : '35a91b87ee1c4d2b4980',
       clientSecret: 'e80145e7e64c156b4d278e67c79abfe5762115a0',
-      repo: 'chenyahui.github.io',
-      owner: 'chenyahui',
-      admin: ['chenyahui'],
-      id: '5d82a34d346d53e822737d1ee631a873',
+      repo        : 'chenyahui.github.io',
+      owner       : 'chenyahui',
+      admin       : ['chenyahui'],
+      id          : '5d82a34d346d53e822737d1ee631a873',
         language: 'zh-CN',
       distractionFreeMode: true
     });
@@ -679,20 +653,20 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
       return GUEST.includes(item);
     });
     new Valine({
-      el: '#valine-comments',
-      verify: false,
-      notify: false,
-      appId: 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
-      appKey: 'DVy4Enbaa5UpxREeLinbWIcG',
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
+      appKey     : 'DVy4Enbaa5UpxREeLinbWIcG',
       placeholder: "请在上方填写您的邮箱，邮件不会被公开",
-      avatar: 'mm',
-      meta: guest,
-      pageSize: '10' || 10,
-      visitor: true,
-      lang: 'zh-cn' || 'zh-cn',
-      path: location.pathname,
-      recordIP: false,
-      serverURLs: ''
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
     });
   }, window.Valine);
 });

@@ -19,36 +19,10 @@
 
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
 
-
 <script id="hexo-configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    hostname: new URL('http://www.cyhone.com').hostname,
-    root: '/',
-    scheme: 'Gemini',
-    version: '7.7.2',
-    exturl: false,
-    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
-    copycode: {"enable":false,"show_result":false,"style":"default"},
-    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
-    bookmark: {"enable":false,"color":"#222","save":"auto"},
-    fancybox: false,
-    mediumzoom: false,
-    lazyload: false,
-    pangu: false,
-    comments: {"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},
-    algolia: {
-      appID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    },
-    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
-    path: '',
-    motion: {"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}
-  };
-</script>
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
+  </script>
 
   <meta name="description" content="本博客主要是记录自己思考和总结的一些东西，包括不限于源码分析、读书总结以及技术方案等方面。 所有文章都会坚持原创，尽可能保持高质量，也会尽量做到文章清晰，避免自说自话。此外文章转载需要经过本人授权。 文章不免出错，为了保证正确性，同时也让文章表达的更加清楚，会经常对文章进行修改和调整。 只会在周末或者休息时间写文章，同时要最大限度保证文章质量。所以，发博客的时间和频率非常随机不固定，尽量会保持在一">
 <meta property="og:type" content="website">
@@ -59,7 +33,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/wechat_subscriber_search.png">
 <meta property="og:image" content="http://www.cyhone.com/img/zhihu.png">
-<meta property="og:updated_time" content="2019-12-16T08:48:02.922Z">
+<meta property="og:updated_time" content="2020-02-10T08:01:12.438Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="关于本站">
 <meta name="twitter:description" content="本博客主要是记录自己思考和总结的一些东西，包括不限于源码分析、读书总结以及技术方案等方面。 所有文章都会坚持原创，尽可能保持高质量，也会尽量做到文章清晰，避免自说自话。此外文章转载需要经过本人授权。 文章不免出错，为了保证正确性，同时也让文章表达的更加清楚，会经常对文章进行修改和调整。 只会在周末或者休息时间写文章，同时要最大限度保证文章质量。所以，发博客的时间和频率非常随机不固定，尽量会保持在一">
@@ -235,6 +209,7 @@
 <h1 id="联系我"><a class="markdownIt-Anchor" href="#联系我"></a> 联系我</h1>
 <p>如果你想基于文章内容或者编程方面进行讨论交流，可以直接通过邮件联系我。</p>
 <p>邮箱: <a href="mailto:cyhone@qq.com" target="_blank" rel="noopener">cyhone@qq.com</a></p>
+<p>或者可以直接在下方评论区留言交流~</p>
 
       </div>
       
@@ -419,12 +394,12 @@
 NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
   NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
     var gitalk = new Gitalk({
-      clientID: '35a91b87ee1c4d2b4980',
+      clientID    : '35a91b87ee1c4d2b4980',
       clientSecret: 'e80145e7e64c156b4d278e67c79abfe5762115a0',
-      repo: 'chenyahui.github.io',
-      owner: 'chenyahui',
-      admin: ['chenyahui'],
-      id: '3be7aa98d992907175cbd79c194399f2',
+      repo        : 'chenyahui.github.io',
+      owner       : 'chenyahui',
+      admin       : ['chenyahui'],
+      id          : '3be7aa98d992907175cbd79c194399f2',
         language: 'zh-CN',
       distractionFreeMode: true
     });
@@ -443,20 +418,20 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
       return GUEST.includes(item);
     });
     new Valine({
-      el: '#valine-comments',
-      verify: false,
-      notify: false,
-      appId: 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
-      appKey: 'DVy4Enbaa5UpxREeLinbWIcG',
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
+      appKey     : 'DVy4Enbaa5UpxREeLinbWIcG',
       placeholder: "请在上方填写您的邮箱，邮件不会被公开",
-      avatar: 'mm',
-      meta: guest,
-      pageSize: '10' || 10,
-      visitor: true,
-      lang: 'zh-cn' || 'zh-cn',
-      path: location.pathname,
-      recordIP: false,
-      serverURLs: ''
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
     });
   }, window.Valine);
 });
