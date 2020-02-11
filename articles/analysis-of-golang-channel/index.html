@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#464159">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.7.2">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.7.2">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.7.2">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.7.2" color="#464159">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="google-site-verification" content="gcDrMPbZlMtAIc7xAPBwFUjnApzpvfqSbVIKT3R8fbA">
+  <meta name="baidu-site-verification" content="F7xr7OXgnX">
+
+<link rel="stylesheet" href="/css/main.css?v=7.7.2">
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
+  </script>
+
+  <meta name="description" content="channel是Golang中一个非常重要的特性，也是Golang CSP并发模型的一个重要体现。简单来说就是，goroutine之间可以通过channel进行通信。 channel在Golang如此重要，在代码中使用频率非常高，以至于不得不好奇其内部实现。本文将基于go 1.13的源码，分析channel的内部实现原理。">
+<meta name="keywords" content="Golang,源码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang channel源码深度剖析">
+<meta property="og:url" content="http://www.cyhone.com/articles/analysis-of-golang-channel/index.html">
+<meta property="og:site_name" content="编程沉思录">
+<meta property="og:description" content="channel是Golang中一个非常重要的特性，也是Golang CSP并发模型的一个重要体现。简单来说就是，goroutine之间可以通过channel进行通信。 channel在Golang如此重要，在代码中使用频率非常高，以至于不得不好奇其内部实现。本文将基于go 1.13的源码，分析channel的内部实现原理。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.cyhone.com/img/channel/channel-godbolt.png">
+<meta property="og:image" content="http://www.cyhone.com/img/channel/ring-buffer.png">
+<meta property="og:updated_time" content="2020-02-11T05:45:18.915Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Golang channel源码深度剖析">
+<meta name="twitter:description" content="channel是Golang中一个非常重要的特性，也是Golang CSP并发模型的一个重要体现。简单来说就是，goroutine之间可以通过channel进行通信。 channel在Golang如此重要，在代码中使用频率非常高，以至于不得不好奇其内部实现。本文将基于go 1.13的源码，分析channel的内部实现原理。">
+<meta name="twitter:image" content="http://www.cyhone.com/img/channel/channel-godbolt.png">
+
+<link rel="canonical" href="http://www.cyhone.com/articles/analysis-of-golang-channel/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Golang channel源码深度剖析 | 编程沉思录</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ec99ce8d168c9260e5d744401582acc9";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">编程沉思录</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">一些思考和总结</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">26</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">30</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/chenyahui" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/analysis-of-golang-channel/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          Golang channel源码深度剖析
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-02-11 12:45:00 / 修改时间：13:45:18" itemprop="dateCreated datePublished" datetime="2020-02-11T12:45:00+08:00">2020-02-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Golang/" itemprop="url" rel="index">
+                    <span itemprop="name">Golang</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/analysis-of-golang-channel/" class="post-meta-item leancloud_visitors" data-flag-title="Golang channel源码深度剖析" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/articles/analysis-of-golang-channel/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/articles/analysis-of-golang-channel/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>channel是Golang中一个非常重要的特性，也是Golang CSP并发模型的一个重要体现。简单来说就是，goroutine之间可以通过channel进行通信。</p>
+<p>channel在Golang如此重要，在代码中使用频率非常高，以至于不得不好奇其内部实现。本文将基于<a href="https://github.com/golang/go/tree/dev.boringcrypto.go1.13" target="_blank" rel="noopener">go 1.13的源码</a>，分析channel的内部实现原理。</p>
+<a id="more"></a>
+<h1 id="channel的基本使用"><a class="markdownIt-Anchor" href="#channel的基本使用"></a> channel的基本使用</h1>
+<p>在正式分析channel的实现之前，我们先看下channel的最基本用法，代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    c := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        c &lt;- <span class="number">1</span> <span class="comment">// send to channel</span></span><br><span class="line">    &#125;()</span><br><span class="line"></span><br><span class="line">    x := &lt;-c <span class="comment">// recv from channel</span></span><br><span class="line"></span><br><span class="line">    fmt.Println(x)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在以上代码中，我们通过<code>make(chan int)</code>来创建了一个类型为int的channel。<br>
+在一个goroutine中使用<code>c &lt;- 1</code>将数据发送到channel中。在主goroutine中通过<code>x := &lt;- c</code>从channel中读取数据并赋值给x。</p>
+<p>以上代码对应了channel的两种基本操作：send操作 <code>c &lt;- 1</code>和 recv操作 <code>x := &lt;- c</code>, 分别表示发送数据到channel和从channel中接收数据。</p>
+<p>此外，channel还分为有缓存channel和无缓存channel。上述代码中，我们使用的是无缓冲的channel。对于无缓冲的channel，如果当前没有其他goroutine正在接收channel数据，则发送方会阻塞在发送语句处。</p>
+<p>我们可以在channel初始化时指定缓冲区大小，例如，<code>make(chan int, 2)</code>则指定缓冲区大小为2。在缓冲区未满之前，发送方无阻塞地可以往channel发送数据，无需等待接收方准备好。而如果缓冲区已满，则发送方依然会阻塞。</p>
+<h1 id="channel对应的底层实现函数"><a class="markdownIt-Anchor" href="#channel对应的底层实现函数"></a> channel对应的底层实现函数</h1>
+<p>在探究channel源码之前，我们至少需要先找到channel在Golang的具体实现在哪。因为我们在使用channel时，用的是<code>&lt;-</code>符号，并不能直接在go源码中找到其实现。但是Golang的编译器必然会将<code>&lt;-</code>符号翻译成底层对应的实现。</p>
+<p>我们可以使用Go自带的命令: <code>go tool compile -N -l -S hello.go</code>, 将代码翻译成对应的汇编指令。</p>
+<p>或者，直接可以使用<code>Compiler Explorer</code>这个在线工具。对于上述示例代码可以直接在这个链接看其汇编结果: <a href="https://go.godbolt.org/z/3xw5Cj" target="_blank" rel="noopener">go.godbolt.org/z/3xw5Cj</a></p>
+<p><img src="/img/channel/channel-godbolt.png" alt="channel汇编指令"></p>
+<p>通过仔细查看以上示例代码对应的汇编指令，可以发现以下的对应关系：</p>
+<ol>
+<li>channel的构造语句 <code>make(chan int)</code>, 对应的是 <code>runtime.makechan</code>函数</li>
+<li>发送语句 <code>c &lt;- 1</code>, 对应的是<code>runtime.chansend1</code>函数</li>
+<li>接收语句 <code>x := &lt;- c</code>, 对应的是<code>runtime.chanrecv1</code>函数</li>
+</ol>
+<p>以上几个函数的实现都位于go源码中的<code>runtime/chan.go</code>代码文件中。我们接下来针对这几个函数，探究下channel的实现。</p>
+<h1 id="channel的构造"><a class="markdownIt-Anchor" href="#channel的构造"></a> channel的构造</h1>
+<p>channel的构造语句 <code>make(chan int)</code>，将会被golang编译器翻译为<code>runtime.makechan</code>函数, 其函数签名如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makechan</span><span class="params">(t *chantype, size <span class="keyword">int</span>)</span> *<span class="title">hchan</span></span></span><br></pre></td></tr></table></figure>
+<p>其中，<code>t *chantype</code>即构造channel时传入的元素类型。<code>size int</code>即用户指定的channel缓冲区大小，不指定则为0。该函数的返回值是<code>*hchan</code>。hchan则是channel在golang中的内部实现。其定义如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> hchan <span class="keyword">struct</span> &#123;</span><br><span class="line">	qcount   <span class="keyword">uint</span>           <span class="comment">// buffer中已放入的元素个数</span></span><br><span class="line">	dataqsiz <span class="keyword">uint</span>           <span class="comment">// 用户构造channel时指定的buf大小</span></span><br><span class="line">	buf      unsafe.Pointer <span class="comment">// buffer</span></span><br><span class="line">	elemsize <span class="keyword">uint16</span>         <span class="comment">// buffer中每个元素的大小</span></span><br><span class="line">	closed   <span class="keyword">uint32</span>         <span class="comment">// channel是否关闭，== 0代表未closed</span></span><br><span class="line">	elemtype *_type         <span class="comment">// channel元素的类型信息</span></span><br><span class="line">	sendx    <span class="keyword">uint</span>           <span class="comment">// buffer中已发送的索引位置 send index</span></span><br><span class="line">	recvx    <span class="keyword">uint</span>           <span class="comment">// buffer中已接收的索引位置 receive index</span></span><br><span class="line">	recvq    waitq          <span class="comment">// 等待接收的goroutine  list of recv waiters</span></span><br><span class="line">	sendq    waitq          <span class="comment">// 等待发送的goroutine list of send waiters</span></span><br><span class="line"></span><br><span class="line">	lock mutex</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>hchan中的所有属性大致可以分为三类：</p>
+<ol>
+<li>buffer相关的属性。例如buf、dataqsiz、qcount等。 当channel的缓冲区大小不为0时，buffer中存放了待接收的数据。使用ring buffer实现。</li>
+<li>waitq相关的属性，可以理解为是一个FIFO的标准队列。其中recvq中是正在等待接收数据的goroutine，sendq中是等待发送数据的goroutine。waitq使用双向链表实现。</li>
+<li>其他属性，例如lock、elemtype、closed等。</li>
+</ol>
+<p><code>makechan</code>的整个过程基本都是一些合法性检测和对<code>buffer</code>、<code>hchan</code>等属性的内存分配，此处不再进行深入讨论了，有兴趣的可以直接看此处的源码。</p>
+<p>通过简单分析hchan的属性，我们可以知道其中有两个重要的组件，<code>buffer</code>和<code>waitq</code>。<code>hchan</code>所有行为和实现都是围绕这两个组件进行的。</p>
+<h1 id="向channel中发送数据"><a class="markdownIt-Anchor" href="#向channel中发送数据"></a> 向channel中发送数据</h1>
+<p>channel的发送和接收流程很相似，我们先分析下channel的发送过程(如<code>c &lt;- 1</code>), 对应于<code>runtime.chansend</code>函数的实现。</p>
+<p>在尝试向channel中发送数据时，如果<code>recvq</code>队列不为空，则首先会从<code>recvq</code>中头部取出一个等待接收数据的goroutine出来。并将数据直接发送给该goroutine。代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> sg := c.recvq.dequeue(); sg != <span class="literal">nil</span> &#123;</span><br><span class="line">	send(c, sg, ep, <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; unlock(&amp;c.lock) &#125;, <span class="number">3</span>)</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>recvq中是正在等待接收数据的goroutine。当某个goroutine使用recv操作(例如，<code>x := &lt;- c</code>)，如果此时channel的缓存中没有数据，且没有其他goroutine正在等待发送数据(即<code>sendq</code>为空)，会将该goroutine以及要接收的数据地址打包成<code>sudog</code>对象，并放入到recvq中。</p>
+<p>继续接着讲上面的代码，如果此时<code>recvq</code>不为空，则调用send函数将数据拷贝到对应的goroutine的堆栈上。</p>
+<p>send函数的实现主要包含两点：</p>
+<ol>
+<li><code>memmove(dst, src, t.size)</code>进行数据的转移，本质上就是一个内存拷贝。</li>
+<li><code>goready(gp, skip+1)</code> goready的作用是唤醒对应的goroutine。</li>
+</ol>
+<p>而如果<code>recvq</code>队列为空，则说明此时没有等待接收数据的goroutine，那么此时channel会尝试把数据放到缓存中。代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> c.qcount &lt; c.dataqsiz &#123;</span><br><span class="line">	<span class="comment">// 相当于 c.buf[c.sendx]</span></span><br><span class="line">	qp := chanbuf(c, c.sendx)</span><br><span class="line">	<span class="comment">// 将数据拷贝到buffer中</span></span><br><span class="line">	typedmemmove(c.elemtype, qp, ep)</span><br><span class="line">	c.sendx++</span><br><span class="line">	<span class="keyword">if</span> c.sendx == c.dataqsiz &#123;</span><br><span class="line">		c.sendx = <span class="number">0</span></span><br><span class="line">	&#125;</span><br><span class="line">	c.qcount++</span><br><span class="line">	unlock(&amp;c.lock)</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上代码的作用其实非常简单，就是把数据放到buffer中而已。此过程涉及了ring buffer的操作，其中<code>dataqsiz</code>代表用户指定的channel的buffer大小，如果不指定则默认为0。其他具体的详细操作后续过程会在ring buffer一节详细讲到。</p>
+<p>如果用户使用的是无缓冲channel或者此时buffer已满，则<code>c.qcount &lt; c.dataqsiz</code>条件不会满足, 以上流程也并不会执行到。此时会将当前的goroutine以及要发送的数据放入到<code>sendq</code>队列中，同时会切出该goroutine。整个流程对应代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">gp := getg()</span><br><span class="line">mysg := acquireSudog()</span><br><span class="line">mysg.releasetime = <span class="number">0</span></span><br><span class="line"><span class="keyword">if</span> t0 != <span class="number">0</span> &#123;</span><br><span class="line">	mysg.releasetime = <span class="number">-1</span></span><br><span class="line">&#125;</span><br><span class="line">mysg.elem = ep</span><br><span class="line">mysg.waitlink = <span class="literal">nil</span></span><br><span class="line">mysg.g = gp</span><br><span class="line">mysg.isSelect = <span class="literal">false</span></span><br><span class="line">mysg.c = c</span><br><span class="line">gp.waiting = mysg</span><br><span class="line">gp.param = <span class="literal">nil</span></span><br><span class="line">c.sendq.enqueue(mysg)</span><br><span class="line"><span class="comment">// 将goroutine转入waiting状态，并解锁</span></span><br><span class="line">goparkunlock(&amp;c.lock, waitReasonChanSend, traceEvGoBlockSend, <span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+<p>以上代码中，goparkunlock就是解锁传入的mutex，并切出该goroutine，将该goroutine置为waiting状态。<code>gopark</code>和上面的<code>goready</code>对应，互为逆操作。<code>gopark</code>和<code>goready</code>在runtime的源码中会经常遇到，涉及了goroutine的调度过程，这里就不再深入讨论，以后会单独写一篇文章讲解。</p>
+<p>调用<code>gopark</code>后，对于用户侧来看，该向channel发送数据的代码语句会进行阻塞。</p>
+<p>以上过程就是channel的发送语句(如，<code>c &lt;- 1</code>)的内部工作流程，同时整个发送过程都使用<code>c.lock</code>进行加锁，保证并发安全。</p>
+<p>简单来说，整个流程如下：</p>
+<ol>
+<li>检查recvq是否为空，如果不为空，则从recvq头部取一个goroutine，将数据发送过去，并唤醒对应的goroutine即可。</li>
+<li>如果recvq为空，则将数据放入到buffer中。</li>
+<li>如果buffer已满，则将要发送的数据和当前goroutine打包成<code>sudog</code>对象放入到<code>sendq</code>中。并将当前goroutine置为waiting状态。</li>
+</ol>
+<p>从channel中接收数据的过程基本与发送过程类似，此处不再赘述了。具体接收过程涉及到的buffer的相关操作，会在后面进行详细的讲解。</p>
+<p>这里需要注意的是，channel的整个发送过程和接收过程都使用<code>runtime.mutex</code>进行加锁。<code>runtime.mutex</code>是runtime相关源码中常用到的一个轻量级锁。整个过程并不是最高效的lockfree的做法。golang在这里有个issue:<a href="https://github.com/golang/go/issues/8899" target="_blank" rel="noopener">go/issues#8899</a>，给出了lockfree的channel的方案。</p>
+<h1 id="channel的ring-buffer实现"><a class="markdownIt-Anchor" href="#channel的ring-buffer实现"></a> channel的ring buffer实现</h1>
+<p>channel中使用了ring buffer(环形缓冲区)来缓存写入的数据。ring buffer有很多好处，而且非常适合用来实现FIFO式的固定长度队列。</p>
+<p>在channel中，ring buffer的实现如下：</p>
+<p><img src="/img/channel/ring-buffer.png" alt="channel中ring buffer的实现"></p>
+<p><code>hchan</code>中有两个与buffer相关的变量: <code>recvx</code>和<code>sendx</code>。其中<code>sendx</code>表示buffer中可写的index, <code>recvx</code>表示buffer中可读的index。 从<code>recvx</code>到<code>sendx</code>之间的元素，表示已正常存放入buffer中的数据。</p>
+<p>我们可以直接使用<code>buf[recvx]</code>来读取到队列的第一个元素，使用<code>buf[sendx] = x</code>来将元素放到队尾。</p>
+<h2 id="buffer的写入"><a class="markdownIt-Anchor" href="#buffer的写入"></a> buffer的写入</h2>
+<p>当buffer未满时，将数据放入到buffer中的操作如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">qp := chanbuf(c, c.sendx)</span><br><span class="line"><span class="comment">// 将数据拷贝到buffer中</span></span><br><span class="line">typedmemmove(c.elemtype, qp, ep)</span><br><span class="line">c.sendx++</span><br><span class="line"><span class="keyword">if</span> c.sendx == c.dataqsiz &#123;</span><br><span class="line">	c.sendx = <span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line">c.qcount++</span><br></pre></td></tr></table></figure>
+<p>其中<code>chanbuf(c, c.sendx)</code>相当于<code>c.buf[c.sendx]</code>。以上过程非常简单，就是将数据拷贝到buffer的<code>sendx</code>的位置上。</p>
+<p>接着，将<code>sendx</code>移到下一个位置上。如果<code>sendx</code>已到达最后一位，则将其置为0，这是一个典型的头尾相连的做法。</p>
+<h2 id="buffer的读取"><a class="markdownIt-Anchor" href="#buffer的读取"></a> buffer的读取</h2>
+<p>当buffer未满时，此时<code>sendq</code>里面也一定是空的(因为如果buffer未满，用于发送数据的goroutine肯定不会排队，而是直接放数据到buffer中，具体逻辑参考上文向channel发送数据一节)，这时候对于channel的读取过程<code>chanrecv</code>就比较简单了，直接从buffer中读取即可，也是一个移动<code>recvx</code>的过程。与上文buffer的写入基本一致。</p>
+<p>而<code>sendq</code>里面有已等待的goroutine的时候，此时buffer一定是满的。这个时候channel的读取逻辑如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 相当于c.buf[c.recvx]</span></span><br><span class="line">qp := chanbuf(c, c.recvx)</span><br><span class="line"><span class="comment">// copy data from queue to receiver</span></span><br><span class="line"><span class="keyword">if</span> ep != <span class="literal">nil</span> &#123;</span><br><span class="line">	typedmemmove(c.elemtype, ep, qp)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// copy data from sender to queue</span></span><br><span class="line">typedmemmove(c.elemtype, qp, sg.elem)</span><br><span class="line">c.recvx++</span><br><span class="line"><span class="keyword">if</span> c.recvx == c.dataqsiz &#123;</span><br><span class="line">	c.recvx = <span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line">c.sendx = c.recvx <span class="comment">// c.sendx = (c.sendx+1) % c.dataqsiz</span></span><br></pre></td></tr></table></figure>
+<p>以上代码中，<code>ep</code>接收数据的变量对应的地址。例如，在<code>x := &lt;- c</code>中，表示变量<code>x</code>的地址。<br>
+而<code>sg</code>代表从sendq中取出的第一个<code>sudog</code>。并且：</p>
+<ol>
+<li><code>typedmemmove(c.elemtype, ep, qp)</code>表示buffer中的当前可读元素拷贝到接收变量的地址处。</li>
+<li><code>typedmemmove(c.elemtype, qp, sg.elem)</code>表示将sendq中goroutine等待发送的数据拷贝到buffer中。因为此后进行了<code>recv++</code>, 因此相当于把sendq中的数据放到了队尾。</li>
+</ol>
+<p>简单来说，这里channel将buffer中队首的数据拷贝给了对应的接收变量，同时将sendq中的元素拷贝到了队尾，这样可以才可以做到数据的FIFO(先入先出)。</p>
+<p>接下来可能有点绕，<code>c.sendx = c.recvx</code>, 这句话实际的作用相当于<code>c.sendx = (c.sendx+1) % c.dataqsiz</code>，因为此时buffer依然是满的，所以<code>sendx == recvx</code>是成立的。</p>
+<h1 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h1>
+<p>channel作为golang中最常用设施，了解其源码可以帮助我们更好的理解和使用。同时也不会过于迷信和依赖channel的性能，channel就目前的设计来说也还有更多的优化空间。</p>
+<h1 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h1>
+<ul>
+<li><a href="https://github.com/developer-learning/night-reading-go/issues/450" target="_blank" rel="noopener">Go夜读：channel &amp; select 源码分析</a></li>
+<li><a href="http://legendtkl.com/2017/07/30/understanding-golang-channel/" target="_blank" rel="noopener">深入理解 Go Channel</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+    <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
+        <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber_search.png" alt="cyhone wechat" style="width: 750px;max-width:100%;">
+    <!--div>欢迎关注公众号【编程沉思录】</div-->
+    </div>
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>cyhone
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://www.cyhone.com/articles/analysis-of-golang-channel/" title="Golang channel源码深度剖析">http://www.cyhone.com/articles/analysis-of-golang-channel/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Golang/" rel="tag"><i class="fa fa-tag"></i> Golang</a>
+              <a href="/tags/源码/" rel="tag"><i class="fa fa-tag"></i> 源码</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/time-wheel-in-libco/" rel="prev" title="libco 的定时器实现——时间轮">
+      <i class="fa fa-chevron-left"></i> libco 的定时器实现——时间轮
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+      <div class="tabs tabs-comment">
+        <ul class="nav-tabs">
+            <li class="tab"><a href="#comment-valine">valine</a></li>
+            <li class="tab"><a href="#comment-gitalk">gitalk</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane valine" id="comment-valine">
+              <div class="comments" id="valine-comments"></div>
+            </div>
+            <div class="tab-pane gitalk" id="comment-gitalk">
+              <div class="comments" id="gitalk-container"></div>
+            </div>
+        </div>
+      </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#channel的基本使用"><span class="nav-text"> channel的基本使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#channel对应的底层实现函数"><span class="nav-text"> channel对应的底层实现函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#channel的构造"><span class="nav-text"> channel的构造</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#向channel中发送数据"><span class="nav-text"> 向channel中发送数据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#channel的ring-buffer实现"><span class="nav-text"> channel的ring buffer实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#buffer的写入"><span class="nav-text"> buffer的写入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#buffer的读取"><span class="nav-text"> buffer的读取</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text"> 总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="cyhone"
+      src="/img/avatar.jpg">
+  <p class="site-author-name" itemprop="name">cyhone</p>
+  <div class="site-description" itemprop="description">每有会意，便欣然忘食</div>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chenyahui" title="GitHub → https://github.com/chenyahui" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cyhone@qq.com" title="E-Mail → mailto:cyhone@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhuanlan.zhihu.com/ruminations-on-code" title="Zhihu → https://zhuanlan.zhihu.com/ruminations-on-code" rel="noopener" target="_blank"><i class="fa fa-fw fa-custom zhihu"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="rss → /atom.xml"><i class="fa fa-fw fa-rss"></i></a>
+      </span>
+  </div>
+
+
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
+    <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber.png" alt="cyhone wechat" style="width: 200px; max-width: 100%;">
+    <div style="color: #999;font-size: 14px;">
+      欢迎关注公众号【编程沉思录】
+    </div>
+</div>
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">豫ICP备18011028号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cyhone</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
+<script src="/js/utils.js?v=7.7.2"></script>
+<script src="/js/schemes/pisces.js?v=7.7.2"></script>
+<script src="/js/next-boot.js?v=7.7.2"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '35a91b87ee1c4d2b4980',
+      clientSecret: 'e80145e7e64c156b4d278e67c79abfe5762115a0',
+      repo        : 'chenyahui.github.io',
+      owner       : 'chenyahui',
+      admin       : ['chenyahui'],
+      id          : 'ed4445d4e7b237c856fd22356c0c5992',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
+      appKey     : 'DVy4Enbaa5UpxREeLinbWIcG',
+      placeholder: "请在上方填写您的邮箱，邮件不会被公开",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
