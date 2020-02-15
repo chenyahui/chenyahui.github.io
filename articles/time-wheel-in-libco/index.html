@@ -24,20 +24,22 @@
     var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
   </script>
 
-  <meta name="description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
-<meta name="keywords" content="Websocket">
+  <meta name="description" content="定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。 定时器有许多经典高效的实现。例如，libevent 采用了小根堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。 时间轮也是一个非常经典的定时器实现，Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，也用了单级时间轮来处理其内">
+<meta name="keywords" content="源码,定时器,协程">
 <meta property="og:type" content="article">
-<meta property="og:title" content="WebSocket 订单推送稳定性优化方案">
-<meta property="og:url" content="http://www.cyhone.com/articles/optimization-of-websocket-push-system/index.html">
+<meta property="og:title" content="libco 的定时器实现：时间轮">
+<meta property="og:url" content="http://www.cyhone.com/articles/time-wheel-in-libco/index.html">
 <meta property="og:site_name" content="编程沉思录">
-<meta property="og:description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
+<meta property="og:description" content="定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。 定时器有许多经典高效的实现。例如，libevent 采用了小根堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。 时间轮也是一个非常经典的定时器实现，Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，也用了单级时间轮来处理其内">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-17T11:00:17.502Z">
+<meta property="og:image" content="http://www.cyhone.com/img/libco/time-wheel.png">
+<meta property="og:updated_time" content="2020-02-15T12:36:02.154Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="WebSocket 订单推送稳定性优化方案">
-<meta name="twitter:description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
+<meta name="twitter:title" content="libco 的定时器实现：时间轮">
+<meta name="twitter:description" content="定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。 定时器有许多经典高效的实现。例如，libevent 采用了小根堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。 时间轮也是一个非常经典的定时器实现，Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，也用了单级时间轮来处理其内">
+<meta name="twitter:image" content="http://www.cyhone.com/img/libco/time-wheel.png">
 
-<link rel="canonical" href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/">
+<link rel="canonical" href="http://www.cyhone.com/articles/time-wheel-in-libco/">
 
 
 <script id="page-configurations">
@@ -49,7 +51,7 @@
   };
 </script>
 
-  <title>WebSocket 订单推送稳定性优化方案 | 编程沉思录</title>
+  <title>libco 的定时器实现：时间轮 | 编程沉思录</title>
   
 
 
@@ -176,7 +178,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/time-wheel-in-libco/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/img/avatar.jpg">
@@ -189,7 +191,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          WebSocket 订单推送稳定性优化方案
+          libco 的定时器实现：时间轮
         </h2>
 
         <div class="post-meta">
@@ -199,14 +201,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-08-17 14:36:12" itemprop="dateCreated datePublished" datetime="2019-08-17T14:36:12+08:00">2019-08-17</time>
+              <time title="创建时间：2019-12-15 13:17:26" itemprop="dateCreated datePublished" datetime="2019-12-15T13:17:26+08:00">2019-12-15</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-17 19:00:17" itemprop="dateModified" datetime="2019-12-17T19:00:17+08:00">2019-12-17</time>
+                <time title="修改时间：2020-02-15 20:36:02" itemprop="dateModified" datetime="2020-02-15T20:36:02+08:00">2020-02-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -214,14 +216,14 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/开发经验/" itemprop="url" rel="index">
-                    <span itemprop="name">开发经验</span>
+                  <a href="/categories/网络编程/" itemprop="url" rel="index">
+                    <span itemprop="name">网络编程</span>
                   </a>
                 </span>
             </span>
 
           
-            <span id="/articles/optimization-of-websocket-push-system/" class="post-meta-item leancloud_visitors" data-flag-title="WebSocket 订单推送稳定性优化方案" title="阅读次数">
+            <span id="/articles/time-wheel-in-libco/" class="post-meta-item leancloud_visitors" data-flag-title="libco 的定时器实现：时间轮" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -236,8 +238,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/articles/optimization-of-websocket-push-system/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/articles/optimization-of-websocket-push-system/" itemprop="commentCount"></span>
+    <a title="valine" href="/articles/time-wheel-in-libco/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/articles/time-wheel-in-libco/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -252,74 +254,66 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><a href="https://cloud.tencent.com/document/product/569/33102" target="_blank" rel="noopener">微信云支付 Android 智能 POS</a> 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。</p>
-<p>客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。</p>
-<p>然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。</p>
-<p>我们根据实际的场景，对此订单推送系统在稳定性上进行了大量优化，尽可能地提升了服务的可用性及自我恢复的能力。</p>
+        <p>定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。</p>
+<p>定时器有许多经典高效的实现。例如，libevent 采用了小根堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。</p>
+<p>时间轮也是一个非常经典的定时器实现，Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，也用了单级时间轮来处理其内部的超时事件。</p>
+<p>在 libco 的时间轮中，对超时事件的添加删除查询操作均可以达到 <code>O(1)</code> 的时间复杂度，是一个非常高效的数据结构。</p>
 <a id="more"></a>
-<h2 id="客户端的弱网环境"><a class="markdownIt-Anchor" href="#客户端的弱网环境"></a> 客户端的弱网环境</h2>
-<p>在网络应用的开发过程中，网络的稳定性始终是不可靠的。这点在网络环境多样的客户侧来说，特点尤为明显。</p>
+<h1 id="时间轮的表示"><a class="markdownIt-Anchor" href="#时间轮的表示"></a> 时间轮的表示</h1>
+<p>libco 的时间轮的数据结构定义如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stTimeout_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	stTimeoutItemLink_t *pItems;</span><br><span class="line">	<span class="keyword">int</span> iItemSize;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">long</span> <span class="keyword">long</span> llStartIdx;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> ullStart;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>时间轮 <code>stTimeout_t</code> 负责 libco 中所有超时事件的管理, 其中各属性的意义如下:</p>
 <ol>
-<li>客户往往会基于成本考虑，所使用的网络质量不高。如部分用户还会使用 2G、3G 网络。</li>
-<li>在移动设备中，客户会进行网络切换。例如，从 wifi 切换到移动数据，或暂时把网络关闭掉。</li>
-<li>后端服务变更或者其他问题可能会引起 WebSocket 链接暂时不可用。</li>
+<li><code>pItems</code> 是一个数组，数组长度为 iItemSize。而数组中的每个元素是 <code>stTimeoutItemLink_t</code> 类型，这是一个双向链表实现。而同一个链表中的每个元素，它们的超时时间都是相同的。</li>
+<li><code>llStartIdx</code> 代表当前最近超时时间对应的 index。</li>
+<li><code>ullStart</code> 代表当前最近超时时间的时间戳，单位是毫秒</li>
 </ol>
-<p>对于以上几种场景，都会引起 WebSocket 连接异常，导致连接关闭，从而会引发漏单现象。</p>
-<p>一旦订单没有得到及时推送，店员虽然可以到交易查询中确认订单状态，但这样的异常行为如果频发，对于客户来说也是很难接受的。</p>
-<p>我们引入了以下多种措施来解决此问题</p>
-<h2 id="一-应用层心跳尽快发现问题"><a class="markdownIt-Anchor" href="#一-应用层心跳尽快发现问题"></a> 一、应用层心跳：尽快发现问题</h2>
-<p>在浏览器端 WebSocket 相关接口非常简单，但缺了一个设置心跳的接口。我们需要设计一个应用层的心跳机制，来保证线路质量。</p>
-<p>在设计应用层心跳时，主要出于以下几个方面：</p>
+<p>总体来说，libco 的时间轮是一个环形数组的实现，如下图所示：</p>
+<p><img src="/img/libco/time-wheel.png" alt="time wheel"></p>
+<p>在这个环形数组中，数组中每个元素代表 1ms。而 libco 将环形数组的总长度设为 <code>60*1000</code>, 即最多可以表达 1 分钟以内的超时事件，且超时精度是毫秒。</p>
+<p>而且，有可能会有多个超时事件在同一时刻发生，因此数组中的元素是个链表，代表同在该时刻触发的超时事件。</p>
+<p>在 libco 初始化时，<code>ullStart</code> 被初始化为当前时刻的时间戳 (单位为毫秒)，<code>llStartIdx</code> 初始化为 0。</p>
+<h1 id="添加一个超时事件"><a class="markdownIt-Anchor" href="#添加一个超时事件"></a> 添加一个超时事件</h1>
+<p>我们看下 libco 是怎么添加一个超时事件的：</p>
 <ol>
-<li>**nginx 的 proxy_read_timeout 参数 **:<br>
-nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数。当连接在此超时时间内没有数据传输，则会主动断开，<br>
-默认行为是 60s。因此我们需要一个应用层心跳，在 proxy_read_timeout 的时间内，发送心跳包，以保证连接不被断开。</li>
-<li><strong>应用层心跳可以帮助我们快速检测和发现链路的健康程度</strong> :<br>
-为了快速检测到链路的异常问题，我们可以将心跳时间缩短到可接受范围内。</li>
+<li>将相对时间转化为时间戳，代码如下：</li>
 </ol>
-<p>在最初的版本设计中，我们的应用层心跳只涉及了 ping 接口。</p>
-<p>即客户端主动发生向 server 端发生 ping，如果发送成功，则说明链路正常，反之意味着链路不正常。</p>
-<p>整个过程中，ping 是否成功，都依赖于 WebSocket 是否触发了 onError 错误回调。</p>
-<p>但在实际的开发过程中，<strong>我们发现，这样一种特殊场景</strong>：</p>
-<p>使用手机发热点供收银设备使用网络，在正常使用过程中，如果关闭手机的网络数据连接（wifi 或者移动数据），但保持热点的正常开放，那么收银设备将无法快速感知到网络的异常，大概需要 3-5 分钟才能触发异常回调。</p>
-<p>因此，针对此情况我们对应用层心跳进行了进一步的优化，让 server 端收到 ping 之后，回复一个 pong 包。我们根据 ping 和 pong 的时间间隔，来决定当前链路的健康程度。</p>
-<h2 id="二-断线重连自我恢复"><a class="markdownIt-Anchor" href="#二-断线重连自我恢复"></a> 二、断线重连：自我恢复</h2>
-<p>当 WebSocket 连接一旦发生了中断，将不会自动的恢复。因此，WebSocket 的断线重连机制也是我们首要考虑的一个方面。</p>
-<p>断线重连的实现过程比较简单，即当发生 <strong>心跳超时</strong>、<strong>链路错误</strong>或者<strong>链路非正常关闭</strong> 等问题时，我们将触发 WebSocket 的重连机制。</p>
-<p>重连过程也非常简单，即不断重新连接 WebSocket、重新鉴权等过程，直至连接成功。</p>
-<p>这里需要注意的一个小小的点就是：在重新连接的时候, WebSocket 的各种回调 (onmessage、onopen)，都需要重新设置。</p>
-<p>有了断线重连机制，可以实现 WebSocket 简单的自我恢复功能。</p>
-<h2 id="三-推拉结合兜底行为"><a class="markdownIt-Anchor" href="#三-推拉结合兜底行为"></a> 三、推拉结合：兜底行为</h2>
-<p>引入了 WebSocket 的应用层心跳检测和断线重连，可以快速地帮我们发现链路的异常问题，同时尽快恢复到健康状态。</p>
-<p>但是，当 WebSocket 服务侧发生了短时异常（如变更等），或者重连时间过长。</p>
-<p>在应用层发现异常到重连成功的这个过程，整个推送服务最长可能有十秒左右的不可用时间，这个时长取决于心跳的间隔时长。且万一重连也不成功，这个不可用时间将会持续增大。</p>
-<p>在设计中，需要考虑到这种异常情况，且在商户网络环境不稳定的情况下，此问题可能会被放大。</p>
-<p>我们引入了主动拉取的方案，在网络异常时，将会切换为主动拉取模式，定时向后端拉取订单。</p>
-<p>这里需要注意的有几点：</p>
-<ol>
-<li>每次主动拉取时，最好拉取时间有重叠。即：本次拉取的开始时间，是上次拉取的结束时间前 1 秒。<br>
-这样可以尽量减少因为定时器等环境原因，导致漏单问题</li>
-<li>每次主动拉取后，检测当前 WebSocket 是否链路健康，如果健康则关闭主动拉取模式。</li>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> now = GetTickMS();</span><br><span class="line">apItem.ullExpireTime = now + timeout;</span><br></pre></td></tr></table></figure>
+<p>这点不难理解，只有统一成标准的时间表示，才可以和其他超时事件统一的放在一起。</p>
+<ol start="2">
+<li>计算该超时事件的触发时间距离时间轮中最近的超时时间 <code>ullStart</code> 的时间差值</li>
 </ol>
-<p>因为我们主动拉取的范围重叠性以及主动拉取也可能和推送模式有一段时间的重叠，我们得到的订单可能会重复。</p>
-<p>这里我们需要注意对订单进行一个简单的去重逻辑，即：</p>
-<ol>
-<li>万一订单已存在，就忽略该订单。这个可以用简单的 set 实现即可</li>
-<li>根据订单范围的时效性，可以定时删除过期的订单号即可。</li>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> diff = apItem-&gt;ullExpireTime - apTimeout-&gt;ullStart;</span><br></pre></td></tr></table></figure>
+<p>计算得到了这个时间差值，才可以进一步计算新的超时事件在时间轮中的位置。<br>
+当然，在把超时事件放入时间轮之前，需要先判断下该超时事件是否越界了。如果比 <code>ullStart</code> 大于 1 分钟, 则 libco 时间轮没有办法表示这个超时事件，将会报错。相关代码如下</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(diff&gt;= apTimeout-&gt;iItemSize )</span><br><span class="line">&#123;</span><br><span class="line">	co_log_err(<span class="string">"CO_ERR: AddTimeout line %d diff %d"</span>,__LINE__,diff);</span><br><span class="line">	<span class="keyword">return</span> __LINE__;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>计算得出该超时事件在时间轮中的位置，并将其插入到时间轮中。</li>
 </ol>
-<p>引入主动拉取模式，一方面尽可能的减少了漏单可能的发生，另一方面对主动推送来说，也是一个兜底行为。</p>
-<h2 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h2>
-<p>总结来说，我们选择使用了 WebSocket 长连接的方式，实现了支付订单的实时推送，为了解决推送的不稳定性，我们主要采取了以下几种措施：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AddTail(apTimeout-&gt;pItems + ( apTimeout-&gt;llStartIdx + diff ) % apTimeout-&gt;iItemSize , apItem );</span><br></pre></td></tr></table></figure>
+<p>这里其实有两步:</p>
 <ul>
-<li>定时发送应用层心跳，来快速地帮我们发现链路的异常问题</li>
-<li>引入了断线重连机制，实现了 WebSocket 自我恢复</li>
-<li>加入主动拉取模式，尽可能的减少了漏单可能的发生</li>
+<li>计算在时间轮中的位置。其实很简单，就是一个简单的取余过程，这个也是环形数组的普遍做法。得到的 <code>apTimeout-&gt;pItems + ${index}</code>，即是该超时事件所在的位置。</li>
+<li>将该超时事件追加在该位置上的链表最后。前面讲过，有可能多个超时事件可能会在同一时刻触发。</li>
 </ul>
-<p>我们利用这几点措施，使得整个服务的可用性大大增强。</p>
-<h2 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h2>
+<h1 id="超时事件的判断及取出"><a class="markdownIt-Anchor" href="#超时事件的判断及取出"></a> 超时事件的判断及取出</h1>
+<p>libco 是如何判断事件是否超时以及取出所有已超时的事件呢？过程如下：</p>
 <ul>
-<li><a href="http://nginx.org/en/docs/http/WebSocket.html" target="_blank" rel="noopener">WebSocket proxying</a></li>
+<li>如果当前的时间小于 <code>ullStart</code>，说明目前没有事件超时</li>
+<li>如果大于等于 <code>ullStart</code>，用当前时间减去 <code>ullStart</code>，就可以得出一共过去了多少毫秒，一毫秒代表一个数组元素，从 <code>llStartIdx</code> 开始遍历即可。</li>
 </ul>
+<p>时间轮是典型的空间换时间的做法，需要预先把环形数组的内存空间都分配好，这也是 libco 的超时事件存取高效的原因。</p>
+<p>讲到这里，其实 libco 的整个时间轮算法已经全部分析完成了。</p>
+<p>但是对于 libco 的时间轮大家可能会有一些疑问：</p>
+<ol>
+<li>libco 的时间轮最多只能支持 1 分钟的超时时间。虽然这个时间对于后台服务的场景已经完全足够了，但是如果我们在其他场景需要更长的超时时间呢？</li>
+<li>libco 中的一个数组元素代表 1ms。如果我们需要更长的时间那岂不是内存空间也随之线性增长了？</li>
+</ol>
+<p>那接下来我们就简单讲下对于时间轮的进一步优化:</p>
+<ol>
+<li>单级时间轮的优化。我们可以对 libco 的单级时间轮做一些简单的优化，例如给每个超时事件加一个 rotation 参数，代表该超时事件会在第几轮触发，这样就可以在一个单级时间轮中存放无限长的超时事件了。但这样代价是超时事件的判断和取出将不会是 <code>O(1)</code> 了。</li>
+<li>多级时间轮。Linux 内核中就采用了多级时间轮的机制，模拟了现实生活中水表刻度。即第一级的时间轮与普通的单级时间轮相同，而第二级时间轮的每个元素的时长等于第一级时间轮的全部总时长，依次类推。Linux 内核中一共采用了五级时间轮。第一级的时间轮所有事件消耗完成后，会触发第二级时间轮的事件迁移。</li>
+</ol>
 
     </div>
 
@@ -339,7 +333,7 @@ nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数�
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/" title="WebSocket 订单推送稳定性优化方案">http://www.cyhone.com/articles/optimization-of-websocket-push-system/</a>
+    <a href="http://www.cyhone.com/articles/time-wheel-in-libco/" title="libco 的定时器实现：时间轮">http://www.cyhone.com/articles/time-wheel-in-libco/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -351,7 +345,9 @@ nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数�
       <footer class="post-footer">
           
           <div class="post-tags">
-              <a href="/tags/Websocket/" rel="tag"><i class="fa fa-tag"></i> Websocket</a>
+              <a href="/tags/源码/" rel="tag"><i class="fa fa-tag"></i> 源码</a>
+              <a href="/tags/定时器/" rel="tag"><i class="fa fa-tag"></i> 定时器</a>
+              <a href="/tags/协程/" rel="tag"><i class="fa fa-tag"></i> 协程</a>
           </div>
 
         
@@ -360,12 +356,12 @@ nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数�
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/articles/reunderstanding-of-non-blocking-io/" rel="prev" title="重新理解 IO 模型">
-      <i class="fa fa-chevron-left"></i> 重新理解 IO 模型
+    <a href="/articles/usage-of-filebeat-log-config/" rel="prev" title="FileBeat-Log 相关配置指南">
+      <i class="fa fa-chevron-left"></i> FileBeat-Log 相关配置指南
     </a></div>
       <div class="post-nav-item">
-    <a href="/articles/analysis-of-cloudwu-coroutine/" rel="next" title="云风 coroutine 协程库源码分析">
-      云风 coroutine 协程库源码分析 <i class="fa fa-chevron-right"></i>
+    <a href="/articles/analysis-of-golang-channel/" rel="next" title="Golang channel 源码深度剖析">
+      Golang channel 源码深度剖析 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -440,7 +436,7 @@ nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数�
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#客户端的弱网环境"><span class="nav-text"> 客户端的弱网环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一-应用层心跳尽快发现问题"><span class="nav-text"> 一、应用层心跳：尽快发现问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二-断线重连自我恢复"><span class="nav-text"> 二、断线重连：自我恢复</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三-推拉结合兜底行为"><span class="nav-text"> 三、推拉结合：兜底行为</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-text"> 总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#时间轮的表示"><span class="nav-text"> 时间轮的表示</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#添加一个超时事件"><span class="nav-text"> 添加一个超时事件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#超时事件的判断及取出"><span class="nav-text"> 超时事件的判断及取出</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -553,7 +549,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'chenyahui.github.io',
       owner       : 'chenyahui',
       admin       : ['chenyahui'],
-      id          : 'c1e21cda3bb4b9635bbd23ba3bef6a5f',
+      id          : '3741cc81fe83aa49d9f52b452cb31e79',
         language: 'zh-CN',
       distractionFreeMode: true
     });
