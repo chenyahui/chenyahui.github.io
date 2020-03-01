@@ -190,13 +190,13 @@ Redis 内置了一个高性能事件循环器，叫做 AE。其定义和实现�
       <category term="Golang" scheme="http://www.cyhone.com/categories/Golang/"/>
     
     
-      <category term="限流" scheme="http://www.cyhone.com/tags/%E9%99%90%E6%B5%81/"/>
-    
       <category term="Golang" scheme="http://www.cyhone.com/tags/Golang/"/>
     
-      <category term="微服务" scheme="http://www.cyhone.com/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
-    
       <category term="源码" scheme="http://www.cyhone.com/tags/%E6%BA%90%E7%A0%81/"/>
+    
+      <category term="限流" scheme="http://www.cyhone.com/tags/%E9%99%90%E6%B5%81/"/>
+    
+      <category term="微服务" scheme="http://www.cyhone.com/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
     
   </entry>
   
@@ -220,13 +220,13 @@ Redis 内置了一个高性能事件循环器，叫做 AE。其定义和实现�
       <category term="Golang" scheme="http://www.cyhone.com/categories/Golang/"/>
     
     
-      <category term="限流" scheme="http://www.cyhone.com/tags/%E9%99%90%E6%B5%81/"/>
-    
       <category term="Golang" scheme="http://www.cyhone.com/tags/Golang/"/>
     
-      <category term="微服务" scheme="http://www.cyhone.com/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
-    
       <category term="源码" scheme="http://www.cyhone.com/tags/%E6%BA%90%E7%A0%81/"/>
+    
+      <category term="限流" scheme="http://www.cyhone.com/tags/%E9%99%90%E6%B5%81/"/>
+    
+      <category term="微服务" scheme="http://www.cyhone.com/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
     
   </entry>
   
@@ -256,9 +256,9 @@ Redis 内置了一个高性能事件循环器，叫做 AE。其定义和实现�
       <category term="Golang" scheme="http://www.cyhone.com/categories/Golang/"/>
     
     
-      <category term="限流" scheme="http://www.cyhone.com/tags/%E9%99%90%E6%B5%81/"/>
-    
       <category term="Golang" scheme="http://www.cyhone.com/tags/Golang/"/>
+    
+      <category term="限流" scheme="http://www.cyhone.com/tags/%E9%99%90%E6%B5%81/"/>
     
       <category term="微服务" scheme="http://www.cyhone.com/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
     

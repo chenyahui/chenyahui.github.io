@@ -179,6 +179,293 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/classviewer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/classviewer/" class="post-title-link" itemprop="url">ClassViewer 的介绍及实现</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-01-01 11:45:00" itemprop="dateCreated datePublished" datetime="2018-01-01T11:45:00+08:00">2018-01-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/开发经验/" itemprop="url" rel="index"><span itemprop="name">开发经验</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/classviewer/" class="post-meta-item leancloud_visitors" data-flag-title="ClassViewer 的介绍及实现" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><a href="https://chenyahui.github.io/ClassViewer" target="_blank" rel="noopener">ClassViewer</a>是我最近开发的一个用于展示 jvm class 字节码的小工具。它是一个单纯的静态网页，完全使用浏览器端的 Javascript 开发。之所以开发这款工具，是因为我在开发 <a href="https://github.com/chenyahui/ToyJVM" target="_blank" rel="noopener">ToyJVM</a> 的时候，需要常常校验 class 文件某一部分的字节码, 所以如果一款工具能够很方便的显示 class 文件各个部分的信息和字节码，对于 ToyJVM 的开发将会是一个非常大的帮助。</p>
+<p>在开始写代码之前调研了一些类似的产品，主要有 jdk 自带的 javap、国外的 Java-Class-Viewer 以及国人开发的 classpy，它们都是非常不错的 class 文件分析工具，但是也存在着一些算不上缺陷的小问题。所以最终还是决定自己写一个适合自己小工具，同时也加深下 class 结构的理解。</p>
+<p>在调研了目前的产品后，我也更加清晰了自己的目标。首先它的受众应该是有兴趣研究 jvm 的程序员，而它应该有这些特性:</p>
+<ul>
+<li>不依赖于特定操作系统平台<br>
+它应该具备基本的跨平台的能力，因为程序员的 Mac 和 Linux 使用率很高。</li>
+<li>无需复杂的安装和编译，无需用户有特定的知识背景<br>
+我不太希望用户拿到我的代码后，还需要安装相应的环境、了解一堆无关知识。</li>
+</ul>
+<p>最终实现出来的工具是这样的:</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/classviewer/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/my-first-half-marathon/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/my-first-half-marathon/" class="post-title-link" itemprop="url">首次半马记</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-04-17 22:20:47" itemprop="dateCreated datePublished" datetime="2017-04-17T22:20:47+08:00">2017-04-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/生活和思考/" itemprop="url" rel="index"><span itemprop="name">生活和思考</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/my-first-half-marathon/" class="post-meta-item leancloud_visitors" data-flag-title="首次半马记" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>4 月 9 号，在武汉参加了人生第一次半程马拉松，风里雨里的 21.0975 公里。虽然已时隔一周，但想到那天一路的奔跑、疲惫、欣喜，还是想记记这半马的流水账。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/my-first-half-marathon/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/introduction-of-bloomfilter/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/introduction-of-bloomfilter/" class="post-title-link" itemprop="url">结合 Guava 源码解读布隆过滤器</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-02-07 16:51:51" itemprop="dateCreated datePublished" datetime="2017-02-07T16:51:51+08:00">2017-02-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-12-17 18:57:36" itemprop="dateModified" datetime="2019-12-17T18:57:36+08:00">2019-12-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法/" itemprop="url" rel="index"><span itemprop="name">算法</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/introduction-of-bloomfilter/" class="post-meta-item leancloud_visitors" data-flag-title="结合 Guava 源码解读布隆过滤器" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="介绍"><a class="markdownIt-Anchor" href="#介绍"></a> 介绍</h1>
+<blockquote>
+<p>BloomFilter（布隆过滤器）是一种可以高效地判断元素是否在某个集合中的算法。</p>
+</blockquote>
+<p>在很多日常场景中，都大量存在着布隆过滤器的应用。例如：检查单词是否拼写正确、网络爬虫的 URL 去重、黑名单检验，微博中昵称不能重复的检测等。</p>
+<p>在工业界中，Google 著名的分布式数据库 BigTable 也用了布隆过滤器来查找不存在的行或列，以减少磁盘查找的 IO 次数；Google Chrome 浏览器使用 BloomFilter 来判断一个网站是否为恶意网站。</p>
+<p>对于以上场景，可能很多人会说，用 HashSet 甚至简单的链表、数组做存储，然后判断是否存在不就可以了吗？</p>
+<p>当然，对于少量数据来说，HashSet 是很好的选择。但是对于海量数据来说，BloomFilter 相比于其他数据结构在空间效率和时间效率方面都有着明显的优势。</p>
+<p>但是，布隆过滤器具有一定的误判率，有可能会将本不存在的元素判定为存在。因此，对于那些需要 “零错误” 的应用场景，布隆过滤器将不太适用。具体的原因将会在第二部分中介绍。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/introduction-of-bloomfilter/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/2016-summary/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -447,205 +734,11 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/2015-summary/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/avatar.jpg">
-      <meta itemprop="name" content="cyhone">
-      <meta itemprop="description" content="每有会意，便欣然忘食">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程沉思录">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/articles/2015-summary/" class="post-title-link" itemprop="url">2015 年度总结</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2016-01-01 19:58:54" itemprop="dateCreated datePublished" datetime="2016-01-01T19:58:54+08:00">2016-01-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-02-24 12:31:09" itemprop="dateModified" datetime="2020-02-24T12:31:09+08:00">2020-02-24</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/生活和思考/" itemprop="url" rel="index"><span itemprop="name">生活和思考</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/articles/2015-summary/" class="post-meta-item leancloud_visitors" data-flag-title="2015 年度总结" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="2015-年都做了什么"><a class="markdownIt-Anchor" href="#2015-年都做了什么"></a> 2015 年都做了什么？</h2>
-<h3 id="学习"><a class="markdownIt-Anchor" href="#学习"></a> 学习</h3>
-<p>很忙碌的一年。<br>
-<strong>2015 年 1 月份到 2 月份</strong><br>
-基本是在忙数学建模的美赛，最后碰运气拿到了二等奖，加上 2014 年拿到的国赛二等奖。推免的资格基本没什么问题了。<br>
-<strong>大三下学期</strong><br>
-踏踏实实的做了回学霸，认真上课，做实验和课设。在此期间参加了腾讯及阿里巴巴的暑期实习生校园招聘，两次一面跪，备受打击，同时发现了自己在技术上的诸多不足。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/articles/2015-summary/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/avatar.jpg">
-      <meta itemprop="name" content="cyhone">
-      <meta itemprop="description" content="每有会意，便欣然忘食">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程沉思录">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/articles/hello-world/" class="post-title-link" itemprop="url">第一篇博客</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2015-09-16 16:08:06" itemprop="dateCreated datePublished" datetime="2015-09-16T16:08:06+08:00">2015-09-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/生活和思考/" itemprop="url" rel="index"><span itemprop="name">生活和思考</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/articles/hello-world/" class="post-meta-item leancloud_visitors" data-flag-title="第一篇博客" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="为什么会想到建立一个博客"><a class="markdownIt-Anchor" href="#为什么会想到建立一个博客"></a> 为什么会想到建立一个博客:</h2>
-<p>在此博客之前，我其实也用过新浪博客、CSDN、博客园，作为个人博客的载体，但对每个博客都并不是特别的满意。原因大概有下面几条：</p>
-<ul>
-<li>没有美观友好的支持代码。</li>
-<li>广告多。</li>
-<li>管理复杂，但可控性差。</li>
-</ul>
-<p>目前该博客是使用 hexo+Next 主题 + Github 进行搭建。<br>
-事实上，当开始接触使用 hexo 时，我觉得满足了我对博客的诸多要求。我对它的为程序员而生、高度可定制性非常喜欢。而且，如有机会，可以自己写出满意的主题使用。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/articles/hello-world/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
