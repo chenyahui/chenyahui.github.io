@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.cyhone.com/"/>
-  <updated>2020-02-15T12:31:53.310Z</updated>
+  <updated>2020-03-08T10:13:48.628Z</updated>
   <id>http://www.cyhone.com/</id>
   
   <author>
@@ -15,6 +15,37 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>个人博客及公众号常用工具</title>
+    <link href="http://www.cyhone.com/articles/blog-tools/"/>
+    <id>http://www.cyhone.com/articles/blog-tools/</id>
+    <published>2020-03-08T08:58:54.000Z</published>
+    <updated>2020-03-08T10:13:48.628Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文整理和记录下自己在运营 <a href="cyhone.com">个人博客</a> 以及公众号常使用到的一些工具。主要包含以下方面：</p><ol><li>中英文空格的自动排版</li><li>微信公众号如何使用 markdown 发布</li><li>绘图工具</li><li>图片压缩工具</li><li>如何测试网站的打开速度以及针对性优化</li></ol><a id="more"></a><h1 id="中英文排版及相关工具"><a class="markdownIt-Anchor" href="#中英文排版及相关工具"></a> 中英文排版及相关工具</h1><p>在中英文排版最重要的就是中英文之间的空格，Github 有一个热门仓库《中文文案排版指北》(<a href="https://github.com/sparanoid/chinese-copywriting-guidelines" target="_blank" rel="noopener">sparanoid/chinese-copywriting-guidelines</a>), 详细的说明了不加空格的严重性:</p><blockquote><p>有研究显示，打字的时候不喜欢在中文和英文之间加空格的人，感情路都走得很辛苦，有七成的比例会在 34 岁的时候跟自己不爱的人结婚，而其余三成的人最后只能把遗产留给自己的猫。毕竟爱情跟书写都需要适时地留白。</p></blockquote><p><img src="/img/emoji/hdyb.gif" alt=""></p><p>所以就有了自动排版加空格的工具 <a href="https://github.com/vinta/pangu.js" target="_blank" rel="noopener">pangu.js</a> 的诞生。</p><p>pangu.js 有两种使用方法：</p><ol><li>直接在 HTML 页面中引入 pangu.js，可以实现自动排版。</li><li>使用 <strong>vscode-pangu</strong> 插件，markdown 编写完成后，手动调用插件排下版。</li></ol><p>我个人更喜欢用第二种方式，这样就不用在页面中再单独引入一个 js 文件，尽可能的保持页面的精简。当然前提是用vscode打开和编写markdown。</p><h1 id="markdown-发布到公众号"><a class="markdownIt-Anchor" href="#markdown-发布到公众号"></a> markdown 发布到公众号</h1><p>我的博客 <a href="cyhone.com">cyhone.com</a> 一直是用 hexo 搭建的，平常也更习惯用 markdown 写文章。但是微信公众号并不支持 markdown，所以刚开始一直在找 markdown 转微信公众号的方式。</p><p>尝试了好几款推荐度比较高的方法，这里推荐下 <a href="mdnice.com">mdnice.com</a>。个人觉得用起来非常舒服，不仅支持多款 markdown 主题以及代码主题, 而且功能维护和更新都非常及时。</p><p><img src="/img/blog-tools/md-nice.png" alt="md-nice"></p><h1 id="绘图工具"><a class="markdownIt-Anchor" href="#绘图工具"></a> 绘图工具</h1><p>插图是一个博客非常重要的组成部分，好的绘图可以帮助文章把问题解释的更加清楚。我自己也在探索和实践中，目前更习惯用的是 <a href="https://www.draw.io/" target="_blank" rel="noopener">draw.io</a> 和 <a href="https://www.processon.com/" target="_blank" rel="noopener">processon</a>。</p><p>这里也推荐一篇 <a href="https://zhuanlan.zhihu.com/p/96880688" target="_blank" rel="noopener">《技术文章配图指南》</a>一文。<br>文章中作者对比了各类绘图工具的优劣，更重要的是给出了绘图的一些建议，例如图片内容展示，配色和字号等方面。</p><h1 id="图片压缩tinypng"><a class="markdownIt-Anchor" href="#图片压缩tinypng"></a> 图片压缩：Tinypng</h1><p>上文讲到绘图是博客非常重要的组成部分。但是图片如果过多，则会影响页面的加载速度，给文章的观感和用户的流量都不是很好。</p><p>这里推荐下 <a href="tinypng.com">tinypng</a> 这个在线图片压缩工具。下图中的图片是我截屏的图片，压缩率往往可以达到 75% 左右。</p><p><img src="/img/blog-tools/tinypng.png" alt="tinypng"></p><p>Tinypng 采用的是有损压缩算法，选择性将图片中的一些颜色点，减少之后，肉眼几乎是分别不出来的。</p><h1 id="网站打开速度优化"><a class="markdownIt-Anchor" href="#网站打开速度优化"></a> 网站打开速度优化</h1><p>在我们自己维护和运营博客的时候，往往遇到打开速度比较慢的情况，这个时候经常一时间不知道该如何下手优化。</p><p>这时候可以使用 Google 家的 Pagespeed Insights。其地址在: <a href="https://developers.google.com/speed/pagespeed/insights/" target="_blank" rel="noopener">developers.google.com/speed/pagespeed/insights/</a>。</p><p>把网址输进去，Pagespeed Insights就可以给你的网页打开速度进行打分，并给出有价值的优化建议。<br><img src="/img/blog-tools/pagespeed-1.png" alt="pagespeed"><br><img src="/img/blog-tools/pagespeed-2.png" alt="pagespeed"></p><p>这个工具更适合个人网站进行针对性优化~</p><h1 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h1><p>好的工具帮助提升效率，节约更多的时间。本文会不定时更新，分享自己遇到的好工具~</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文整理和记录下自己在运营 &lt;a href=&quot;cyhone.com&quot;&gt;个人博客&lt;/a&gt; 以及公众号常使用到的一些工具。主要包含以下方面：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;中英文空格的自动排版&lt;/li&gt;
+&lt;li&gt;微信公众号如何使用 markdown 发布&lt;/li&gt;
+&lt;li&gt;绘图工具&lt;/li&gt;
+&lt;li&gt;图片压缩工具&lt;/li&gt;
+&lt;li&gt;如何测试网站的打开速度以及针对性优化&lt;/li&gt;
+&lt;/ol&gt;
+    
+    </summary>
+    
+      <category term="工具" scheme="http://www.cyhone.com/categories/%E5%B7%A5%E5%85%B7/"/>
+    
+    
+      <category term="博客" scheme="http://www.cyhone.com/tags/%E5%8D%9A%E5%AE%A2/"/>
+    
+      <category term="工具" scheme="http://www.cyhone.com/tags/%E5%B7%A5%E5%85%B7/"/>
+    
+  </entry>
   
   <entry>
     <title>Golang channel 源码深度剖析</title>
@@ -64,9 +95,9 @@
     
       <category term="源码" scheme="http://www.cyhone.com/tags/%E6%BA%90%E7%A0%81/"/>
     
-      <category term="协程" scheme="http://www.cyhone.com/tags/%E5%8D%8F%E7%A8%8B/"/>
-    
       <category term="定时器" scheme="http://www.cyhone.com/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/"/>
+    
+      <category term="协程" scheme="http://www.cyhone.com/tags/%E5%8D%8F%E7%A8%8B/"/>
     
   </entry>
   
@@ -571,26 +602,6 @@ Redis 内置了一个高性能事件循环器，叫做 AE。其定义和实现�
     
     
       <category term="JVM" scheme="http://www.cyhone.com/tags/JVM/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>首次半马记</title>
-    <link href="http://www.cyhone.com/articles/my-first-half-marathon/"/>
-    <id>http://www.cyhone.com/articles/my-first-half-marathon/</id>
-    <published>2017-04-17T14:20:47.000Z</published>
-    <updated>2019-12-10T05:07:50.067Z</updated>
-    
-    <content type="html"><![CDATA[<p>4 月 9 号，在武汉参加了人生第一次半程马拉松，风里雨里的 21.0975 公里。虽然已时隔一周，但想到那天一路的奔跑、疲惫、欣喜，还是想记记这半马的流水账。</p><a id="more"></a><h1 id="赛前训练"><a class="markdownIt-Anchor" href="#赛前训练"></a> 赛前训练</h1><p>关于赛前训练这一块，我自己真的是非常的汗颜，被自己的记性给坑了一把。本来 4 月 9 号的马拉松，硬是记成了 5 月 9 号。所以本来安排的提前 1 个月训练半马，也恰好完美地错过。汉马马拉松官网提前 10 天发送了备赛的消息，我还在想提前 40 天就发消息会不会太早，直到赛前一周的时候去东湖玩看到了路上马拉松赛道的标牌，才知道记错了时间。。</p><p>但是由于我这几年一直有跑步的习惯，基本不下雨的晚上都会去跑个 5km(虽然武汉下雨的天气居多…)，之前也有跑过 10km，1 个小时左右的水平，所以对于三个小时完赛 21km 还是比较有信心的。<br>在野心勃勃地列了赛前一周训练计划后，伴随着武汉连绵一周的阴雨，基本我的赛前训练计划就这么泡汤了。</p><img src="/img/emoji/emoji2.jpg" width="200" height="200px" style="margin-left:auto;margin-right:auto;"><p>比赛时间是周日，虽然天公不作美，还是在周三晚上停雨的间歇跑个了 5km，周五晚上跑了 3km 热了身，就这么草率地开始我的半马历程。</p><p>言归正传，对于普通的业余跑者如我来说，至少要留足一个月的时间去准备马拉松，训练多次 10km，至少一次半程马拉松的模拟，学习充足热身、恢复知识，才具备跑半马的资格。<br>要不然都像我今天这样右脚贴着膏药坐电脑打字总归是不好的。</p><h1 id="比赛前夕的准备"><a class="markdownIt-Anchor" href="#比赛前夕的准备"></a> 比赛前夕的准备</h1><h2 id="饮食"><a class="markdownIt-Anchor" href="#饮食"></a> 饮食</h2><p>虽然咱练得不行，但起码得吃好。。</p><p>赛前饮食还是需要十分注意的，少油腻、多能量的摄入, 不至于赛前精神的萎靡。在赛前三天每天也都要多喝水，每天保证 2L 的水，让身体充满水。</p><h2 id="住宿与交通"><a class="markdownIt-Anchor" href="#住宿与交通"></a> 住宿与交通</h2><p>关于住宿这一块，如果想要住到赛点周围，要至少提前一周甚至更早预定，要不然只剩下比平常贵几倍或者是比较远的酒店了。</p><p>同时，武汉当天的公交、地铁也都会提前开放，这是武汉马拉松官网赛前给我发的短信。</p><blockquote><p>【武汉马拉松】温馨提示：4 月 9 日比赛日当天，参赛选手可凭号码布，免费乘公交、地铁和轮渡。建议乘坐地铁 2 号线和 6 号线抵达起点附近江汉路站，全程和半程选手从地铁 C 口出，13 公里跑选手从地铁 B 口出。其中 2、6 号线运营始发时间调整为 5:30，提前一小时，祝您顺利参赛，取得好成绩。</p></blockquote><p>虽然我就在武汉住，但是想到第二天要五点爬起来吃饭赶地铁，头一天在宿舍还有睡不好的可能，还是在赛点 2 公里远的地方订了宾馆。</p><h2 id="装备"><a class="markdownIt-Anchor" href="#装备"></a> 装备</h2><p>我在周六下午去了马拉松指定的地方领取了武汉马拉松组织发的装备，主要有号码牌、短袖、存衣袋、能量胶和能量棒，天气预报说周日可能中雨，所以主办单位也准备了一次性的雨衣，这点还是很贴心的。</p><p>关于号码牌要多说一句，此次半马采用的计时芯片直接和号码牌固定到一起、一次性使用，并不是和常见的绑到鞋带上的计时芯片。我觉得一次性芯片在使用上非常方便，而且减少了芯片的发放、回收的时间，个人在跑的时候也完全不用注意芯片的事情。</p><p>此外，特步赞助的短袖穿起来非常的舒服，所以如果不是专业的跑步者，有自己的固定装备，我觉得使用赠送的统一的小黄衫就足够了。</p><p>关于鞋子，要求不漏水，平常跑起来舒服的就可以，在跑前一定要试跑下鞋子，确定鞋子的舒适度才可在半马上正式使用。</p><p>裤子方面我本来打算简单穿下之前本科发的校服配套的运动裤，周六晚上在江汉路逛的时候，被女朋友怂恿去买了一条跑步专用的运动裤，不得不说，专业的穿起来要舒服很多，我半马一路跑下来它功不可没。</p><p>赛前在京东买了一个腰袋，用来放手机，买了之后周五跑步的时候就试了下，一直后悔没有提前买，实在是太好用了除了影响颜值。</p><h2 id="线路和补给点"><a class="markdownIt-Anchor" href="#线路和补给点"></a> 线路和补给点</h2><p>在武汉马拉松官网上会给出线路和补给点的情况，在 <a href="http://www.wuhanmarathon.org/html/saishixinxi_Event/bisaixianlu/" target="_blank" rel="noopener">这里</a> 可以看到, 对于首次跑马拉松的人来说，这个还是要提前记清楚，以调整自己的状态。</p><h1 id="万人雨中马拉松"><a class="markdownIt-Anchor" href="#万人雨中马拉松"></a> 万人雨中马拉松</h1><p>头天晚上收拾好东西，记了下半马的路线图，大概 9 点半就入睡了，保证了 7 个半个小时睡眠时间，这点也是在宾馆住的优点。<br>早上五点半起床，吃了两片面包一瓶牛奶就吃不下去了，进场地前又啃了半个巧克力和一瓶红牛。关于早餐这块，我在半马后半段的时候后悔莫及。。</p><p>进入赛场后我志气满满地开始戴号码牌，咦，别针呢！我看着漏了的号码牌袋欲哭无泪，估计是来的路上把别针全丢光了。想着可能要手举着号码牌跑一路也是心累，把号码牌塞口袋跑还怎么帅帅的摆 pose。<br>后来发现每个人之前发了五个别针，所以每个人会多一个。就找了还没戴号码牌的人借了 1 个，然后志愿者给了我两个，我最后竟然在地上又捡了一个。。凑了四个戴上号码牌终于可以帅帅地开跑了。</p><p>开跑时间是 7 点半，半马时间是三个小时，十点半结束。平均每 10km 跑 1 个半小时，为了留个缓冲时间，所以大概每 5km 需要在 35 分钟左右完成。</p><p>我的号码牌是 D 开头的，前面有 A、B、C 组是特邀选手和全程马拉松，后面还有 E 组和健康跑，在半马跑道起点的顺序上也是这么排的，全部的总人数大概是 22000 人。7 点半枪响后，人群开始慢慢移动，话说虽然我也没听到枪响。前面的移动实在是慢，大概走了四五分钟后，人群开始疏散，我才开始慢慢跑起来。</p><p>这里要提下一次性雨衣的问题，在起点附近地上到处都是随处可见的黄色一次性雨衣，可能是选手穿上后觉得麻烦又随手扔了，但是对于后面的人来说实在很危险而且不美观，所以还是建议暂时拿到手里，等到人群疏散开后交给志愿者。</p><p>基本开始跑了之后就开始沥沥淅淅的下起了小雨，路两边加油击掌的人满满，可谓热血沸腾。同时我也提醒自己稳住速度，以免太快消耗完体力。</p><p>等到 5 千米时候，雨开始下大，基本到了中雨的程度，我拿出手机看了下时间，大概 8 点 14 分，已经过去了四十四分钟了，可能是在开始的时候走的太慢，浪费了很多时间。这个时候我就开始着急了，喝了一杯水后，开始稍微地提高了下速度，<br>从 5km 开始以后，路上不断的有补给点，每个补给点都必须要喝一杯水，尤其是下雨天，身体对水的需求更大。</p><p>在这里非常感谢汉马的各位志愿者，汉马的补给非常充足，志愿者非常热情，让我这个第一次跑马拉松的人可以完全的只用关注跑步就可以了。</p><p>10km 是在武汉长江大桥上面，平常车水马龙的马路现在只剩了跑步者。但此时的雨已经属于大雨的范围了，上桥的时候鞋子基本是踩在水里的。此时鞋子衣服全部湿透了，耳机也出现了问题，这个时候才明白防水蓝牙耳机的重要性。这个时候大概过去了 1 个小时 15 分钟，时间恰好在我的控制范围内。</p><p>12km 的地方是下桥后的黄鹤楼站，女朋友在那里拿着红牛和巧克力等我。但是人太多了，提前没有联系好，没找到人我就继续跑了。<br>跑到 15km 的时候，早上两片面包的能量基本消耗殆尽了，小腿微微的有抽筋的趋势。肚子基本饿扁了，这个时候就开始走一回，跑一会，路上遇到拉伸点也会跟着大家一起拉伸。</p><p>在剩最后 1km 的时候，时间还有 40 分钟，这个时候基本不用担心时间问题了，脚也非常的沉重，开始完全的走路的方式。</p><p>最后三百米的路段是从楚河汉街到湖北市图书馆，一路上加油的人越来越多，双脚非常沉重的走向终点线，基本跑快一点就有抽筋的趋势，我的首次半程马拉松就在平静、愉悦、疲惫和陌生人的欢呼中完成了。<br><img src="/img/half-mathron/medal.jpg" width="400" height="800px" style="margin-left:auto;margin-right:auto;"></p><h1 id="赛后"><a class="markdownIt-Anchor" href="#赛后"></a> 赛后</h1><p>赛后当然是拿着手机拍拍拍和发朋友圈啊！</p><p>除了晒照还有一件事就是拉伸！尤其对于没有长期训练半马的人来说，拉伸尤为重要。我跑完之后由于没有充分的拉伸和活动，导致目前右脚有轻微的损伤。</p><p>半马一路上看到弱弱的女孩子、五六十岁的大叔大妈都有参与马拉松的，而且很多人的准备和状态都比我要好很多，村上春树也提到他在 38 岁的时候全马成绩大概是 3 小时 40 分钟。所以完成一次全马只是业余跑者的最入门级的水平，一次半马的经历尤为可贵，更可贵的是因为跑步、健身而获得的良好的身体技能和精神状态。</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;4 月 9 号，在武汉参加了人生第一次半程马拉松，风里雨里的 21.0975 公里。虽然已时隔一周，但想到那天一路的奔跑、疲惫、欣喜，还是想记记这半马的流水账。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="生活和思考" scheme="http://www.cyhone.com/categories/%E7%94%9F%E6%B4%BB%E5%92%8C%E6%80%9D%E8%80%83/"/>
-    
     
   </entry>
   

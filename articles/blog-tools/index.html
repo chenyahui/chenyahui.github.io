@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#464159">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.7.2">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.7.2">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.7.2">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.7.2" color="#464159">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="google-site-verification" content="gcDrMPbZlMtAIc7xAPBwFUjnApzpvfqSbVIKT3R8fbA">
+  <meta name="baidu-site-verification" content="F7xr7OXgnX">
+
+<link rel="stylesheet" href="/css/main.css?v=7.7.2">
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
+  </script>
+
+  <meta name="description" content="本文整理和记录下自己在运营 个人博客 以及公众号常使用到的一些工具。主要包含以下方面：  中英文空格的自动排版 微信公众号如何使用 markdown 发布 绘图工具 图片压缩工具 如何测试网站的打开速度以及针对性优化">
+<meta name="keywords" content="博客,工具">
+<meta property="og:type" content="article">
+<meta property="og:title" content="个人博客及公众号常用工具">
+<meta property="og:url" content="http://www.cyhone.com/articles/blog-tools/index.html">
+<meta property="og:site_name" content="编程沉思录">
+<meta property="og:description" content="本文整理和记录下自己在运营 个人博客 以及公众号常使用到的一些工具。主要包含以下方面：  中英文空格的自动排版 微信公众号如何使用 markdown 发布 绘图工具 图片压缩工具 如何测试网站的打开速度以及针对性优化">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.cyhone.com/img/emoji/hdyb.gif">
+<meta property="og:image" content="http://www.cyhone.com/img/blog-tools/md-nice.png">
+<meta property="og:image" content="http://www.cyhone.com/img/blog-tools/tinypng.png">
+<meta property="og:image" content="http://www.cyhone.com/img/blog-tools/pagespeed-1.png">
+<meta property="og:image" content="http://www.cyhone.com/img/blog-tools/pagespeed-2.png">
+<meta property="og:updated_time" content="2020-03-08T10:13:48.628Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="个人博客及公众号常用工具">
+<meta name="twitter:description" content="本文整理和记录下自己在运营 个人博客 以及公众号常使用到的一些工具。主要包含以下方面：  中英文空格的自动排版 微信公众号如何使用 markdown 发布 绘图工具 图片压缩工具 如何测试网站的打开速度以及针对性优化">
+<meta name="twitter:image" content="http://www.cyhone.com/img/emoji/hdyb.gif">
+
+<link rel="canonical" href="http://www.cyhone.com/articles/blog-tools/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>个人博客及公众号常用工具 | 编程沉思录</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ec99ce8d168c9260e5d744401582acc9";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">编程沉思录</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">一些思考和总结</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">12</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">27</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">31</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/chenyahui" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/blog-tools/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          个人博客及公众号常用工具
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-03-08 16:58:54 / 修改时间：18:13:48" itemprop="dateCreated datePublished" datetime="2020-03-08T16:58:54+08:00">2020-03-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/blog-tools/" class="post-meta-item leancloud_visitors" data-flag-title="个人博客及公众号常用工具" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/articles/blog-tools/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/articles/blog-tools/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文整理和记录下自己在运营 <a href="cyhone.com">个人博客</a> 以及公众号常使用到的一些工具。主要包含以下方面：</p>
+<ol>
+<li>中英文空格的自动排版</li>
+<li>微信公众号如何使用 markdown 发布</li>
+<li>绘图工具</li>
+<li>图片压缩工具</li>
+<li>如何测试网站的打开速度以及针对性优化</li>
+</ol>
+<a id="more"></a>
+<h1 id="中英文排版及相关工具"><a class="markdownIt-Anchor" href="#中英文排版及相关工具"></a> 中英文排版及相关工具</h1>
+<p>在中英文排版最重要的就是中英文之间的空格，Github 有一个热门仓库《中文文案排版指北》(<a href="https://github.com/sparanoid/chinese-copywriting-guidelines" target="_blank" rel="noopener">sparanoid/chinese-copywriting-guidelines</a>), 详细的说明了不加空格的严重性:</p>
+<blockquote>
+<p>有研究显示，打字的时候不喜欢在中文和英文之间加空格的人，感情路都走得很辛苦，有七成的比例会在 34 岁的时候跟自己不爱的人结婚，而其余三成的人最后只能把遗产留给自己的猫。毕竟爱情跟书写都需要适时地留白。</p>
+</blockquote>
+<p><img src="/img/emoji/hdyb.gif" alt=""></p>
+<p>所以就有了自动排版加空格的工具 <a href="https://github.com/vinta/pangu.js" target="_blank" rel="noopener">pangu.js</a> 的诞生。</p>
+<p>pangu.js 有两种使用方法：</p>
+<ol>
+<li>直接在 HTML 页面中引入 pangu.js，可以实现自动排版。</li>
+<li>使用 <strong>vscode-pangu</strong> 插件，markdown 编写完成后，手动调用插件排下版。</li>
+</ol>
+<p>我个人更喜欢用第二种方式，这样就不用在页面中再单独引入一个 js 文件，尽可能的保持页面的精简。当然前提是用vscode打开和编写markdown。</p>
+<h1 id="markdown-发布到公众号"><a class="markdownIt-Anchor" href="#markdown-发布到公众号"></a> markdown 发布到公众号</h1>
+<p>我的博客 <a href="cyhone.com">cyhone.com</a> 一直是用 hexo 搭建的，平常也更习惯用 markdown 写文章。但是微信公众号并不支持 markdown，所以刚开始一直在找 markdown 转微信公众号的方式。</p>
+<p>尝试了好几款推荐度比较高的方法，这里推荐下 <a href="mdnice.com">mdnice.com</a>。个人觉得用起来非常舒服，不仅支持多款 markdown 主题以及代码主题, 而且功能维护和更新都非常及时。</p>
+<p><img src="/img/blog-tools/md-nice.png" alt="md-nice"></p>
+<h1 id="绘图工具"><a class="markdownIt-Anchor" href="#绘图工具"></a> 绘图工具</h1>
+<p>插图是一个博客非常重要的组成部分，好的绘图可以帮助文章把问题解释的更加清楚。我自己也在探索和实践中，目前更习惯用的是 <a href="https://www.draw.io/" target="_blank" rel="noopener">draw.io</a> 和 <a href="https://www.processon.com/" target="_blank" rel="noopener">processon</a>。</p>
+<p>这里也推荐一篇 <a href="https://zhuanlan.zhihu.com/p/96880688" target="_blank" rel="noopener">《技术文章配图指南》</a>一文。<br>
+文章中作者对比了各类绘图工具的优劣，更重要的是给出了绘图的一些建议，例如图片内容展示，配色和字号等方面。</p>
+<h1 id="图片压缩tinypng"><a class="markdownIt-Anchor" href="#图片压缩tinypng"></a> 图片压缩：Tinypng</h1>
+<p>上文讲到绘图是博客非常重要的组成部分。但是图片如果过多，则会影响页面的加载速度，给文章的观感和用户的流量都不是很好。</p>
+<p>这里推荐下 <a href="tinypng.com">tinypng</a> 这个在线图片压缩工具。下图中的图片是我截屏的图片，压缩率往往可以达到 75% 左右。</p>
+<p><img src="/img/blog-tools/tinypng.png" alt="tinypng"></p>
+<p>Tinypng 采用的是有损压缩算法，选择性将图片中的一些颜色点，减少之后，肉眼几乎是分别不出来的。</p>
+<h1 id="网站打开速度优化"><a class="markdownIt-Anchor" href="#网站打开速度优化"></a> 网站打开速度优化</h1>
+<p>在我们自己维护和运营博客的时候，往往遇到打开速度比较慢的情况，这个时候经常一时间不知道该如何下手优化。</p>
+<p>这时候可以使用 Google 家的 Pagespeed Insights。其地址在: <a href="https://developers.google.com/speed/pagespeed/insights/" target="_blank" rel="noopener">developers.google.com/speed/pagespeed/insights/</a>。</p>
+<p>把网址输进去，Pagespeed Insights就可以给你的网页打开速度进行打分，并给出有价值的优化建议。<br>
+<img src="/img/blog-tools/pagespeed-1.png" alt="pagespeed"><br>
+<img src="/img/blog-tools/pagespeed-2.png" alt="pagespeed"></p>
+<p>这个工具更适合个人网站进行针对性优化~</p>
+<h1 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h1>
+<p>好的工具帮助提升效率，节约更多的时间。本文会不定时更新，分享自己遇到的好工具~</p>
+
+    </div>
+
+    
+    
+    
+    <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
+        <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber_search.png" alt="cyhone wechat" style="width: 750px;max-width:100%;">
+    <!--div>扫码关注公众号【编程沉思录】<br> 第一时间收到文章推送</div-->
+    </div>
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>cyhone
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://www.cyhone.com/articles/blog-tools/" title="个人博客及公众号常用工具">http://www.cyhone.com/articles/blog-tools/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/博客/" rel="tag"><i class="fa fa-tag"></i> 博客</a>
+              <a href="/tags/工具/" rel="tag"><i class="fa fa-tag"></i> 工具</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/analysis-of-golang-channel/" rel="prev" title="Golang channel 源码深度剖析">
+      <i class="fa fa-chevron-left"></i> Golang channel 源码深度剖析
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+      <div class="tabs tabs-comment">
+        <ul class="nav-tabs">
+            <li class="tab"><a href="#comment-valine">valine</a></li>
+            <li class="tab"><a href="#comment-gitalk">gitalk</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane valine" id="comment-valine">
+              <div class="comments" id="valine-comments"></div>
+            </div>
+            <div class="tab-pane gitalk" id="comment-gitalk">
+              <div class="comments" id="gitalk-container"></div>
+            </div>
+        </div>
+      </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#中英文排版及相关工具"><span class="nav-text"> 中英文排版及相关工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#markdown-发布到公众号"><span class="nav-text"> markdown 发布到公众号</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#绘图工具"><span class="nav-text"> 绘图工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#图片压缩tinypng"><span class="nav-text"> 图片压缩：Tinypng</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#网站打开速度优化"><span class="nav-text"> 网站打开速度优化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text"> 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="cyhone"
+      src="/img/avatar.jpg">
+  <p class="site-author-name" itemprop="name">cyhone</p>
+  <div class="site-description" itemprop="description">每有会意，便欣然忘食</div>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chenyahui" title="GitHub → https://github.com/chenyahui" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cyhone@qq.com" title="E-Mail → mailto:cyhone@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhuanlan.zhihu.com/ruminations-on-code" title="Zhihu → https://zhuanlan.zhihu.com/ruminations-on-code" rel="noopener" target="_blank"><i class="fa fa-fw fa-custom zhihu"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="rss → /atom.xml"><i class="fa fa-fw fa-rss"></i></a>
+      </span>
+  </div>
+
+
+
+      </div><div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
+    <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber.png" alt="cyhone wechat" style="width: 200px; max-width: 100%;">
+    <div style="color: #f67280;font-size: 14px;">
+      扫码关注公众号【编程沉思录】<br> 第一时间收到文章推送
+    </div>
+</div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">豫ICP备18011028号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cyhone</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
+<script src="/js/utils.js?v=7.7.2"></script>
+<script src="/js/schemes/pisces.js?v=7.7.2"></script>
+<script src="/js/next-boot.js?v=7.7.2"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '35a91b87ee1c4d2b4980',
+      clientSecret: 'e80145e7e64c156b4d278e67c79abfe5762115a0',
+      repo        : 'chenyahui.github.io',
+      owner       : 'chenyahui',
+      admin       : ['chenyahui'],
+      id          : 'a733cc96d447aa6a918d8ea89e9ed952',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
+      appKey     : 'DVy4Enbaa5UpxREeLinbWIcG',
+      placeholder: "请在上方填写您的邮箱，邮件不会被公开",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
