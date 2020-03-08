@@ -25,7 +25,7 @@
   </script>
 
   <meta name="description" content="定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。 定时器有许多经典高效的实现。例如，libevent 采用了小根堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。 时间轮也是一个非常经典的定时器实现，Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，也用了单级时间轮来处理其内">
-<meta name="keywords" content="源码,定时器,协程">
+<meta name="keywords" content="源码,协程,定时器">
 <meta property="og:type" content="article">
 <meta property="og:title" content="libco 的定时器实现：时间轮">
 <meta property="og:url" content="http://www.cyhone.com/articles/time-wheel-in-libco/index.html">
@@ -349,8 +349,8 @@
           
           <div class="post-tags">
               <a href="/tags/源码/" rel="tag"><i class="fa fa-tag"></i> 源码</a>
-              <a href="/tags/定时器/" rel="tag"><i class="fa fa-tag"></i> 定时器</a>
               <a href="/tags/协程/" rel="tag"><i class="fa fa-tag"></i> 协程</a>
+              <a href="/tags/定时器/" rel="tag"><i class="fa fa-tag"></i> 定时器</a>
           </div>
 
         

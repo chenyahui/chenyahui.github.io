@@ -64,9 +64,9 @@
     
       <category term="源码" scheme="http://www.cyhone.com/tags/%E6%BA%90%E7%A0%81/"/>
     
-      <category term="定时器" scheme="http://www.cyhone.com/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/"/>
-    
       <category term="协程" scheme="http://www.cyhone.com/tags/%E5%8D%8F%E7%A8%8B/"/>
+    
+      <category term="定时器" scheme="http://www.cyhone.com/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/"/>
     
   </entry>
   
