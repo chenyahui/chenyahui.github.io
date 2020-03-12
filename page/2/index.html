@@ -138,12 +138,12 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">27</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">28</span></a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">31</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">29</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -175,6 +175,100 @@
             
 
   <div class="posts-expand">
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/analysis-of-filebeat/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/analysis-of-filebeat/" class="post-title-link" itemprop="url">Elastic-Filebeat 实现原理剖析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-11-15 10:55:00" itemprop="dateCreated datePublished" datetime="2019-11-15T10:55:00+08:00">2019-11-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-12 10:56:12" itemprop="dateModified" datetime="2020-03-12T10:56:12+08:00">2020-03-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Elasticsearch/" itemprop="url" rel="index"><span itemprop="name">Elasticsearch</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/analysis-of-filebeat/" class="post-meta-item leancloud_visitors" data-flag-title="Elastic-Filebeat 实现原理剖析" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Filebeat 是使用 Golang 实现的轻量型日志采集器，也是 Elasticsearch stack 里面的一员。本质上是一个 agent，可以安装在各个节点上，根据配置读取对应位置的日志，并上报到相应的地方去。</p>
+<p>Filebeat 的可靠性很强，可以保证日志 At least once 的上报，同时也考虑了日志搜集中的各类问题，例如日志断点续读、文件名更改、日志 Truncated 等。</p>
+<p>Filebeat 并不依赖于 Elasticsearch，可以单独存在。我们可以单独使用 Filebeat 进行日志的上报和搜集。filebeat 内置了常用的 Output 组件, 例如 kafka、Elasticsearch、redis 等。出于调试考虑，也可以输出到 console 和 file。我们可以利用现有的 Output 组件，将日志进行上报。</p>
+<p>当然，我们也可以自定义 Output 组件，让 Filebeat 将日志转发到我们想要的地方。</p>
+<p>filebeat 其实是 <a href="https://github.com/elastic/beats" target="_blank" rel="noopener">elastic/beats</a> 的一员，除了 filebeat 外，还有 HeartBeat、PacketBeat。这些 beat 的实现都是基于 libbeat 框架。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/analysis-of-filebeat/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
         
   
   
@@ -654,103 +748,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/why-move-no-work-in-lambda/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/avatar.jpg">
-      <meta itemprop="name" content="cyhone">
-      <meta itemprop="description" content="每有会意，便欣然忘食">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程沉思录">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/articles/why-move-no-work-in-lambda/" class="post-title-link" itemprop="url">c++ lambda 内 std::move 失效问题的思考</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-09-29 18:07:00" itemprop="dateCreated datePublished" datetime="2019-09-29T18:07:00+08:00">2019-09-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-30 18:22:45" itemprop="dateModified" datetime="2019-12-30T18:22:45+08:00">2019-12-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/cpp/" itemprop="url" rel="index"><span itemprop="name">cpp</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/articles/why-move-no-work-in-lambda/" class="post-meta-item leancloud_visitors" data-flag-title="c++ lambda 内 std::move 失效问题的思考" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>最近在写 C++ 时，有这样一个代码需求：在 lambda 中，将一个捕获参数 move 给另外一个变量。<br>
-看似一个很简单常规的操作，然而这个 move 动作却没有生效。</p>
-<p>具体代码如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> func = [=]()&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec2.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>代码可在 <a href="https://wandbox.org/permlink/et6ZTBhwpz5SH6w0" target="_blank" rel="noopener">wandbox</a> 运行。</p>
-<p>我们期望的是，将对变量 <code>vec</code> 调用 std::move 后，数据将会移动至变量 <code>vec2</code>, 此时 <code>vec</code> 里面应该没有数据了。但是通过打印 <code>vec.size()</code> 发现 vec 中的数据并没有按预期移走。</p>
-<p>这也就意味着，构造 vec2 时并没有按预期调用移动构造函数，而是调用了拷贝构造函数。</p>
-<p>为什么会造成这个问题呢, 我们需要结合 <code>std::move</code> 和 <code>lambda</code> 的原理看下。（最终的解决方案可以直接看 <a href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">这里</a>）</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/articles/why-move-no-work-in-lambda/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -837,7 +834,7 @@
 
       </div><div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
     <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber.png" alt="cyhone wechat" style="width: 200px; max-width: 100%;">
-    <div style="color: #f67280;font-size: 14px;">
+    <div style="color: #79bac1;font-size: 14px;">
       扫码关注公众号【编程沉思录】<br> 第一时间收到文章推送
     </div>
 </div>

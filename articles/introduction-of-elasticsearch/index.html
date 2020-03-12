@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#464159">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.7.2">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.7.2">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.7.2">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.7.2" color="#464159">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="google-site-verification" content="gcDrMPbZlMtAIc7xAPBwFUjnApzpvfqSbVIKT3R8fbA">
+  <meta name="baidu-site-verification" content="F7xr7OXgnX">
+
+<link rel="stylesheet" href="/css/main.css?v=7.7.2">
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
+  </script>
+
+  <meta name="description" content="Elasticsearch 是一个分布式搜索引擎，底层基于 Lucene 实现。Elasticsearch 屏蔽了 Lucene 的底层细节，提供了分布式特性，同时对外提供了 Restful API。Elasticsearch 以其易用性迅速赢得了许多用户，被用在网站搜索、日志分析等诸多方面。由于 ES 强大的横向扩展能力，甚至很多人也会直接把 ES 当做 NoSQL 来用。 本文主要记录了 ES">
+<meta name="keywords" content="Elasticsearch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch 学习：入门篇">
+<meta property="og:url" content="http://www.cyhone.com/articles/introduction-of-elasticsearch/index.html">
+<meta property="og:site_name" content="编程沉思录">
+<meta property="og:description" content="Elasticsearch 是一个分布式搜索引擎，底层基于 Lucene 实现。Elasticsearch 屏蔽了 Lucene 的底层细节，提供了分布式特性，同时对外提供了 Restful API。Elasticsearch 以其易用性迅速赢得了许多用户，被用在网站搜索、日志分析等诸多方面。由于 ES 强大的横向扩展能力，甚至很多人也会直接把 ES 当做 NoSQL 来用。 本文主要记录了 ES">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.cyhone.com/img/es/highlight.png">
+<meta property="og:updated_time" content="2020-03-12T02:56:12.746Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elasticsearch 学习：入门篇">
+<meta name="twitter:description" content="Elasticsearch 是一个分布式搜索引擎，底层基于 Lucene 实现。Elasticsearch 屏蔽了 Lucene 的底层细节，提供了分布式特性，同时对外提供了 Restful API。Elasticsearch 以其易用性迅速赢得了许多用户，被用在网站搜索、日志分析等诸多方面。由于 ES 强大的横向扩展能力，甚至很多人也会直接把 ES 当做 NoSQL 来用。 本文主要记录了 ES">
+<meta name="twitter:image" content="http://www.cyhone.com/img/es/highlight.png">
+
+<link rel="canonical" href="http://www.cyhone.com/articles/introduction-of-elasticsearch/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>Elasticsearch 学习：入门篇 | 编程沉思录</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ec99ce8d168c9260e5d744401582acc9";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">编程沉思录</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">一些思考和总结</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">12</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">28</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">29</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/chenyahui" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/introduction-of-elasticsearch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          Elasticsearch 学习：入门篇
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-11 13:00:54" itemprop="dateCreated datePublished" datetime="2020-03-11T13:00:54+08:00">2020-03-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-12 10:56:12" itemprop="dateModified" datetime="2020-03-12T10:56:12+08:00">2020-03-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Elasticsearch/" itemprop="url" rel="index"><span itemprop="name">Elasticsearch</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/introduction-of-elasticsearch/" class="post-meta-item leancloud_visitors" data-flag-title="Elasticsearch 学习：入门篇" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/articles/introduction-of-elasticsearch/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/articles/introduction-of-elasticsearch/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Elasticsearch 是一个分布式搜索引擎，底层基于 Lucene 实现。Elasticsearch 屏蔽了 Lucene 的底层细节，提供了分布式特性，同时对外提供了 Restful API。Elasticsearch 以其易用性迅速赢得了许多用户，被用在网站搜索、日志分析等诸多方面。由于 ES 强大的横向扩展能力，甚至很多人也会直接把 ES 当做 NoSQL 来用。</p>
+<p>本文主要记录了 ES 的一些必要的基础知识，也是自己在学习和使用 ES 的一些总结。当然，要系统和深入学习还是要依靠官方文档：<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html" target="_blank" rel="noopener">Elasticsearch Reference</a> 和不断地实践。</p>
+<p>本文会涉及以下内容：</p>
+<ol>
+<li>ES 的基本概念讲解</li>
+<li>如何通过 ES 增删数据以及批量修改</li>
+<li>ES 基本的查询和搜索功能、高亮关键词搜索以及多索引查询功能</li>
+</ol>
+<a id="more"></a>
+<h1 id="基本概念"><a class="markdownIt-Anchor" href="#基本概念"></a> 基本概念</h1>
+<p>在正式学习，有一些名词和概念需要简单的了解下。</p>
+<ul>
+<li>Document (文档)</li>
+<li>Index (索引)</li>
+<li>Type [已废弃]</li>
+</ul>
+<h2 id="document-文档"><a class="markdownIt-Anchor" href="#document-文档"></a> Document (文档)</h2>
+<p>文档指的是用户提交给 ES 的一条数据。需要注意的是，这里的文档并非指的是一个纯字符串文本，在 ES 中文档指的是一条 JSON 数据。如果对 MongoDB 有了解的话，这里文档的含义和 MongoDB 中的基本类似。</p>
+<p>JSON 数据中可以包含多个字段，这些字段可以类比为 MySQL 中每个表的字段。</p>
+<p>例如:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"message"</span>: <span class="string">"this is my blog"</span>,</span><br><span class="line">  <span class="attr">"author"</span>: <span class="string">"cyhone"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样我们后期进行搜索和查询的时候，也可以分别针对 <code>message</code> 字段和 <code>author</code> 字段进行搜索。</p>
+<h2 id="index-索引"><a class="markdownIt-Anchor" href="#index-索引"></a> Index (索引)</h2>
+<p>Index(索引) 可以理解为是文档的集合，同在一个索引中的文档共同建立倒排索引。</p>
+<p>也有很多人会把索引类比于 MySQL 中 schema 的概念。但在 ES 中 Index 更加灵活，用起来也更加方便。</p>
+<p>此外，提交给同一个索引中的文档，最好拥有相同的结构。这样对于 ES 来说，不管是存储还是查询，都更容易优化。</p>
+<h2 id="type-已废弃"><a class="markdownIt-Anchor" href="#type-已废弃"></a> Type [已废弃]</h2>
+<p>Type 可以理解为是 Index 的子集，类似于 MySQL 中 schema 和 table 的关系。Type 原来存在的目的是为了在同一个 Index 存储异构数据。但其实 ES 中的索引用起来足够方便和灵活，对于异构数据，完全可以再建另外单独的 Index 存储。</p>
+<p>所以在 Elasticsearch 的新版本中，已经逐步淡化和移除了 Type 的概念。在 7.0 版本中，对于每个 Index，ES 直接内置了一个 <code>_doc</code> 的 Type，且一个 Index 只能包含一个 Type。如果用户在添加数据时用到了其他 Type，则会报错。</p>
+<p>所以不管是新旧版本，大家在使用 ES 的时候，也忘记 Type 这个存在即可，用 <code>_doc</code> 即可。</p>
+<hr>
+<p>我们接下来看下如何在 ES 中存储和查询一个文档，也是常说的 <code>CRUD</code> 操作。</p>
+<p>在 ES 中，用户的一切操作和行为都是围绕 REST 风格的 HTTP API 进行的。ES 中所有接口的语义都严格遵守 REST 规范。</p>
+<h1 id="新增-更新文档"><a class="markdownIt-Anchor" href="#新增-更新文档"></a> 新增 / 更新文档</h1>
+<p>要想搜索内容的前提肯定是先把内容交给 ES 进行存储和索引。</p>
+<p>我们有两种方法向对应索引中新增文档：</p>
+<h2 id="通过-post-新增文档"><a class="markdownIt-Anchor" href="#通过-post-新增文档"></a> 通过 POST 新增文档</h2>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST /es-test/_doc</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"message"</span>: <span class="string">"this is my blog"</span>,</span><br><span class="line">  <span class="attr">"author"</span>: <span class="string">"cyhone"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于以上请求来说，我们通过 <code>POST</code> 把对应的数据存储在了索引 <code>es-test</code> 中。<br>
+这里需要注意的是，<strong>Index 并不需要提前建好</strong>。对于用户指定的 Index，如果不存在，ES 会自动建立对应的 Index。</p>
+<h2 id="通过-put-新增文档"><a class="markdownIt-Anchor" href="#通过-put-新增文档"></a> 通过 PUT 新增文档</h2>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT /es-test/_doc/1</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"message"</span>: <span class="string">"this is my blog"</span>,</span><br><span class="line">  <span class="attr">"author"</span>: <span class="string">"cyhone"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上面例子里面，我们通过 <code>PUT</code> 在索引 <code>es-test</code> 中，新增了一条数据。与 POST 不一样的是，通过 PUT 新增数据需要手动指定该条数据的唯一 id。也就是上述的 <code>/es-test/_doc/1</code> 中的 <code>1</code>。这个唯一 id 不必要是数字，任何合法字符串均可。</p>
+<p>POST 和 PUT 的行为都非常符合 REST 风格:</p>
+<ol>
+<li>PUT 保证幂等性。因此在提交的时候需要指定一个唯一 id，对于同一个唯一 id 来说，无论 PUT 多少次，ES 只会修改这个 id 对应文档的内容，而不会新增文档。</li>
+<li>POST 不保证幂等性。因此每次的 POST 请求都会在系统新增一条文档。对于新增的文档，系统会自动生成一个唯一 ID。</li>
+</ol>
+<p>这也意味着，我们可以用 PUT + 指定唯一 id 的方式，来修改和更新文档。</p>
+<h1 id="删除文档"><a class="markdownIt-Anchor" href="#删除文档"></a> 删除文档</h1>
+<p>我们可以使用 DELETE 来删除一个文档。例如:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /es-test/_doc/1</span><br></pre></td></tr></table></figure>
+<p>DELETE 也是幂等性操作，在使用的时候也需要指定唯一 ID。</p>
+<h1 id="查询-搜索文档"><a class="markdownIt-Anchor" href="#查询-搜索文档"></a> 查询 / 搜索文档</h1>
+<p>查询和搜索文档相对来说非常复杂，不过这也是很多人使用 ES 的原因。作为一个搜索引擎，自然需要提供足够强大的查询功能。<br>
+本文仅介绍几种常用的查询方法，其他复杂的查询方式和聚合、分析等操作，以后会单独写一篇文章总结。</p>
+<h2 id="简单查询"><a class="markdownIt-Anchor" href="#简单查询"></a> 简单查询</h2>
+<p>我们可以通过以下语法，提供关键词，搜索所有字段进行查询。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /es-test/_search?q=blog</span><br></pre></td></tr></table></figure>
+<p>或者我们也可以指定查询某个字段，如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /es-test/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>:&#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">        <span class="attr">"message"</span>: <span class="string">"elasticsearch"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上例子中，我们指定查询 message 字段中包含有 elasticsearch 的文档。</p>
+<h2 id="分页查询"><a class="markdownIt-Anchor" href="#分页查询"></a> 分页查询</h2>
+<p>对于查询得到的结果，数目过多的情况下，es 默认会进行分页。分页主要有两个参数进行控制:</p>
+<ul>
+<li>size 显示应该返回的结果数量，默认是 10</li>
+<li>from 显示应该跳过的初始结果数量，默认是 0</li>
+</ul>
+<p>我们可以通过直接在 url 中指定分页参数，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /es-test/_search?size=5&amp;from=10</span><br></pre></td></tr></table></figure>
+<p>也可以在请求体中指定分页参数，如下:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">GET /es-test/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>:&#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">        <span class="attr">"message"</span>: <span class="string">"elasticsearch"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"size"</span>: <span class="number">10</span>,</span><br><span class="line">  <span class="attr">"from"</span>: <span class="number">5</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="关键词高亮显示"><a class="markdownIt-Anchor" href="#关键词高亮显示"></a> 关键词高亮显示</h2>
+<p>我们通常自己开发搜索引擎的时候，往往需要对搜索结果中的关键词高亮这种功能。如下：<br>
+<img src="/img/es/highlight.png" alt="/img/es/highlight.png"></p>
+<p>ES 可以非常简单的实现关键词的高亮。我们可以构建如下请求体：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"match"</span>: &#123;</span><br><span class="line">      <span class="attr">"message"</span>: <span class="string">"blog"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"highlight"</span>: &#123;</span><br><span class="line">    <span class="attr">"fields"</span>: &#123;</span><br><span class="line">      <span class="attr">"message"</span>: &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实就是增加一个 highlight 属性，里面指明了要高亮的字段。其返回的消息体如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"took"</span> : <span class="number">41</span>,</span><br><span class="line">  <span class="attr">"timed_out"</span> : <span class="literal">false</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">1</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">1</span>,</span><br><span class="line">    <span class="attr">"skipped"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"hits"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : &#123;</span><br><span class="line">      <span class="attr">"value"</span> : <span class="number">1</span>,</span><br><span class="line">      <span class="attr">"relation"</span> : <span class="string">"eq"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"max_score"</span> : <span class="number">0.2876821</span>,</span><br><span class="line">    <span class="attr">"hits"</span> : [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"_index"</span> : <span class="string">"es-test"</span>,</span><br><span class="line">        <span class="attr">"_type"</span> : <span class="string">"_doc"</span>,</span><br><span class="line">        <span class="attr">"_id"</span> : <span class="string">"PNyBzHABTSSzPOmql8i9"</span>,</span><br><span class="line">        <span class="attr">"_score"</span> : <span class="number">0.2876821</span>,</span><br><span class="line">        <span class="attr">"_source"</span> : &#123;</span><br><span class="line">          <span class="attr">"message"</span> : <span class="string">"this is my blog"</span>,</span><br><span class="line">          <span class="attr">"author"</span> : <span class="string">"cyhone"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"highlight"</span> : &#123;</span><br><span class="line">          <span class="attr">"message"</span> : [</span><br><span class="line">            <span class="string">"this is my &lt;em&gt;blog&lt;/em&gt;"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在返回体中有一个 highlight 字段，里面对 message 字段进行高亮处理: 关键词使用了 <code>&lt;em&gt;&lt;/em&gt;</code> 标签包围了。</p>
+<p>我们可以利用 css 修改对 <code>&lt;em&gt;</code> 标签的样式，以实现其关键词高亮效果。</p>
+<h2 id="多索引查询"><a class="markdownIt-Anchor" href="#多索引查询"></a> 多索引查询</h2>
+<p>在 ES 中可以非常方便地在多个索引中通过搜索文档。</p>
+<p>例如你有两个索引: <code>es-test-1</code> 和 <code>es-test-2</code>。<br>
+你可以这样直接在 URL 中指名两个索引:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /es-test-1,es-test-2/_search</span><br></pre></td></tr></table></figure>
+<p>或者如下的模糊搜索的方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /es-test-*/_search</span><br></pre></td></tr></table></figure>
+<p>如果有必要的话，甚至可以这样:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /a*, b*/_search</span><br></pre></td></tr></table></figure>
+<p>以上方式都可以在多个索引中同时搜索文档，把多个索引看做一个使用。</p>
+<p>其实这也意味着，我们在存储的时候，没必要把所有的文档都存在一个 Index 中。<br>
+很常见的一个操作是，我们可以将文档按天分索引存储。例如: <code>es-test-2020-03-11</code>,<code>es-test-2020-03-12</code> 等，<br>
+在查询的时候，指定 <code>es-test-*</code> 查询即可，这样对外看来，文档似乎还是存储在一起，同时也减轻了 Index 的存储压力。(一个 ES 分片最多能存储 <code>Integer.MAX_VALUE - 128</code> 个文档)</p>
+<h1 id="批量操作"><a class="markdownIt-Anchor" href="#批量操作"></a> 批量操作</h1>
+<p>上文讲到的通过 POST、PUT 来新增或修改数据，都是基于单条数据的。但是我们知道网络 IO 是网络操作中最耗时的部分，对于大数据量写入的场景下，我们通常希望写入方可以提供批量修改的接口，以避免频繁的网络交互，更大限度地提升写入性能。</p>
+<p>ES 当然也提供了批量修改的接口。在批量接口中，我们一次可以进行多个新增、更新和删除等修改行为的动作。例如：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">POST _bulk</span><br><span class="line">&#123;<span class="attr">"index"</span> : &#123; <span class="attr">"_index"</span> : <span class="string">"es-test"</span>&#125; &#125;</span><br><span class="line">&#123;<span class="attr">"message"</span> : <span class="string">"this is my blog"</span>&#125;</span><br><span class="line">&#123;<span class="attr">"create"</span> : &#123; <span class="attr">"_index"</span> : <span class="string">"es-test"</span>, <span class="attr">"_id"</span> : <span class="string">"3"</span>&#125; &#125;</span><br><span class="line">&#123;<span class="attr">"message"</span> : <span class="string">"this is my blog"</span>&#125;</span><br><span class="line">&#123;<span class="attr">"delete"</span> : &#123; <span class="attr">"_index"</span> : <span class="string">"es-test"</span>, <span class="attr">"_id"</span> : <span class="string">"2"</span>&#125; &#125;</span><br><span class="line">&#123;<span class="attr">"update"</span> : &#123;<span class="attr">"_id"</span> : <span class="string">"1"</span>, <span class="attr">"_index"</span> : <span class="string">"test"</span>&#125; &#125;</span><br><span class="line">&#123;<span class="attr">"message"</span> : <span class="string">"this is my blog"</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>以上这个批量操作有些复杂。里面包含了 4 种操作 <code>index</code>、<code>create</code>、<code>delete</code> 和 <code>update</code>。<br>
+其中 <code>index</code>、<code>create</code> 和 <code>update</code> 都包含两行，一行是具体的操作，一行是文档内容。</p>
+<p><code>index</code> 和 <code>create</code> 的区别在于，create 会携带一个唯一 id，如果该 id 存在，则插入失败。</p>
+<h1 id="动态映射"><a class="markdownIt-Anchor" href="#动态映射"></a> 动态映射</h1>
+<p>有一点值得注意的是，本文中的例子都是用了 <code>message</code> 字段来进行 match 搜索，如果换成字段名换成了其他，例如 <code>content</code> 可能就不行。</p>
+<p>这是因为在我这边的 ES 有一个默认的动态映射，将长度低于 2048 的字符串认定为 <code>keyword</code> 类型。但是字段名是 <code>message</code> 的话，则为 <code>text</code> 类型。<code>keyword</code> 类型不进行分词处理，不适合进行关键词搜索处理。</p>
+<p>这样就需要我们不得不关注 ES 的动态映射。此部分内容以后会再单独分一篇文章讲解。</p>
+
+    </div>
+
+    
+    
+    
+    <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
+        <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber_search.png" alt="cyhone wechat" style="width: 750px;max-width:100%;">
+    <!--div>扫码关注公众号【编程沉思录】<br> 第一时间收到文章推送</div-->
+    </div>
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>cyhone
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://www.cyhone.com/articles/introduction-of-elasticsearch/" title="Elasticsearch 学习：入门篇">http://www.cyhone.com/articles/introduction-of-elasticsearch/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Elasticsearch/" rel="tag"><i class="fa fa-tag"></i> Elasticsearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/blog-tools/" rel="prev" title="个人博客及公众号常用工具">
+      <i class="fa fa-chevron-left"></i> 个人博客及公众号常用工具
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+      <div class="tabs tabs-comment">
+        <ul class="nav-tabs">
+            <li class="tab"><a href="#comment-valine">valine</a></li>
+            <li class="tab"><a href="#comment-gitalk">gitalk</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane valine" id="comment-valine">
+              <div class="comments" id="valine-comments"></div>
+            </div>
+            <div class="tab-pane gitalk" id="comment-gitalk">
+              <div class="comments" id="gitalk-container"></div>
+            </div>
+        </div>
+      </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-text"> 基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#document-文档"><span class="nav-text"> Document (文档)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#index-索引"><span class="nav-text"> Index (索引)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#type-已废弃"><span class="nav-text"> Type [已废弃]</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#新增-更新文档"><span class="nav-text"> 新增 / 更新文档</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#通过-post-新增文档"><span class="nav-text"> 通过 POST 新增文档</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通过-put-新增文档"><span class="nav-text"> 通过 PUT 新增文档</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#删除文档"><span class="nav-text"> 删除文档</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#查询-搜索文档"><span class="nav-text"> 查询 / 搜索文档</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#简单查询"><span class="nav-text"> 简单查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分页查询"><span class="nav-text"> 分页查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关键词高亮显示"><span class="nav-text"> 关键词高亮显示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多索引查询"><span class="nav-text"> 多索引查询</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#批量操作"><span class="nav-text"> 批量操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#动态映射"><span class="nav-text"> 动态映射</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="cyhone"
+      src="/img/avatar.jpg">
+  <p class="site-author-name" itemprop="name">cyhone</p>
+  <div class="site-description" itemprop="description">每有会意，便欣然忘食</div>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chenyahui" title="GitHub → https://github.com/chenyahui" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cyhone@qq.com" title="E-Mail → mailto:cyhone@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhuanlan.zhihu.com/ruminations-on-code" title="Zhihu → https://zhuanlan.zhihu.com/ruminations-on-code" rel="noopener" target="_blank"><i class="fa fa-fw fa-custom zhihu"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="rss → /atom.xml"><i class="fa fa-fw fa-rss"></i></a>
+      </span>
+  </div>
+
+
+
+      </div><div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
+    <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber.png" alt="cyhone wechat" style="width: 200px; max-width: 100%;">
+    <div style="color: #79bac1;font-size: 14px;">
+      扫码关注公众号【编程沉思录】<br> 第一时间收到文章推送
+    </div>
+</div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">豫ICP备18011028号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cyhone</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
+<script src="/js/utils.js?v=7.7.2"></script>
+<script src="/js/schemes/pisces.js?v=7.7.2"></script>
+<script src="/js/next-boot.js?v=7.7.2"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '35a91b87ee1c4d2b4980',
+      clientSecret: 'e80145e7e64c156b4d278e67c79abfe5762115a0',
+      repo        : 'chenyahui.github.io',
+      owner       : 'chenyahui',
+      admin       : ['chenyahui'],
+      id          : 'e1d0c7b118b12dc53a85a2c5bba20501',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
+      appKey     : 'DVy4Enbaa5UpxREeLinbWIcG',
+      placeholder: "请在上方填写您的邮箱，邮件不会被公开",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
