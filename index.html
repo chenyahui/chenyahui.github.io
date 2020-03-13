@@ -27,7 +27,7 @@
   <meta name="description" content="每有会意，便欣然忘食">
 <meta property="og:type" content="website">
 <meta property="og:title" content="编程沉思录">
-<meta property="og:url" content="http://www.cyhone.com/page/3/index.html">
+<meta property="og:url" content="http://www.cyhone.com/index.html">
 <meta property="og:site_name" content="编程沉思录">
 <meta property="og:description" content="每有会意，便欣然忘食">
 <meta property="og:locale" content="zh-CN">
@@ -35,7 +35,7 @@
 <meta name="twitter:title" content="编程沉思录">
 <meta name="twitter:description" content="每有会意，便欣然忘食">
 
-<link rel="canonical" href="http://www.cyhone.com/page/3/">
+<link rel="canonical" href="http://www.cyhone.com/">
 
 
 <script id="page-configurations">
@@ -179,7 +179,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/why-move-no-work-in-lambda/">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/introduction-of-elasticsearch/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/img/avatar.jpg">
@@ -193,7 +193,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/articles/why-move-no-work-in-lambda/" class="post-title-link" itemprop="url">c++ lambda 内 std::move 失效问题的思考</a>
+            <a href="/articles/introduction-of-elasticsearch/" class="post-title-link" itemprop="url">Elasticsearch 学习：入门篇</a>
         </h2>
 
         <div class="post-meta">
@@ -203,14 +203,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-09-29 18:07:00" itemprop="dateCreated datePublished" datetime="2019-09-29T18:07:00+08:00">2019-09-29</time>
+              <time title="创建时间：2020-03-11 13:00:54" itemprop="dateCreated datePublished" datetime="2020-03-11T13:00:54+08:00">2020-03-11</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-30 18:22:45" itemprop="dateModified" datetime="2019-12-30T18:22:45+08:00">2019-12-30</time>
+                <time title="修改时间：2020-03-12 12:39:56" itemprop="dateModified" datetime="2020-03-12T12:39:56+08:00">2020-03-12</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -218,12 +218,12 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/cpp/" itemprop="url" rel="index"><span itemprop="name">cpp</span></a>
+                  <a href="/categories/Elasticsearch/" itemprop="url" rel="index"><span itemprop="name">Elasticsearch</span></a>
                 </span>
             </span>
 
           
-            <span id="/articles/why-move-no-work-in-lambda/" class="post-meta-item leancloud_visitors" data-flag-title="c++ lambda 内 std::move 失效问题的思考" title="阅读次数">
+            <span id="/articles/introduction-of-elasticsearch/" class="post-meta-item leancloud_visitors" data-flag-title="Elasticsearch 学习：入门篇" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -242,17 +242,17 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>最近在写 C++ 时，有这样一个代码需求：在 lambda 中，将一个捕获参数 move 给另外一个变量。<br>
-看似一个很简单常规的操作，然而这个 move 动作却没有生效。</p>
-<p>具体代码如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> func = [=]()&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec2.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>代码可在 <a href="https://wandbox.org/permlink/et6ZTBhwpz5SH6w0" target="_blank" rel="noopener">wandbox</a> 运行。</p>
-<p>我们期望的是，将对变量 <code>vec</code> 调用 std::move 后，数据将会移动至变量 <code>vec2</code>, 此时 <code>vec</code> 里面应该没有数据了。但是通过打印 <code>vec.size()</code> 发现 vec 中的数据并没有按预期移走。</p>
-<p>这也就意味着，构造 vec2 时并没有按预期调用移动构造函数，而是调用了拷贝构造函数。</p>
-<p>为什么会造成这个问题呢, 我们需要结合 <code>std::move</code> 和 <code>lambda</code> 的原理看下。（最终的解决方案可以直接看 <a href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">这里</a>）</p>
+          <p>Elasticsearch 是一个分布式搜索引擎，底层基于 Lucene 实现。Elasticsearch 屏蔽了 Lucene 的底层细节，提供了分布式特性，同时对外提供了 Restful API。Elasticsearch 以其易用性迅速赢得了许多用户，被用在网站搜索、日志分析等诸多方面。由于 ES 强大的横向扩展能力，甚至很多人也会直接把 ES 当做 NoSQL 来用。</p>
+<p>本文主要记录了 ES 的一些必要的基础知识，也是自己在学习和使用 ES 的一些总结。当然，要系统和深入学习还是要依靠官方文档：<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html" target="_blank" rel="noopener">Elasticsearch Reference</a> 和不断地实践。</p>
+<p>本文会涉及以下内容：</p>
+<ol>
+<li>ES 的基本概念讲解</li>
+<li>如何通过 ES 增删数据以及批量修改</li>
+<li>ES 基本的查询和搜索功能、高亮关键词搜索以及多索引查询功能</li>
+</ol>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/articles/why-move-no-work-in-lambda/#more" rel="contents">
+              <a class="btn" href="/articles/introduction-of-elasticsearch/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -276,7 +276,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/blog-tools/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/img/avatar.jpg">
@@ -290,7 +290,98 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/articles/analysis-of-cloudwu-coroutine/" class="post-title-link" itemprop="url">云风 coroutine 协程库源码分析</a>
+            <a href="/articles/blog-tools/" class="post-title-link" itemprop="url">个人博客及公众号常用工具</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-03-08 16:58:54 / 修改时间：18:19:05" itemprop="dateCreated datePublished" datetime="2020-03-08T16:58:54+08:00">2020-03-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/blog-tools/" class="post-meta-item leancloud_visitors" data-flag-title="个人博客及公众号常用工具" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文整理和记录下自己在运营 <a href="cyhone.com">个人博客</a> 以及公众号常使用到的一些工具。主要包含以下方面：</p>
+<ol>
+<li>中英文空格的自动排版</li>
+<li>微信公众号如何使用 markdown 发布</li>
+<li>绘图工具</li>
+<li>图片压缩工具</li>
+<li>如何测试网站的打开速度以及针对性优化</li>
+</ol>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/blog-tools/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/analysis-of-golang-channel/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/analysis-of-golang-channel/" class="post-title-link" itemprop="url">Golang channel 源码深度剖析</a>
         </h2>
 
         <div class="post-meta">
@@ -300,7 +391,286 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-09-19 14:26:19" itemprop="dateCreated datePublished" datetime="2019-09-19T14:26:19+08:00">2019-09-19</time>
+              <time title="创建时间：2020-02-11 12:45:00" itemprop="dateCreated datePublished" datetime="2020-02-11T12:45:00+08:00">2020-02-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-13 11:00:53" itemprop="dateModified" datetime="2020-03-13T11:00:53+08:00">2020-03-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/analysis-of-golang-channel/" class="post-meta-item leancloud_visitors" data-flag-title="Golang channel 源码深度剖析" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>channel 是 Golang 中一个非常重要的特性，也是 Golang CSP 并发模型的一个重要体现。简单来说就是，goroutine 之间可以通过 channel 进行通信。</p>
+<p>channel 在 Golang 如此重要，在代码中使用频率非常高，以至于不得不好奇其内部实现。本文将基于 <a href="https://github.com/golang/go/tree/dev.boringcrypto.go1.13" target="_blank" rel="noopener">go 1.13 的源码</a>，分析 channel 的内部实现原理。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/analysis-of-golang-channel/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/time-wheel-in-libco/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/time-wheel-in-libco/" class="post-title-link" itemprop="url">libco 的定时器实现：时间轮</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-15 13:17:26" itemprop="dateCreated datePublished" datetime="2019-12-15T13:17:26+08:00">2019-12-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-02-15 20:36:02" itemprop="dateModified" datetime="2020-02-15T20:36:02+08:00">2020-02-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/网络编程/" itemprop="url" rel="index"><span itemprop="name">网络编程</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/time-wheel-in-libco/" class="post-meta-item leancloud_visitors" data-flag-title="libco 的定时器实现：时间轮" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。</p>
+<p>定时器有许多经典高效的实现。例如，libevent 采用了小根堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。</p>
+<p>时间轮也是一个非常经典的定时器实现，Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，也用了单级时间轮来处理其内部的超时事件。</p>
+<p>在 libco 的时间轮中，对超时事件的添加删除查询操作均可以达到 <code>O(1)</code> 的时间复杂度，是一个非常高效的数据结构。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/time-wheel-in-libco/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/usage-of-filebeat-log-config/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/usage-of-filebeat-log-config/" class="post-title-link" itemprop="url">FileBeat-Log 相关配置指南</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-11-26 20:36:54" itemprop="dateCreated datePublished" datetime="2019-11-26T20:36:54+08:00">2019-11-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-12 10:56:12" itemprop="dateModified" datetime="2020-03-12T10:56:12+08:00">2020-03-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Elasticsearch/" itemprop="url" rel="index"><span itemprop="name">Elasticsearch</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/usage-of-filebeat-log-config/" class="post-meta-item leancloud_visitors" data-flag-title="FileBeat-Log 相关配置指南" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文主要介绍 Filebeat 7.5 版本中 Log 相关的各个配置项的含义以及其应用场景。</p>
+<p>一般情况下，我们使用 log input 的方式如下，只需要指定一系列 paths 即可。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">filebeat.inputs:</span></span><br><span class="line"><span class="attr">- type:</span> <span class="string">log</span></span><br><span class="line"><span class="attr">  paths:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/var/log/messages</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/var/log/*.log</span></span><br></pre></td></tr></table></figure>
+<p>但其实除了基本的 paths 配置外，log input 还有大概十几个配置项需要我们关注。</p>
+<p>这些配置项或多或少都会影响到 Filebeat 的使用方式以及性能。虽然其默认值基本足够日常使用，但是还是需要深刻理解每个配置项背后的含义，这样才能够对其完全把控。</p>
+<p>同时，在 filebeat 的日常线上运维中，也会涉及到这些配置参数的调节。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/usage-of-filebeat-log-config/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/analysis-of-redis-ae/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/analysis-of-redis-ae/" class="post-title-link" itemprop="url">Redis 事件循环器 (AE) 实现剖析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-11-20 11:16:54" itemprop="dateCreated datePublished" datetime="2019-11-20T11:16:54+08:00">2019-11-20</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
@@ -315,12 +685,12 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/协程/" itemprop="url" rel="index"><span itemprop="name">协程</span></a>
+                  <a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a>
                 </span>
             </span>
 
           
-            <span id="/articles/analysis-of-cloudwu-coroutine/" class="post-meta-item leancloud_visitors" data-flag-title="云风 coroutine 协程库源码分析" title="阅读次数">
+            <span id="/articles/analysis-of-redis-ae/" class="post-meta-item leancloud_visitors" data-flag-title="Redis 事件循环器 (AE) 实现剖析" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -339,382 +709,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>随着 Golang 的兴起，协程尤其是有栈协程 (stackful coroutine) 越来越受到程序员的关注。协程几乎成了程序员的一套必备技能。</p>
-<p>云风实现了一套 <a href="https://github.com/cloudwu/coroutine/" target="_blank" rel="noopener">C 语言的协程库</a>，整体背景可以参考其 <a href="https://blog.codingnow.com/2012/07/c_coroutine.html" target="_blank" rel="noopener">博客</a>。</p>
-<p>这个协程库非常轻量级，一共也才 200 多行代码，使用上更贴近于 lua 的写法（众所周知，云风是知名的 lua 粉)。整体基于 ucontext 和共享栈模型实现了有栈协程，代码质量毋庸置疑，本文将详细剖析该协程库的实现原理。</p>
-<p>同时，我也提供了 <a href="https://github.com/chenyahui/AnnotatedCode/tree/master/coroutine" target="_blank" rel="noopener">coroutine 注释版</a>，辅助大家理解 coroutine 的代码。</p>
+          <p>Redis 作为一个单线程高性能的内存缓存 Server 而被人熟知。作为一个典型的 Reactor 式网络应用，Redis 能够达到如此高的性能，必然要依靠足够可靠的事件循环库。<br>
+Redis 内置了一个高性能事件循环器，叫做 AE。其定义和实现可以在 <code>ae*.h/cpp</code> 这些文件中找到。</p>
+<p>AE 本身就是 Redis 的一部分，所以整体设计原则就是够用就行。也正因为这个背景，AE 的代码才可以简短干净，非常适合阅读和学习。</p>
+<p>本文将基于 Redis 5.0.6 的源码分析下其事件循环器 (AE) 的实现原理。</p>
+<p>同时本人也提供了一个 <a href="https://github.com/chenyahui/AnnotatedCode/tree/master/redis-5.0" target="_blank" rel="noopener">Redis 注释版</a>，用以辅助理解 Redis 的源码。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/articles/analysis-of-cloudwu-coroutine/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/avatar.jpg">
-      <meta itemprop="name" content="cyhone">
-      <meta itemprop="description" content="每有会意，便欣然忘食">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程沉思录">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/articles/optimization-of-websocket-push-system/" class="post-title-link" itemprop="url">WebSocket 订单推送稳定性优化方案</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-08-17 14:36:12" itemprop="dateCreated datePublished" datetime="2019-08-17T14:36:12+08:00">2019-08-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-17 19:00:17" itemprop="dateModified" datetime="2019-12-17T19:00:17+08:00">2019-12-17</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/开发经验/" itemprop="url" rel="index"><span itemprop="name">开发经验</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/articles/optimization-of-websocket-push-system/" class="post-meta-item leancloud_visitors" data-flag-title="WebSocket 订单推送稳定性优化方案" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a href="https://cloud.tencent.com/document/product/569/33102" target="_blank" rel="noopener">微信云支付 Android 智能 POS</a> 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。</p>
-<p>客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。</p>
-<p>然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。</p>
-<p>我们根据实际的场景，对此订单推送系统在稳定性上进行了大量优化，尽可能地提升了服务的可用性及自我恢复的能力。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/articles/optimization-of-websocket-push-system/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/reunderstanding-of-non-blocking-io/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/avatar.jpg">
-      <meta itemprop="name" content="cyhone">
-      <meta itemprop="description" content="每有会意，便欣然忘食">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程沉思录">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/articles/reunderstanding-of-non-blocking-io/" class="post-title-link" itemprop="url">重新理解 IO 模型</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2018-11-04 02:50:00" itemprop="dateCreated datePublished" datetime="2018-11-04T02:50:00+08:00">2018-11-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-17 18:57:36" itemprop="dateModified" datetime="2019-12-17T18:57:36+08:00">2019-12-17</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index"><span itemprop="name">网络编程</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/articles/reunderstanding-of-non-blocking-io/" class="post-meta-item leancloud_visitors" data-flag-title="重新理解 IO 模型" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在进行 Linux 网络编程开发的时候，免不了会涉及到 IO 模型的讨论。《Unix 网络编程》一书中提到的几种 IO 模型，我们在开发过程中，讨论最多的应该就是三种： <code>阻塞 IO</code>、<code>非阻塞 IO</code> 以及 <code>异步 IO</code>。</p>
-<p>本文试图理清楚几种 IO 模型的根本性区别，同时分析了为什么在 Linux 网络编程中最好要用非阻塞式 IO。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/articles/reunderstanding-of-non-blocking-io/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/client-time-calibration/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/avatar.jpg">
-      <meta itemprop="name" content="cyhone">
-      <meta itemprop="description" content="每有会意，便欣然忘食">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程沉思录">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/articles/client-time-calibration/" class="post-title-link" itemprop="url">客户端秒级时间同步方案</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2018-10-25 20:08:06" itemprop="dateCreated datePublished" datetime="2018-10-25T20:08:06+08:00">2018-10-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-10 13:07:50" itemprop="dateModified" datetime="2019-12-10T13:07:50+08:00">2019-12-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/开发经验/" itemprop="url" rel="index"><span itemprop="name">开发经验</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/articles/client-time-calibration/" class="post-meta-item leancloud_visitors" data-flag-title="客户端秒级时间同步方案" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在客户端开发中，往往会有一些功能对时间要求比较严格，客户端需要获取到当前最准确的时间。但由于客户端环境多种多样，我们无法保证直接在客户端设备上获取到的时间是最准确的时间。<br>
-对于某些问题设备来说，设备时间与比当前实际的时间差了几个小时，甚至几天的情况都存在。倘若某功能依赖于当前时间，而客户端所提供的时间不准，就往往会给客户造成一些困扰。</p>
-<p>那么，客户端如何能够获取到当前最准确的时间呢？</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/articles/client-time-calibration/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/analysis-of-muduo/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/avatar.jpg">
-      <meta itemprop="name" content="cyhone">
-      <meta itemprop="description" content="每有会意，便欣然忘食">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程沉思录">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/articles/analysis-of-muduo/" class="post-title-link" itemprop="url">muduo 源码剖析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2018-06-12 23:51:37" itemprop="dateCreated datePublished" datetime="2018-06-12T23:51:37+08:00">2018-06-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-13 11:05:28" itemprop="dateModified" datetime="2020-03-13T11:05:28+08:00">2020-03-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/网络编程/" itemprop="url" rel="index"><span itemprop="name">网络编程</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/articles/analysis-of-muduo/" class="post-meta-item leancloud_visitors" data-flag-title="muduo 源码剖析" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a href="https://github.com/chenshuo/muduo" target="_blank" rel="noopener">muduo</a>是 <a href="http://chenshuo.com" target="_blank" rel="noopener">陈硕</a> 大神个人开发的 C++ 的 TCP 网络编程库。muduo 基于 Reactor 模式实现，Reactor 模式也是目前大多数 Linux 端高性能网络编程框架和网络应用所选择的主要架构，例如 Redis 和 Java 的 Netty 库等。</p>
-<p>陈硕的《Linux 多线程服务器端编程》一书对 muduo 整个架构进行了非常详尽的介绍和分析，可以说是学习 muduo 源码和设计理念最好的资料了。</p>
-<p>而本文则主要是从源码角度辅助理解整个 muduo 的实现，同时也姑且算是对 muduo 的一个小小的补充。</p>
-<p>同时我也提供了一个 <a href="https://github.com/chenyahui/AnnotatedCode/tree/master/muduo" target="_blank" rel="noopener">muduo 注释版</a>，用以辅助理解 muduo 的源码。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/articles/analysis-of-muduo/#more" rel="contents">
+              <a class="btn" href="/articles/analysis-of-redis-ae/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -738,7 +740,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
