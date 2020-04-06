@@ -5,23 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#464159">
 <meta name="generator" content="Hexo 3.7.1">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.7.2">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.7.2">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.7.2">
-  <link rel="mask-icon" href="/images/logo.svg?v=7.7.2" color="#464159">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.8.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.8.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.8.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.8.0" color="#464159">
   <meta http-equiv="Cache-Control" content="no-transform">
   <meta http-equiv="Cache-Control" content="no-siteapp">
   <meta name="google-site-verification" content="gcDrMPbZlMtAIc7xAPBwFUjnApzpvfqSbVIKT3R8fbA">
   <meta name="baidu-site-verification" content="F7xr7OXgnX">
 
-<link rel="stylesheet" href="/css/main.css?v=7.7.2">
+<link rel="stylesheet" href="/css/main.css?v=7.8.0">
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"valine":{"order":1},"gitalk":{"order":2}},"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
+    var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":false,"lazyload":false,"nav":{"gitalk":{"order":1},"valine":{"order":2}},"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
   </script>
 
   <meta name="description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
@@ -108,15 +108,12 @@
 
   <div class="site-meta">
 
-    <div>
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">编程沉思录</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
-    </div>
-        <h1 class="site-subtitle" itemprop="description">一些思考和总结</h1>
-      
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">编程沉思录</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">一些思考和总结</p>
   </div>
 
   <div class="site-nav-right">
@@ -126,37 +123,41 @@
 </div>
 
 
+
+
 <nav class="site-nav">
-  
-  <ul id="menu" class="menu">
+  <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">12</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">28</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">24</span></a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">29</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">27</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
 
-    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
 
   </li>
   </ul>
-
 </nav>
+
+
+
+
 </div>
     </header>
 
@@ -174,14 +175,13 @@
         <div class="content-wrap">
           
 
-          <div class="content">
+          <div class="content post posts-expand">
             
 
-  <div class="posts-expand">
-      
+    
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -194,14 +194,14 @@
       <meta itemprop="name" content="编程沉思录">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
+        <h1 class="post-title" itemprop="name headline">
           WebSocket 订单推送稳定性优化方案
-        </h2>
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
 
@@ -209,14 +209,14 @@
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
+                  <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
                 <time title="修改时间：2019-12-17 19:00:17" itemprop="dateModified" datetime="2019-12-17T19:00:17+08:00">2019-12-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
+                <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -236,7 +236,7 @@
   <span class="post-meta-item">
     
       <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
+        <i class="far fa-comment"></i>
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
@@ -346,7 +346,7 @@ nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数�
     <a href="http://www.cyhone.com/articles/optimization-of-websocket-push-system/" title="WebSocket 订单推送稳定性优化方案">http://www.cyhone.com/articles/optimization-of-websocket-push-system/</a>
   </li>
   <li class="post-copyright-license">
-    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
   </li>
 </ul>
 </div>
@@ -379,22 +379,21 @@ nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数�
   
   
 
-  </div>
 
 
           </div>
           
       <div class="tabs tabs-comment">
         <ul class="nav-tabs">
-            <li class="tab"><a href="#comment-valine">valine</a></li>
             <li class="tab"><a href="#comment-gitalk">gitalk</a></li>
+            <li class="tab"><a href="#comment-valine">valine</a></li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane valine" id="comment-valine">
-              <div class="comments" id="valine-comments"></div>
-            </div>
             <div class="tab-pane gitalk" id="comment-gitalk">
               <div class="comments" id="gitalk-container"></div>
+            </div>
+            <div class="tab-pane valine" id="comment-valine">
+              <div class="comments" id="valine-comments"></div>
             </div>
         </div>
       </div>
@@ -457,16 +456,16 @@ nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数�
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/chenyahui" title="GitHub → https://github.com/chenyahui" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+        <a href="https://github.com/chenyahui" title="GitHub → https://github.com/chenyahui" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:cyhone@qq.com" title="E-Mail → mailto:cyhone@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+        <a href="mailto:cyhone@qq.com" title="E-Mail → mailto:cyhone@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
       </span>
       <span class="links-of-author-item">
-        <a href="https://zhuanlan.zhihu.com/ruminations-on-code" title="Zhihu → https://zhuanlan.zhihu.com/ruminations-on-code" rel="noopener" target="_blank"><i class="fa fa-fw fa-custom zhihu"></i></a>
+        <a href="https://zhuanlan.zhihu.com/ruminations-on-code" title="Zhihu → https://zhuanlan.zhihu.com/ruminations-on-code" rel="noopener" target="_blank"><i class="fa fa-custom zhihu fa-fw"></i></a>
       </span>
       <span class="links-of-author-item">
-        <a href="/atom.xml" title="rss → /atom.xml"><i class="fa fa-fw fa-rss"></i></a>
+        <a href="/atom.xml" title="rss → /atom.xml"><i class="fa fa-rss fa-fw"></i></a>
       </span>
   </div>
 
@@ -500,7 +499,7 @@ nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数�
   &copy; 2015 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
-    <i class="fa fa-heart"></i>
+    <i class="heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">cyhone</span>
 </div>
@@ -520,9 +519,9 @@ nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数�
 
   
   <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
-<script src="/js/utils.js?v=7.7.2"></script>
-<script src="/js/schemes/pisces.js?v=7.7.2"></script>
-<script src="/js/next-boot.js?v=7.7.2"></script>
+<script src="/js/utils.js?v=7.8.0"></script>
+<script src="/js/schemes/pisces.js?v=7.8.0"></script>
+<script src="/js/next-boot.js?v=7.8.0"></script>
 
 
 
@@ -591,7 +590,7 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
       lang       : 'zh-cn' || 'zh-cn',
       path       : location.pathname,
       recordIP   : false,
-      serverURLs : ''
+      serverURLs : 'https://leancloud-api.cyhone.com'
     });
   }, window.Valine);
 });
