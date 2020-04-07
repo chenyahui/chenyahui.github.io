@@ -25,7 +25,7 @@
   </script>
 
   <meta name="description" content="介绍  BloomFilter（布隆过滤器）是一种可以高效地判断元素是否在某个集合中的算法。  在很多日常场景中，都大量存在着布隆过滤器的应用。例如：检查单词是否拼写正确、网络爬虫的 URL 去重、黑名单检验，微博中昵称不能重复的检测等。 在工业界中，Google 著名的分布式数据库 BigTable 也用了布隆过滤器来查找不存在的行或列，以减少磁盘查找的 IO 次数；Google Chrome">
-<meta name="keywords" content="BloomFilter,算法">
+<meta name="keywords" content="源码,BloomFilter,算法">
 <meta property="og:type" content="article">
 <meta property="og:title" content="结合 Guava 源码解读布隆过滤器">
 <meta property="og:url" content="http://www.cyhone.com/articles/introduction-of-bloomfilter/index.html">
@@ -34,7 +34,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/bloomfilter/bf1.jpg">
 <meta property="og:image" content="http://www.cyhone.com/img/bloomfilter/bf2.jpg">
-<meta property="og:updated_time" content="2019-12-17T10:57:36.458Z">
+<meta property="og:updated_time" content="2020-04-07T11:24:33.652Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="结合 Guava 源码解读布隆过滤器">
 <meta name="twitter:description" content="介绍  BloomFilter（布隆过滤器）是一种可以高效地判断元素是否在某个集合中的算法。  在很多日常场景中，都大量存在着布隆过滤器的应用。例如：检查单词是否拼写正确、网络爬虫的 URL 去重、黑名单检验，微博中昵称不能重复的检测等。 在工业界中，Google 著名的分布式数据库 BigTable 也用了布隆过滤器来查找不存在的行或列，以减少磁盘查找的 IO 次数；Google Chrome">
@@ -214,7 +214,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-17 18:57:36" itemprop="dateModified" datetime="2019-12-17T18:57:36+08:00">2019-12-17</time>
+                <time title="修改时间：2020-04-07 19:24:33" itemprop="dateModified" datetime="2020-04-07T19:24:33+08:00">2020-04-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -430,6 +430,7 @@ BitArray 是 Guava 中位向量的表示，具体的实现细节，将会在下�
       <footer class="post-footer">
           
           <div class="post-tags">
+              <a href="/tags/源码/" rel="tag"><i class="fa fa-tag"></i> 源码</a>
               <a href="/tags/BloomFilter/" rel="tag"><i class="fa fa-tag"></i> BloomFilter</a>
               <a href="/tags/算法/" rel="tag"><i class="fa fa-tag"></i> 算法</a>
           </div>

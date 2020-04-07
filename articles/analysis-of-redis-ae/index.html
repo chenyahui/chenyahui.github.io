@@ -25,14 +25,14 @@
   </script>
 
   <meta name="description" content="Redis 作为一个单线程高性能的内存缓存 Server 而被人熟知。作为一个典型的 Reactor 式网络应用，Redis 能够达到如此高的性能，必然要依靠足够可靠的事件循环库。 Redis 内置了一个高性能事件循环器，叫做 AE。其定义和实现可以在 ae*.h/cpp 这些文件中找到。 AE 本身就是 Redis 的一部分，所以整体设计原则就是够用就行。也正因为这个背景，AE 的代码才可以简短">
-<meta name="keywords" content="TCP,Redis,网络编程,Reactor">
+<meta name="keywords" content="源码,TCP,Redis,网络编程,Reactor">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis 事件循环器 (AE) 实现剖析">
 <meta property="og:url" content="http://www.cyhone.com/articles/analysis-of-redis-ae/index.html">
 <meta property="og:site_name" content="编程沉思录">
 <meta property="og:description" content="Redis 作为一个单线程高性能的内存缓存 Server 而被人熟知。作为一个典型的 Reactor 式网络应用，Redis 能够达到如此高的性能，必然要依靠足够可靠的事件循环库。 Redis 内置了一个高性能事件循环器，叫做 AE。其定义和实现可以在 ae*.h/cpp 这些文件中找到。 AE 本身就是 Redis 的一部分，所以整体设计原则就是够用就行。也正因为这个背景，AE 的代码才可以简短">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-17T10:57:36.458Z">
+<meta property="og:updated_time" content="2020-04-07T11:24:33.652Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis 事件循环器 (AE) 实现剖析">
 <meta name="twitter:description" content="Redis 作为一个单线程高性能的内存缓存 Server 而被人熟知。作为一个典型的 Reactor 式网络应用，Redis 能够达到如此高的性能，必然要依靠足够可靠的事件循环库。 Redis 内置了一个高性能事件循环器，叫做 AE。其定义和实现可以在 ae*.h/cpp 这些文件中找到。 AE 本身就是 Redis 的一部分，所以整体设计原则就是够用就行。也正因为这个背景，AE 的代码才可以简短">
@@ -211,7 +211,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-17 18:57:36" itemprop="dateModified" datetime="2019-12-17T18:57:36+08:00">2019-12-17</time>
+                <time title="修改时间：2020-04-07 19:24:33" itemprop="dateModified" datetime="2020-04-07T19:24:33+08:00">2020-04-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -407,6 +407,7 @@ Redis 在注释里面也说明了这事，并且给出了以后的优化方案�
       <footer class="post-footer">
           
           <div class="post-tags">
+              <a href="/tags/源码/" rel="tag"><i class="fa fa-tag"></i> 源码</a>
               <a href="/tags/TCP/" rel="tag"><i class="fa fa-tag"></i> TCP</a>
               <a href="/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
               <a href="/tags/网络编程/" rel="tag"><i class="fa fa-tag"></i> 网络编程</a>
