@@ -24,19 +24,19 @@
     var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.8.0.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":false,"lazyload":false,"nav":{"gitalk":{"order":1},"valine":{"order":2}},"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
   </script>
 
-  <meta name="description" content="定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。 定时器有许多经典高效的实现。例如，libevent 采用了小根堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。 时间轮也是一个非常经典的定时器实现，Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，也用了单级时间轮来处理其内">
+  <meta name="description" content="定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。 定时器有许多经典高效的实现。例如，libevent 采用了最小堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。 时间轮也是一个非常经典的定时器实现。Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，则用了单级时间轮来管理其内">
 <meta name="keywords" content="源码,定时器,协程">
 <meta property="og:type" content="article">
 <meta property="og:title" content="libco 的定时器实现：时间轮">
 <meta property="og:url" content="http://www.cyhone.com/articles/time-wheel-in-libco/index.html">
 <meta property="og:site_name" content="编程沉思录">
-<meta property="og:description" content="定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。 定时器有许多经典高效的实现。例如，libevent 采用了小根堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。 时间轮也是一个非常经典的定时器实现，Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，也用了单级时间轮来处理其内">
+<meta property="og:description" content="定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。 定时器有许多经典高效的实现。例如，libevent 采用了最小堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。 时间轮也是一个非常经典的定时器实现。Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，则用了单级时间轮来管理其内">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/libco/time-wheel.png">
-<meta property="og:updated_time" content="2020-02-15T12:36:02.154Z">
+<meta property="og:updated_time" content="2020-04-08T08:55:32.145Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="libco 的定时器实现：时间轮">
-<meta name="twitter:description" content="定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。 定时器有许多经典高效的实现。例如，libevent 采用了小根堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。 时间轮也是一个非常经典的定时器实现，Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，也用了单级时间轮来处理其内">
+<meta name="twitter:description" content="定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。 定时器有许多经典高效的实现。例如，libevent 采用了最小堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。 时间轮也是一个非常经典的定时器实现。Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，则用了单级时间轮来管理其内">
 <meta name="twitter:image" content="http://www.cyhone.com/img/libco/time-wheel.png">
 
 <link rel="canonical" href="http://www.cyhone.com/articles/time-wheel-in-libco/">
@@ -213,7 +213,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-02-15 20:36:02" itemprop="dateModified" datetime="2020-02-15T20:36:02+08:00">2020-02-15</time>
+                <time title="修改时间：2020-04-08 16:55:32" itemprop="dateModified" datetime="2020-04-08T16:55:32+08:00">2020-04-08</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -258,13 +258,13 @@
 
       
         <p>定时器是网络框架中非常重要的组成部分，往往可以利用定时器做一些超时事件的判断或者定时清理任务等。</p>
-<p>定时器有许多经典高效的实现。例如，libevent 采用了小根堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。</p>
-<p>时间轮也是一个非常经典的定时器实现，Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，也用了单级时间轮来处理其内部的超时事件。</p>
+<p>定时器有许多经典高效的实现。例如，libevent 采用了最小堆实现定时器，redis 则结合自己场景直接使用了简单粗暴的双向链表。</p>
+<p>时间轮也是一个非常经典的定时器实现。Linux 2.6 内核之前就采用了多级时间轮作为其低精度定时器的实现。而在微信的协程库 libco 中，则用了单级时间轮来管理其内部的超时事件。</p>
 <p>在 libco 的时间轮中，对超时事件的添加删除查询操作均可以达到 <code>O(1)</code> 的时间复杂度，是一个非常高效的数据结构。</p>
 <a id="more"></a>
 <h1 id="时间轮的表示"><a class="markdownIt-Anchor" href="#时间轮的表示"></a> 时间轮的表示</h1>
 <p>libco 的时间轮的数据结构定义如下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stTimeout_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	stTimeoutItemLink_t *pItems;</span><br><span class="line">	<span class="keyword">int</span> iItemSize;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">long</span> <span class="keyword">long</span> llStartIdx;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> ullStart;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><figcaption><span>/co_routine.cpp</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stTimeout_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	stTimeoutItemLink_t *pItems;</span><br><span class="line">	<span class="keyword">int</span> iItemSize;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">long</span> <span class="keyword">long</span> llStartIdx;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> ullStart;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>时间轮 <code>stTimeout_t</code> 负责 libco 中所有超时事件的管理, 其中各属性的意义如下:</p>
 <ol>
 <li><code>pItems</code> 是一个数组，数组长度为 iItemSize。而数组中的每个元素是 <code>stTimeoutItemLink_t</code> 类型，这是一个双向链表实现。而同一个链表中的每个元素，它们的超时时间都是相同的。</li>
