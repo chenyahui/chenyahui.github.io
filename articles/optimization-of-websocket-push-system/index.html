@@ -32,7 +32,7 @@
 <meta property="og:site_name" content="编程沉思录">
 <meta property="og:description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-17T11:00:17.502Z">
+<meta property="og:updated_time" content="2020-04-09T12:36:39.626Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WebSocket 订单推送稳定性优化方案">
 <meta name="twitter:description" content="微信云支付 Android 智能 POS 使用 WebSocket 实现了用户订单的实时推送。即，顾客在扫描了门店的付款码，客户端会随即进行语音播报和打印等动作。 客户端利用 WebSocket 与后端维持长连接，当后端收到该门店订单时，即将成功态的订单通过对应的连接中。 然而，商户网络环境的多样性会导致 WebSocket 链路出现各种异常，从而引发漏单问题。 我们根据实际的场景，对此订单推送系">
@@ -211,7 +211,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-17 19:00:17" itemprop="dateModified" datetime="2019-12-17T19:00:17+08:00">2019-12-17</time>
+                <time title="修改时间：2020-04-09 20:36:39" itemprop="dateModified" datetime="2020-04-09T20:36:39+08:00">2020-04-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -274,15 +274,15 @@
 <p>在浏览器端 WebSocket 相关接口非常简单，但缺了一个设置心跳的接口。我们需要设计一个应用层的心跳机制，来保证线路质量。</p>
 <p>在设计应用层心跳时，主要出于以下几个方面：</p>
 <ol>
-<li>**nginx 的 proxy_read_timeout 参数 **:<br>
+<li><strong>nginx 的 proxy_read_timeout 参数</strong>:<br>
 nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数。当连接在此超时时间内没有数据传输，则会主动断开，<br>
 默认行为是 60s。因此我们需要一个应用层心跳，在 proxy_read_timeout 的时间内，发送心跳包，以保证连接不被断开。</li>
 <li><strong>应用层心跳可以帮助我们快速检测和发现链路的健康程度</strong> :<br>
 为了快速检测到链路的异常问题，我们可以将心跳时间缩短到可接受范围内。</li>
 </ol>
 <p>在最初的版本设计中，我们的应用层心跳只涉及了 ping 接口。</p>
-<p>即客户端主动发生向 server 端发生 ping，如果发送成功，则说明链路正常，反之意味着链路不正常。</p>
-<p>整个过程中，ping 是否成功，都依赖于 WebSocket 是否触发了 onError 错误回调。</p>
+<p>即客户端主动发生向 server 端发生 ping，如果发送成功，则说明链路正常，反之意味着链路不正常。<br>
+而整个过程中，ping 是否成功，都依赖于 WebSocket 是否触发了 onError 错误回调。</p>
 <p>但在实际的开发过程中，<strong>我们发现，这样一种特殊场景</strong>：</p>
 <p>使用手机发热点供收银设备使用网络，在正常使用过程中，如果关闭手机的网络数据连接（wifi 或者移动数据），但保持热点的正常开放，那么收银设备将无法快速感知到网络的异常，大概需要 3-5 分钟才能触发异常回调。</p>
 <p>因此，针对此情况我们对应用层心跳进行了进一步的优化，让 server 端收到 ping 之后，回复一个 pong 包。我们根据 ping 和 pong 的时间间隔，来决定当前链路的健康程度。</p>
@@ -294,7 +294,7 @@ nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数�
 <p>有了断线重连机制，可以实现 WebSocket 简单的自我恢复功能。</p>
 <h2 id="三-推拉结合兜底行为"><a class="markdownIt-Anchor" href="#三-推拉结合兜底行为"></a> 三、推拉结合：兜底行为</h2>
 <p>引入了 WebSocket 的应用层心跳检测和断线重连，可以快速地帮我们发现链路的异常问题，同时尽快恢复到健康状态。</p>
-<p>但是，当 WebSocket 服务侧发生了短时异常（如变更等），或者重连时间过长。</p>
+<p>但是，当 WebSocket 服务侧发生了短时异常（如服务变更等），或者重连时间过长。</p>
 <p>在应用层发现异常到重连成功的这个过程，整个推送服务最长可能有十秒左右的不可用时间，这个时长取决于心跳的间隔时长。且万一重连也不成功，这个不可用时间将会持续增大。</p>
 <p>在设计中，需要考虑到这种异常情况，且在商户网络环境不稳定的情况下，此问题可能会被放大。</p>
 <p>我们引入了主动拉取的方案，在网络异常时，将会切换为主动拉取模式，定时向后端拉取订单。</p>
@@ -305,12 +305,12 @@ nginx 在反向代理 WebSocket 请求时，有一个 proxy_read_timeout 参数�
 <li>每次主动拉取后，检测当前 WebSocket 是否链路健康，如果健康则关闭主动拉取模式。</li>
 </ol>
 <p>因为我们主动拉取的范围重叠性以及主动拉取也可能和推送模式有一段时间的重叠，我们得到的订单可能会重复。</p>
-<p>这里我们需要注意对订单进行一个简单的去重逻辑，即：</p>
+<p>所以这里我们需要注意对订单进行一个简单的去重逻辑，即：</p>
 <ol>
 <li>万一订单已存在，就忽略该订单。这个可以用简单的 set 实现即可</li>
 <li>根据订单范围的时效性，可以定时删除过期的订单号即可。</li>
 </ol>
-<p>引入主动拉取模式，一方面尽可能的减少了漏单可能的发生，另一方面对主动推送来说，也是一个兜底行为。</p>
+<p>引入主动拉取模式，一方面尽可能的减少了漏单可能的发生，另一方面对订单推送来说，也是一个兜底行为。</p>
 <h2 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h2>
 <p>总结来说，我们选择使用了 WebSocket 长连接的方式，实现了支付订单的实时推送，为了解决推送的不稳定性，我们主要采取了以下几种措施：</p>
 <ul>

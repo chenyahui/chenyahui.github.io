@@ -34,7 +34,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/channel/channel-godbolt.png">
 <meta property="og:image" content="http://www.cyhone.com/img/channel/ring-buffer.png">
-<meta property="og:updated_time" content="2020-04-09T04:29:57.591Z">
+<meta property="og:updated_time" content="2020-04-09T12:36:39.626Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Golang channel 源码深度剖析">
 <meta name="twitter:description" content="channel 是 Golang 中一个非常重要的特性，也是 Golang CSP 并发模型的一个重要体现。简单来说就是，goroutine 之间可以通过 channel 进行通信。 channel 在 Golang 如此重要，在代码中使用频率非常高，以至于不得不好奇其内部实现。本文将基于 go 1.13 的源码，分析 channel 的内部实现原理。">
@@ -214,7 +214,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-09 12:29:57" itemprop="dateModified" datetime="2020-04-09T12:29:57+08:00">2020-04-09</time>
+                <time title="修改时间：2020-04-09 20:36:39" itemprop="dateModified" datetime="2020-04-09T20:36:39+08:00">2020-04-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -259,7 +259,7 @@
 
       
         <p>channel 是 Golang 中一个非常重要的特性，也是 Golang CSP 并发模型的一个重要体现。简单来说就是，goroutine 之间可以通过 channel 进行通信。</p>
-<p>channel 在 Golang 如此重要，在代码中使用频率非常高，以至于不得不好奇其内部实现。本文将基于 <a href="https://github.com/golang/go/tree/dev.boringcrypto.go1.13" target="_blank" rel="noopener">go 1.13 的源码</a>，分析 channel 的内部实现原理。</p>
+<p>channel 在 Golang 如此重要，在代码中使用频率非常高，以至于不得不好奇其内部实现。本文将基于 <a href="https://github.com/golang/go/tree/release-branch.go1.13" target="_blank" rel="noopener">go 1.13 的源码</a>，分析 channel 的内部实现原理。</p>
 <a id="more"></a>
 <h1 id="channel-的基本使用"><a class="markdownIt-Anchor" href="#channel-的基本使用"></a> channel 的基本使用</h1>
 <p>在正式分析 channel 的实现之前，我们先看下 channel 的最基本用法，代码如下：</p>
@@ -268,7 +268,7 @@
 在一个 goroutine 中使用 <code>c &lt;- 1</code> 将数据发送到 channel 中。在主 goroutine 中通过 <code>x := &lt;- c</code> 从 channel 中读取数据并赋值给 x。</p>
 <p>以上代码对应了 channel 的两种基本操作：send 操作 <code>c &lt;- 1</code> 和 recv 操作 <code>x := &lt;- c</code>, 分别表示发送数据到 channel 和从 channel 中接收数据。</p>
 <p>此外，channel 还分为有缓存 channel 和无缓存 channel。上述代码中，我们使用的是无缓冲的 channel。对于无缓冲的 channel，如果当前没有其他 goroutine 正在接收 channel 数据，则发送方会阻塞在发送语句处。</p>
-<p>我们可以在 channel 初始化时指定缓冲区大小，例如，<code>make(chan int, 2)</code> 则指定缓冲区大小为 2。在缓冲区未满之前，发送方无阻塞地可以往 channel 发送数据，无需等待接收方准备好。而如果缓冲区已满，则发送方依然会阻塞。</p>
+<p>我们可以在 channel 初始化时指定缓冲区大小。例如，<code>make(chan int, 2)</code> 则指定缓冲区大小为 2。在缓冲区未满之前，发送方无阻塞地可以往 channel 发送数据，无需等待接收方准备好。而如果缓冲区已满，则发送方依然会阻塞。</p>
 <h1 id="channel-对应的底层实现函数"><a class="markdownIt-Anchor" href="#channel-对应的底层实现函数"></a> channel 对应的底层实现函数</h1>
 <p>在探究 channel 源码之前，我们肯定首先需要先找到 channel 在 Golang 的具体实现在哪。因为我们在使用 channel 时，用的是 <code>&lt;-</code> 符号，并不能直接在 go 源码中找到其实现。但是 Golang 编译器必然会将 <code>&lt;-</code> 符号翻译成底层对应的实现。</p>
 <p>我们可以使用 Go 自带的命令: <code>go tool compile -N -l -S hello.go</code>, 将代码翻译成对应的汇编指令。</p>
