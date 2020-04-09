@@ -25,16 +25,16 @@
   </script>
 
   <meta name="description" content="最近在写 C++ 时，有这样一个代码需求：在 lambda 中，将一个捕获参数 move 给另外一个变量。 看似一个很简单常规的操作，然而这个 move 动作却没有生效。 具体代码如下： 1234567std::vector&amp;lt;int&amp;gt; vec = &amp;#123;1,2,3&amp;#125;;auto func = [=]()&amp;#123;    auto vec2 = std::move(vec">
-<meta name="keywords" content="cpp">
+<meta name="keywords" content="C++">
 <meta property="og:type" content="article">
-<meta property="og:title" content="c++ lambda 内 std::move 失效问题的思考">
+<meta property="og:title" content="C++ lambda 内 std::move 失效问题的思考">
 <meta property="og:url" content="http://www.cyhone.com/articles/why-move-no-work-in-lambda/index.html">
 <meta property="og:site_name" content="编程沉思录">
 <meta property="og:description" content="最近在写 C++ 时，有这样一个代码需求：在 lambda 中，将一个捕获参数 move 给另外一个变量。 看似一个很简单常规的操作，然而这个 move 动作却没有生效。 具体代码如下： 1234567std::vector&amp;lt;int&amp;gt; vec = &amp;#123;1,2,3&amp;#125;;auto func = [=]()&amp;#123;    auto vec2 = std::move(vec">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-30T10:22:45.286Z">
+<meta property="og:updated_time" content="2020-04-09T04:29:57.591Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="c++ lambda 内 std::move 失效问题的思考">
+<meta name="twitter:title" content="C++ lambda 内 std::move 失效问题的思考">
 <meta name="twitter:description" content="最近在写 C++ 时，有这样一个代码需求：在 lambda 中，将一个捕获参数 move 给另外一个变量。 看似一个很简单常规的操作，然而这个 move 动作却没有生效。 具体代码如下： 1234567std::vector&amp;lt;int&amp;gt; vec = &amp;#123;1,2,3&amp;#125;;auto func = [=]()&amp;#123;    auto vec2 = std::move(vec">
 
 <link rel="canonical" href="http://www.cyhone.com/articles/why-move-no-work-in-lambda/">
@@ -50,7 +50,7 @@
   };
 </script>
 
-  <title>c++ lambda 内 std::move 失效问题的思考 | 编程沉思录</title>
+  <title>C++ lambda 内 std::move 失效问题的思考 | 编程沉思录</title>
   
 
 
@@ -143,7 +143,7 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">27</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">26</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -194,7 +194,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          c++ lambda 内 std::move 失效问题的思考
+          C++ lambda 内 std::move 失效问题的思考
         </h1>
 
         <div class="post-meta">
@@ -211,7 +211,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-30 18:22:45" itemprop="dateModified" datetime="2019-12-30T18:22:45+08:00">2019-12-30</time>
+                <time title="修改时间：2020-04-09 12:29:57" itemprop="dateModified" datetime="2020-04-09T12:29:57+08:00">2020-04-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -219,12 +219,12 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/cpp/" itemprop="url" rel="index"><span itemprop="name">cpp</span></a>
+                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
                 </span>
             </span>
 
           
-            <span id="/articles/why-move-no-work-in-lambda/" class="post-meta-item leancloud_visitors" data-flag-title="c++ lambda 内 std::move 失效问题的思考" title="阅读次数">
+            <span id="/articles/why-move-no-work-in-lambda/" class="post-meta-item leancloud_visitors" data-flag-title="C++ lambda 内 std::move 失效问题的思考" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -258,7 +258,7 @@
         <p>最近在写 C++ 时，有这样一个代码需求：在 lambda 中，将一个捕获参数 move 给另外一个变量。<br>
 看似一个很简单常规的操作，然而这个 move 动作却没有生效。</p>
 <p>具体代码如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> func = [=]()&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt;vec2.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> func = [=]()&#123;</span><br><span class="line">    <span class="keyword">auto</span> vec2 = <span class="built_in">std</span>::move(vec);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; vec.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; vec2.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">// 输出：3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>代码可在 <a href="https://wandbox.org/permlink/et6ZTBhwpz5SH6w0" target="_blank" rel="noopener">wandbox</a> 运行。</p>
 <p>我们期望的是，将对变量 <code>vec</code> 调用 std::move 后，数据将会移动至变量 <code>vec2</code>, 此时 <code>vec</code> 里面应该没有数据了。但是通过打印 <code>vec.size()</code> 发现 vec 中的数据并没有按预期移走。</p>
 <p>这也就意味着，构造 vec2 时并没有按预期调用移动构造函数，而是调用了拷贝构造函数。</p>
@@ -324,7 +324,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://www.cyhone.com/articles/why-move-no-work-in-lambda/" title="c++ lambda 内 std::move 失效问题的思考">http://www.cyhone.com/articles/why-move-no-work-in-lambda/</a>
+    <a href="http://www.cyhone.com/articles/why-move-no-work-in-lambda/" title="C++ lambda 内 std::move 失效问题的思考">http://www.cyhone.com/articles/why-move-no-work-in-lambda/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -336,7 +336,7 @@
       <footer class="post-footer">
           
           <div class="post-tags">
-              <a href="/tags/cpp/" rel="tag"><i class="fa fa-tag"></i> cpp</a>
+              <a href="/tags/C/" rel="tag"><i class="fa fa-tag"></i> C++</a>
           </div>
 
         
