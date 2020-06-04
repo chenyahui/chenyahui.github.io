@@ -33,7 +33,7 @@
 <meta property="og:description" content="限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章 《Golang 限流器 time/rate 使用介绍》 简单介绍了 time/rate 的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。 上一篇文章讲到，time/rate 是基于 Token Bucket(令牌桶) 算法实现的限流。本文将会基于源码，深入剖析下 Golang">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/token-bucket/token-bucket.jpg">
-<meta property="og:updated_time" content="2020-04-08T08:55:32.145Z">
+<meta property="og:updated_time" content="2020-06-04T05:16:18.803Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Golang 标准库限流器 time&#x2F;rate 实现剖析">
 <meta name="twitter:description" content="限流器是微服务中必不缺少的一环，可以起到保护下游服务，防止服务过载等作用。上一篇文章 《Golang 限流器 time/rate 使用介绍》 简单介绍了 time/rate 的使用方法，本文则着重分析下其实现原理。建议在正式阅读本文之前，先阅读下上一篇文章。 上一篇文章讲到，time/rate 是基于 Token Bucket(令牌桶) 算法实现的限流。本文将会基于源码，深入剖析下 Golang">
@@ -213,7 +213,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-08 16:55:32" itemprop="dateModified" datetime="2020-04-08T16:55:32+08:00">2020-04-08</time>
+                <time title="修改时间：2020-06-04 13:16:18" itemprop="dateModified" datetime="2020-06-04T13:16:18+08:00">2020-06-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -296,8 +296,8 @@
 <p>将需要等待的时间等相关结果返回给调用方。</p>
 </li>
 </ol>
-<p>从上面可以看出，其实整个过程就是利用了 **Token 数可以和时间相互转化 ** 的原理。而如果 Token 数为负，则需要等待相应时间即可。</p>
-<p>** 注意：** 如果当消费时，Token 桶中的 Token 数目已经为负值了，依然可以按照上述流程进行消费。随着负值越来越小，等待的时间将会越来越长。<br>
+<p>从上面可以看出，其实整个过程就是利用了 <strong>Token 数可以和时间相互转化</strong> 的原理。而如果 Token 数为负，则需要等待相应时间即可。</p>
+<p><strong>注意</strong> 如果当消费时，Token 桶中的 Token 数目已经为负值了，依然可以按照上述流程进行消费。随着负值越来越小，等待的时间将会越来越长。<br>
 从结果来看，这个行为跟用 Timer+BlockQueue 实现是一样的。</p>
 <p>此外，整个过程为了保证线程安全，更新令牌桶相关数据时都用了 mutex 加锁。</p>
 <p>我们模拟下请求与 Token 数变化的关系：</p>
@@ -332,7 +332,7 @@
 先用 <code>lim.limit.durationFromTokens(float64(lim.burst) - lim.tokens)</code>，计算把桶填满的时间 maxElapsed。<br>
 取 elapsed 和 maxElapsed 的最小值。</p>
 <p>这么做算出的结果肯定是正确的，但是这么做相比于我们的做法，好处在哪里？</p>
-<p>对于我们的代码，当 last 非常小的时候（或者当其为初始值 0 的时候），此时 <code>now.Sub(lim.last)</code> 的值就会非常大，如果 <code>lim.limit</code> 即每秒生成的 Token 数目也非常大时，直接将二者进行乘法运算，** 结果有可能会溢出。**</p>
+<p>对于我们的代码，当 last 非常小的时候（或者当其为初始值 0 的时候），此时 <code>now.Sub(lim.last)</code> 的值就会非常大，如果 <code>lim.limit</code> 即每秒生成的 Token 数目也非常大时，直接将二者进行乘法运算，<strong>结果有可能会溢出。</strong></p>
 <p>因此，<code>time/rate</code> 先计算了把桶填满的时间，将其作为时间差值的上限，这样就规避了溢出的问题。</p>
 <h1 id="token-的归还"><a class="markdownIt-Anchor" href="#token-的归还"></a> Token 的归还</h1>
 <p>而对于 Reserve 函数，返回的结果中，我们可以通过 <code>Reservation.Delay()</code> 函数，得到需要等待时间。<br>
