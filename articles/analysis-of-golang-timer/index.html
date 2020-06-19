@@ -33,7 +33,7 @@
 <meta property="og:description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节，包括数据结构等选型。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。  注：本文基于 go-1.13 源码进行分析，而在 go 的 1.14 版本中，关于定时器的实现略有一些改变，以后会再专门写一">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/go-timer/timer-4-heap.png">
-<meta property="og:updated_time" content="2020-06-19T09:55:44.039Z">
+<meta property="og:updated_time" content="2020-06-19T10:02:52.915Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Golang 定时器底层实现深度剖析">
 <meta name="twitter:description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节，包括数据结构等选型。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。  注：本文基于 go-1.13 源码进行分析，而在 go 的 1.14 版本中，关于定时器的实现略有一些改变，以后会再专门写一">
@@ -213,7 +213,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-19 17:55:44" itemprop="dateModified" datetime="2020-06-19T17:55:44+08:00">2020-06-19</time>
+                <time title="修改时间：2020-06-19 18:02:52" itemprop="dateModified" datetime="2020-06-19T18:02:52+08:00">2020-06-19</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -300,7 +300,7 @@ timer 的整个生命周期包括创建、销毁、唤醒和睡眠等都由 time
 最小堆是非常常见的用来管理 timer 的数据结构。在最小堆中，作为排序依据的 key 是 timer 的 <code>when</code> 属性，也就是何时触发。即最近一次触发的 timer 将会处于堆顶。如下图：</p>
 <p><img src="/img/go-timer/timer-4-heap.png" alt="四叉堆"></p>
 <h2 id="timerproc-的调度"><a class="markdownIt-Anchor" href="#timerproc-的调度"></a> timerproc 的调度</h2>
-<p>每个 timerbucket 负责管理一堆这样有序的 timer，同时每个 timerbucket 都有一个对应的名为 timerproc 得 goroutine 来负责不断调度这些 timer。代码在 <a href="https://github.com/golang/go/blob/release-branch.go1.13/src/runtime/time.go#L247" target="_blank" rel="noopener">/runtime/time.go#L247</a></p>
+<p>每个 timerbucket 负责管理一堆这样有序的 timer，同时每个 timerbucket 都有一个对应的名为 timerproc 的 goroutine 来负责不断调度这些 timer。代码在 <a href="https://github.com/golang/go/blob/release-branch.go1.13/src/runtime/time.go#L247" target="_blank" rel="noopener">/runtime/time.go#L247</a></p>
 <p>对于每个 timerbucket 对应的 timeproc，该 goroutine 也不是时时刻刻都在监听。timerproc 的主要流程概括起来如下：</p>
 <ol>
 <li><strong>创建</strong>。 timeproc 是懒加载的，虽然 64 个 timerBucket 一直是存在的，但是这些 timerproc 对应的 goroutine 并不是一开始就存在。第一个 timer 被加到 timerbucket 中时，才会调用 <code>go timerproc(tb)</code>, 创建该 goroutine。</li>
@@ -337,7 +337,7 @@ timer 的整个生命周期包括创建、销毁、唤醒和睡眠等都由 time
 <p>理想情况下，分桶的个数和保持 GOMAXPROCS 一致是最优解。但是这就会涉及到 go 启动时的动态内存分配。作为运行时应该尽量减少程序负担。而 64 个 bucket 则是内存占用和性能之间的权衡了。</p>
 <p>每个 bucket 具体负责管理的 timer 和 go 调度模型 GMP 中 P 有关，代码如下：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *timer)</span> <span class="title">assignBucket</span><span class="params">()</span> *<span class="title">timersBucket</span></span> &#123;</span><br><span class="line">	id := <span class="keyword">uint8</span>(getg().m.p.ptr().id) % timersLen</span><br><span class="line">	t.tb = &amp;timers[id].timersBucket</span><br><span class="line">	<span class="keyword">return</span> t.tb</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到，timer 获取其对应的 bucket 时，是根据 golang 的 <code>GMP</code> 调度模型中的 <code>P</code> 的 id 进行取模。当而当 <code>GOMAXPROCS &gt; 64</code>, 一个 bucket 将会同时负责管理多个 <code>P</code> 上的 timer。</p>
+<p>可以看到，timer 获取其对应的 bucket 时，是根据 golang 的 <code>GMP</code> 调度模型中的 <code>P</code> 的 id 进行取模。而当 <code>GOMAXPROCS &gt; 64</code>, 一个 bucket 将会同时负责管理多个 <code>P</code> 上的 timer。</p>
 <h2 id="为什么是四叉堆"><a class="markdownIt-Anchor" href="#为什么是四叉堆"></a> 为什么是四叉堆</h2>
 <p>TimersBucket 里面使用最小堆管理 Timer，但是与我们常见的，使用二叉树来实现最小堆不同，Golang 这里采用了四叉堆 (4-heap) 来实现。这里 Golang 并没有直接给出解释。<br>
 这里直接贴一段 <a href="https://www.zhihu.com/question/358807741/answer/922148368" target="_blank" rel="noopener">知乎网友对二叉堆和 N 叉堆的分析</a>。</p>
