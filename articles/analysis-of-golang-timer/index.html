@@ -33,7 +33,7 @@
 <meta property="og:description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节，包括数据结构等选型。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。  注：本文基于 go-1.13 源码进行分析，而在 go 的 1.14 版本中，关于定时器的实现略有一些改变，以后会再专门写一">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/go-timer/timer-4-heap.png">
-<meta property="og:updated_time" content="2020-06-19T10:02:52.915Z">
+<meta property="og:updated_time" content="2020-06-19T12:23:02.408Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Golang 定时器底层实现深度剖析">
 <meta name="twitter:description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节，包括数据结构等选型。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。  注：本文基于 go-1.13 源码进行分析，而在 go 的 1.14 版本中，关于定时器的实现略有一些改变，以后会再专门写一">
@@ -205,16 +205,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2020-04-06 12:45:00" itemprop="dateCreated datePublished" datetime="2020-04-06T12:45:00+08:00">2020-04-06</time>
+              <time title="创建时间：2020-06-19 18:00:00 / 修改时间：20:23:02" itemprop="dateCreated datePublished" datetime="2020-06-19T18:00:00+08:00">2020-06-19</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-19 18:02:52" itemprop="dateModified" datetime="2020-06-19T18:02:52+08:00">2020-06-19</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -299,6 +293,7 @@ timer 的整个生命周期包括创建、销毁、唤醒和睡眠等都由 time
 <p>每个 timersBucket 实际上内部是使用最小四叉堆来管理和存储各个 timer。<br>
 最小堆是非常常见的用来管理 timer 的数据结构。在最小堆中，作为排序依据的 key 是 timer 的 <code>when</code> 属性，也就是何时触发。即最近一次触发的 timer 将会处于堆顶。如下图：</p>
 <p><img src="/img/go-timer/timer-4-heap.png" alt="四叉堆"></p>
+<p>关于四叉堆的具体实现，这里没有什么特殊需要介绍的，与二叉树基本一致。有兴趣的同学可以直接参考二叉树相关实现即可。</p>
 <h2 id="timerproc-的调度"><a class="markdownIt-Anchor" href="#timerproc-的调度"></a> timerproc 的调度</h2>
 <p>每个 timerbucket 负责管理一堆这样有序的 timer，同时每个 timerbucket 都有一个对应的名为 timerproc 的 goroutine 来负责不断调度这些 timer。代码在 <a href="https://github.com/golang/go/blob/release-branch.go1.13/src/runtime/time.go#L247" target="_blank" rel="noopener">/runtime/time.go#L247</a></p>
 <p>对于每个 timerbucket 对应的 timeproc，该 goroutine 也不是时时刻刻都在监听。timerproc 的主要流程概括起来如下：</p>
@@ -343,11 +338,11 @@ timer 的整个生命周期包括创建、销毁、唤醒和睡眠等都由 time
 这里直接贴一段 <a href="https://www.zhihu.com/question/358807741/answer/922148368" target="_blank" rel="noopener">知乎网友对二叉堆和 N 叉堆的分析</a>。</p>
 <blockquote>
 <ol>
-<li>上推节点的操作更快。假如最下层某个节点的值被修改为最小，同样上推到堆顶的操作，N 叉堆需要的比较次数只有二叉堆的  倍。</li>
+<li>上推节点的操作更快。假如最下层某个节点的值被修改为最小，同样上推到堆顶的操作，N 叉堆需要的比较次数只有二叉堆的 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mo><mi>log</mi><mo>⁡</mo></mo><mi>N</mi></msub><mn>2</mn></mrow><annotation encoding="application/x-tex">\log_N{2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.93858em;vertical-align:-0.24414em;"></span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.23419099999999995em;"><span style="top:-2.4558600000000004em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.24414em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord">2</span></span></span></span></span>倍。</li>
 <li>对缓存更友好。二叉堆对数组的访问范围更大，更加随机，而 N 叉堆则更集中于数组的前部，这就对缓存更加友好，有利于提高性能。</li>
 </ol>
 </blockquote>
-<p>C 语言知名开源网络库 libev，内部即采用了二叉树也采用了四叉堆来实现。它在注释里提到 benchmark，四叉树相比来说缓存更加友好，在 50000 + 个 timer 的场景下，四叉树会有 5% 的性能提升。具体可见 <a href="https://github.com/enki/libev/blob/master/ev.c#L2227" target="_blank" rel="noopener">libev/ev.c#L2227</a></p>
+<p>C 语言知名开源网络库 libev，其timer定时器实现可以在编译时选择采用四叉堆。在它的注释里提到四叉树相比来说缓存更加友好。 根据benchmark，在 50000 + 个 timer 的场景下，四叉树会有 5% 的性能优势。具体可见 <a href="https://github.com/enki/libev/blob/master/ev.c#L2227" target="_blank" rel="noopener">libev/ev.c#L2227</a></p>
 <h1 id="sleep-的实现"><a class="markdownIt-Anchor" href="#sleep-的实现"></a> sleep 的实现</h1>
 <p>我们通常使用 <code>time.Sleep(1 * time.Second)</code> 来将 goroutine 暂时休眠一段时间。sleep 操作在底层实现也是基于 timer 实现的。代码在 <a href="https://github.com/golang/go/blob/release-branch.go1.13/src/runtime/time.go#L84" target="_blank" rel="noopener">runtime/time.go#L84</a>。有一些比较有意思的地方，单独拿出来讲下。</p>
 <p>我们固然也可以这么做来实现 goroutine 的休眠:</p>
@@ -591,6 +586,9 @@ timer 的整个生命周期包括创建、销毁、唤醒和睡眠等都由 time
   
 
   
+      
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css">
+
 
   
 
