@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#464159">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.8.0.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.8.0.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.8.0.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.8.0.1" color="#464159">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="google-site-verification" content="gcDrMPbZlMtAIc7xAPBwFUjnApzpvfqSbVIKT3R8fbA">
+  <meta name="baidu-site-verification" content="F7xr7OXgnX">
+
+<link rel="stylesheet" href="/css/main.css?v=7.8.0.1">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Long Cang:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.8.0.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":false,"lazyload":false,"nav":{"gitalk":{"order":1},"valine":{"order":2}},"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
+  </script>
+
+  <meta name="description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。 介绍 Timer 和 Ticker 的辅助函数 After、AfterFunc、Tick 是怎么实现的。  注：本文基于 go-1.13 源码进行">
+<meta name="keywords" content="Golang,源码,定时器">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang 定时器底层实现深度剖析">
+<meta property="og:url" content="http://www.cyhone.com/articles/analysis-of-golang-timer/index.html">
+<meta property="og:site_name" content="编程沉思录">
+<meta property="og:description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。 介绍 Timer 和 Ticker 的辅助函数 After、AfterFunc、Tick 是怎么实现的。  注：本文基于 go-1.13 源码进行">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.cyhone.com/img/go-timer/timer-4-heap.png">
+<meta property="og:updated_time" content="2020-06-19T09:54:23.911Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Golang 定时器底层实现深度剖析">
+<meta name="twitter:description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。 介绍 Timer 和 Ticker 的辅助函数 After、AfterFunc、Tick 是怎么实现的。  注：本文基于 go-1.13 源码进行">
+<meta name="twitter:image" content="http://www.cyhone.com/img/go-timer/timer-4-heap.png">
+
+<link rel="canonical" href="http://www.cyhone.com/articles/analysis-of-golang-timer/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Golang 定时器底层实现深度剖析 | 编程沉思录</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ec99ce8d168c9260e5d744401582acc9";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">编程沉思录</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">25</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">26</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/chenyahui" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.cyhone.com/articles/analysis-of-golang-timer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/avatar.jpg">
+      <meta itemprop="name" content="cyhone">
+      <meta itemprop="description" content="每有会意，便欣然忘食">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程沉思录">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Golang 定时器底层实现深度剖析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-06 12:45:00" itemprop="dateCreated datePublished" datetime="2020-04-06T12:45:00+08:00">2020-04-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-06-19 17:54:23" itemprop="dateModified" datetime="2020-06-19T17:54:23+08:00">2020-06-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/articles/analysis-of-golang-timer/" class="post-meta-item leancloud_visitors" data-flag-title="Golang 定时器底层实现深度剖析" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/articles/analysis-of-golang-timer/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/articles/analysis-of-golang-timer/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：</p>
+<ol>
+<li>Timer 和 Ticker 在 Golang 中的底层实现细节。</li>
+<li>分析 <code>time.Sleep</code> 的实现细节，Golang 如何实现 Goroutine 的休眠。</li>
+<li>介绍 Timer 和 Ticker 的辅助函数 After、AfterFunc、Tick 是怎么实现的。</li>
+</ol>
+<p>注：<strong>本文基于 go-1.13 源码进行分析</strong>，而在 go 的 1.14 版本中，关于定时器的实现略有一些改变，以后会再专门写一篇文章进行分析。</p>
+<a id="more"></a>
+<h1 id="概述"><a class="markdownIt-Anchor" href="#概述"></a> 概述</h1>
+<p>我们在日常开发中会经常用到 <code>time.NewTicker</code> 或者 <code>time.NewTimer</code> 进行定时或者延时的处理逻辑。</p>
+<p>Timer 和 Ticker 在底层的实现基本一致，本文将主要基于 Timer 进行探讨研究。Timer 的使用方法如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	timer := time.NewTimer(<span class="number">2</span> * time.Seconds)</span><br><span class="line">	&lt;-timer.C</span><br><span class="line">	fmt.Println(<span class="string">"Timer fired"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上面的例子中，我们首先利用 <code>time.NewTimer</code> 构造了一个 2 秒的定时器，同时使用 <code>&lt;-timer.C</code> 阻塞等待定时器的触发。</p>
+<h1 id="timer-的底层实现"><a class="markdownIt-Anchor" href="#timer-的底层实现"></a> Timer 的底层实现</h1>
+<p>对于 <code>time.NewTimer</code> 函数，我们可以轻易地在 go 源码中找到它的实现，其代码位置在 <a href="https://github.com/golang/go/blob/release-branch.go1.13/src/time/sleep.go#L82" target="_blank" rel="noopener">time/sleep.go#L82</a>。如下：</p>
+<figure class="highlight go"><figcaption><span>time/sleep.go</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewTimer</span><span class="params">(d Duration)</span> *<span class="title">Timer</span></span> &#123;</span><br><span class="line">	c := <span class="built_in">make</span>(<span class="keyword">chan</span> Time, <span class="number">1</span>)</span><br><span class="line">	t := &amp;Timer&#123;</span><br><span class="line">		C: c,</span><br><span class="line">		r: runtimeTimer&#123;</span><br><span class="line">			when: when(d),</span><br><span class="line">			f:    sendTime,</span><br><span class="line">			arg:  c,</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	startTimer(&amp;t.r)</span><br><span class="line">	<span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>NewTimer 主要包含两步：</p>
+<ol>
+<li>创建一个 Timer 对象，主要包括其中的 <code>C</code> 属性和 <code>r</code> 属性。<code>r</code> 属性是 <code>runtimeTimer</code> 类型。</li>
+<li>调用 <code>startTimer</code> 函数，启动 timer。</li>
+</ol>
+<p>在 Timer 结构体中的属性 <code>C</code> 不难理解，从最开始的例子就可以看到，它是一个用来接收 Timer 触发消息的 channel。注意，这个 channel 是一个有缓冲 channel，缓冲区大小为 1。</p>
+<p>我们主要看的是 <code>runtimeTimer</code> 这个结构体：</p>
+<ol>
+<li><code>when</code>: when 代表 timer 触发的绝对时间。计算方式就是当前时间加上延时时间。</li>
+<li><code>f</code>: f 则是 timer 触发时，调用的 callback。而 <code>arg</code> 就是传给 f 的参数。在 Ticker 和 Timer 中，f 都是 sendTime。</li>
+</ol>
+<p>timer 对象构造好后，接下来就调用了 <code>startTimer</code> 函数，从名字来看，就是启动 timer。具体里面做了哪些事情呢？</p>
+<p>startTimer 具体的函数定义在 <code>runtime/time.go</code> 中，里面实际上直接调用了另外一个函数 <code>addTimer</code>。我们可以看下 addTimer 的代码 <a href="https://github.com/golang/go/blob/release-branch.go1.13/src/runtime/time.go#L131" target="_blank" rel="noopener">/runtime/time.go#L131</a>:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">addtimer</span><span class="params">(t *timer)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 得到要被插入的 bucket</span></span><br><span class="line">	tb := t.assignBucket()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 加锁，将 timer 插入到 bucket 中</span></span><br><span class="line">	lock(&amp;tb.lock)</span><br><span class="line">	ok := tb.addtimerLocked(t)</span><br><span class="line">	unlock(&amp;tb.lock)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> !ok &#123;</span><br><span class="line">		badTimer()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到 addTimer 至少做了两件事：</p>
+<ol>
+<li>调用 <code>assignBucket</code>，得到获取可以被插入的 bucket</li>
+<li>调用 <code>addtimerLocked</code> 将 timer 插入到 bucket 中。从函数名可以看出，这同时也是个加锁操作。</li>
+</ol>
+<p>那么问题来了，bucket 是什么？timer 插入到 bucket 中后，会以何种方式触发？</p>
+<h1 id="timerbucket"><a class="markdownIt-Anchor" href="#timerbucket"></a> Timerbucket</h1>
+<p>在 go 1.13 的 runtime 中，共有 64 个全局的 timer bucket。每个 bucket 负责管理一些 timer。<br>
+timer 的整个生命周期包括创建、销毁、唤醒和睡眠等都由 timer bucket 管理和调度。</p>
+<h2 id="timersbucket-的结构-最小四叉堆"><a class="markdownIt-Anchor" href="#timersbucket-的结构-最小四叉堆"></a> timersBucket 的结构: 最小四叉堆</h2>
+<p>每个 timersBucket 实际上内部是使用最小四叉堆来管理和存储各个 timer。<br>
+最小堆是非常常见的用来管理 timer 的数据结构。在最小堆中，作为排序依据的 key 是 timer 的 <code>when</code> 属性，也就是何时触发。即最近一次触发的 timer 将会处于堆顶。如下图：</p>
+<p><img src="/img/go-timer/timer-4-heap.png" alt="四叉堆"></p>
+<h2 id="timerproc-的调度"><a class="markdownIt-Anchor" href="#timerproc-的调度"></a> timerproc 的调度</h2>
+<p>每个 timerbucket 负责管理一堆这样有序的 timer，同时每个 timerbucket 都有一个对应的名为 timerproc 得 goroutine 来负责不断调度这些 timer。代码在 <a href="https://github.com/golang/go/blob/release-branch.go1.13/src/runtime/time.go#L247" target="_blank" rel="noopener">/runtime/time.go#L247</a></p>
+<p>对于每个 timerbucket 对应的 timeproc，该 goroutine 也不是时时刻刻都在监听。timerproc 的主要流程概括起来如下：</p>
+<ol>
+<li><strong>创建</strong>。 timeproc 是懒加载的，虽然 64 个 timerBucket 一直是存在的，但是这些 timerproc 对应的 goroutine 并不是一开始就存在。第一个 timer 被加到 timerbucket 中时，才会调用 <code>go timerproc(tb)</code>, 创建该 goroutine。</li>
+<li><strong>调度</strong>。从 timerbucket 不断取堆顶元素，如果堆顶的 timer 已触发，则将其从最小堆中移除，并调用对应的 callback。这里的 callback 也就是 <code>runtimeTimer</code> 结构体中的 <code>f</code> 属性。</li>
+<li>如果 timer 是个 ticker(周期性 timer)，则生成新的 timer 塞进 timerbucket 中。</li>
+<li><strong>挂起</strong>。如果 timerbucket 为空，意味着所有的 timer 都被消费完了。则调用 <code>gopark</code> 挂起该 goroutine。</li>
+<li><strong>唤醒</strong>。当有新的 timer 被添加到该 timerbucket 中时，如果 goroutine 处于挂起状态，会调用 goready 重新唤醒 timerproc。</li>
+</ol>
+<p>当 timer 触发时，timerproc 会调用对应的 callback。对于 timer 和 ticker 来说，其 callback 都是 sendTime 函数，如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sendTime</span><span class="params">(c <span class="keyword">interface</span>&#123;&#125;, seq <span class="keyword">uintptr</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> c.(<span class="keyword">chan</span> Time) &lt;- Now():</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>c interface{}</code>，也就是我们上文中提到的，在定义 timer 或 ticker 时，timer 对象中的 <code>C</code> 属性, 在 timer 和 ticker 中，它都被初始化为长度为 1 的有缓冲 channel。</p>
+<p>调用 sendTime 时，会向 channel 中传递一个值。由于是缓冲为 1 的 buffer，因此当缓冲为空时，sendTime 可以无阻塞地把数据放到 channel 中。</p>
+<p>如果定时时间过短，也不用担心用户调用 <code>&lt;-timer.C</code> 接收不到触发事件，因为事件已经放到了 channel 中。</p>
+<p>而对于 ticker 来说，<code>sendTime</code> 会被调用多次，而 channel 的缓冲长度只有 1。如果 ticker 没有来得及消费 channel，会不会导致 timerproc 调用 callback 阻塞呢？<br>
+答案是不会的。因为我们可以看到，在这个 <code>select</code> 语句中，有一个 <code>default</code> 选项，如果 channel 不可写，会触发 default。<br>
+对于 ticker 来说，如果之前的触发事件没有来得及消费，那新的触发事件到来，就会被立即丢弃。</p>
+<p>因此对于 timerproc 来说，调用 sendTime 的时候，永远不会阻塞。这样整个 timerproc 的过程也不会因为用户侧的行为，导致某个 timer 没有来得及消费而造成阻塞。</p>
+<h2 id="为什么是-64-个-timer-bucket"><a class="markdownIt-Anchor" href="#为什么是-64-个-timer-bucket"></a> 为什么是 64 个 timer bucket?</h2>
+<p>64 个 timerbucket 的定义代码如下，在 <a href="https://github.com/golang/go/blob/release-branch.go1.13/src/runtime/time.go#L39" target="_blank" rel="noopener">/runtime/time.go#L39</a> 可以看到。</p>
+<figure class="highlight go"><figcaption><span>/runtime/time.go</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> timersLen = <span class="number">64</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> timers [timersLen]<span class="keyword">struct</span> &#123;</span><br><span class="line">	timersBucket</span><br><span class="line"></span><br><span class="line">	<span class="comment">// The padding should eliminate false sharing</span></span><br><span class="line">	<span class="comment">// between timersBucket values.</span></span><br><span class="line">	pad [cpu.CacheLinePadSize - unsafe.Sizeof(timersBucket&#123;&#125;)%cpu.CacheLinePadSize]<span class="keyword">byte</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不过 64 个 timerbucket，而不是一个，或者说为什么不至于与 GOMAXPROCS 保持一致呢？</p>
+<p>首先，在 go 1.10 之前，go runtime 中的确只有一个 timers 对象，负责管理 timer。这个时候也就没有分桶了，整个定时器调度模型非常简单。但问题也非常明显，</p>
+<ol>
+<li>创建和停止 timer 都需要对 bucket 进行加锁操作。</li>
+<li>当 timer 过多时，单个 bucket 的调度负担太重，可能会造成 timer 的延迟。</li>
+</ol>
+<p>因此，在 go 1.10 中，引入了全局 64 个 timer 分桶的策略。将 timer 打散到分桶内，每个桶负责自己分配到的 timer 即可。好处也非常明显，可以有效降低了锁粒度和 timer 调度的负担。</p>
+<p>那为什么是 64 个 timerbucket，而不是 32 个或者更多，或者不干脆与 GOMAXPROCS 保持一致？<br>
+这点在源码注释中也有详细的说明:</p>
+<blockquote>
+<p>Ideally, this would be set to GOMAXPROCS, but that would require dynamic reallocation.</p>
+<p>The current value is a compromise between memory usage and performance that should cover the majority of GOMAXPROCS values used in the wild.</p>
+</blockquote>
+<p>理想情况下，分桶的个数和保持 GOMAXPROCS 一致是最优解。但是这就会涉及到 go 启动时的动态内存分配。作为运行时应该尽量减少程序负担。而 64 个 bucket 则是内存占用和性能之间的权衡了。</p>
+<p>每个 bucket 具体负责管理的 timer 和 go 调度模型 GMP 中 P 有关，代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *timer)</span> <span class="title">assignBucket</span><span class="params">()</span> *<span class="title">timersBucket</span></span> &#123;</span><br><span class="line">	id := <span class="keyword">uint8</span>(getg().m.p.ptr().id) % timersLen</span><br><span class="line">	t.tb = &amp;timers[id].timersBucket</span><br><span class="line">	<span class="keyword">return</span> t.tb</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，timer 获取其对应的 bucket 时，是根据 golang 的 <code>GMP</code> 调度模型中的 <code>P</code> 的 id 进行取模。当而当 <code>GOMAXPROCS &gt; 64</code>, 一个 bucket 将会同时负责管理多个 <code>P</code> 上的 timer。</p>
+<h2 id="为什么是四叉堆"><a class="markdownIt-Anchor" href="#为什么是四叉堆"></a> 为什么是四叉堆</h2>
+<p>TimersBucket 里面使用最小堆管理 Timer，但是与我们常见的，使用二叉树来实现最小堆不同，Golang 这里采用了四叉堆 (4-heap) 来实现。这里 Golang 并没有直接给出解释。<br>
+这里直接贴一段 <a href="https://www.zhihu.com/question/358807741/answer/922148368" target="_blank" rel="noopener">知乎网友对二叉堆和 N 叉堆的分析</a>。</p>
+<blockquote>
+<ol>
+<li>上推节点的操作更快。假如最下层某个节点的值被修改为最小，同样上推到堆顶的操作，N 叉堆需要的比较次数只有二叉堆的  倍。</li>
+<li>对缓存更友好。二叉堆对数组的访问范围更大，更加随机，而 N 叉堆则更集中于数组的前部，这就对缓存更加友好，有利于提高性能。</li>
+</ol>
+</blockquote>
+<p>C 语言知名开源网络库 libev，内部即采用了二叉树也采用了四叉堆来实现。它在注释里提到 benchmark，四叉树相比来说缓存更加友好，在 50000 + 个 timer 的场景下，四叉树会有 5% 的性能提升。具体可见 <a href="https://github.com/enki/libev/blob/master/ev.c#L2227" target="_blank" rel="noopener">libev/ev.c#L2227</a></p>
+<h1 id="sleep-的实现"><a class="markdownIt-Anchor" href="#sleep-的实现"></a> sleep 的实现</h1>
+<p>我们通常使用 <code>time.Sleep(1 * time.Second)</code> 来将 goroutine 暂时休眠一段时间。sleep 操作在底层实现也是基于 timer 实现的。代码在 <a href="https://github.com/golang/go/blob/release-branch.go1.13/src/runtime/time.go#L84" target="_blank" rel="noopener">runtime/time.go#L84</a>。有一些比较有意思的地方，单独拿出来讲下。</p>
+<p>我们固然也可以这么做来实现 goroutine 的休眠:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">timer := time.NewTimer(<span class="number">2</span> * time.Seconds)</span><br><span class="line">&lt;-timer.C</span><br></pre></td></tr></table></figure>
+<p>这么做当然可以。但 golang 底层显然不是这么做的，因为这样有两个明显的额外性能损耗。</p>
+<ol>
+<li>每次调用 sleep 的时候，都要创建一个 timer 对象。</li>
+<li>需要一个 channel 来传递事件。</li>
+</ol>
+<p>既然都可以放在 runtime 里面做。golang 里面做的更加干净：</p>
+<ol>
+<li>每个 goroutine 底层的 <code>G</code> 对象上，都有一个 timer 属性，这是个 runtimeTimer 对象，专门给 sleep 使用。当第一次调用 sleep 的时候，会创建这个 runtimeTimer，之后 sleep 的时候会一直复用这个 timer 对象。</li>
+<li>调用 sleep 时候，触发 timer 后，直接调用 gopark，将当前 goroutine 挂起。</li>
+<li>timerproc 调用 callback 的时候，不是像 timer 和 ticker 那样使用 <code>sendTime</code> 函数，而是直接调 <code>goready</code> 唤醒被挂起的 goroutine。</li>
+</ol>
+<p>这个做法和libco的poll实现几乎一样：sleep时切走协程，时间到了就唤醒协程。</p>
+<h1 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h1>
+<p>分析 timer 的实现，可以明显的看到整个设计的演进，从最开始的全局 timers 对象，到分桶 bucket，以及到 go1.14 最新的 timer 调度。整个过程也可以学习到整个决策的走向和取舍。</p>
+<h1 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h1>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/D-ary_heap" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/D-ary_heap</a></li>
+<li><a href="https://www.zhihu.com/question/358807741/answer/922148368" target="_blank" rel="noopener">https://www.zhihu.com/question/358807741/answer/922148368</a></li>
+<li><a href="https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-timer/" target="_blank" rel="noopener">https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-timer/</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+    <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
+        <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber_search.png" alt="cyhone wechat" style="width: 750px;max-width:100%;">
+    <!--div>扫码关注公众号【编程沉思录】<br> 第一时间收到文章推送</div-->
+    </div>
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>cyhone
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://www.cyhone.com/articles/analysis-of-golang-timer/" title="Golang 定时器底层实现深度剖析">http://www.cyhone.com/articles/analysis-of-golang-timer/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Golang/" rel="tag"><i class="fa fa-tag"></i> Golang</a>
+              <a href="/tags/源码/" rel="tag"><i class="fa fa-tag"></i> 源码</a>
+              <a href="/tags/定时器/" rel="tag"><i class="fa fa-tag"></i> 定时器</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/introduction-of-elasticsearch/" rel="prev" title="Elasticsearch 学习：入门篇">
+      <i class="fa fa-chevron-left"></i> Elasticsearch 学习：入门篇
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+      <div class="tabs tabs-comment">
+        <ul class="nav-tabs">
+            <li class="tab"><a href="#comment-gitalk">gitalk</a></li>
+            <li class="tab"><a href="#comment-valine">valine</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane gitalk" id="comment-gitalk">
+              <div class="comments" id="gitalk-container"></div>
+            </div>
+            <div class="tab-pane valine" id="comment-valine">
+              <div class="comments" id="valine-comments"></div>
+            </div>
+        </div>
+      </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-text"> 概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#timer-的底层实现"><span class="nav-text"> Timer 的底层实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#timerbucket"><span class="nav-text"> Timerbucket</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#timersbucket-的结构-最小四叉堆"><span class="nav-text"> timersBucket 的结构: 最小四叉堆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#timerproc-的调度"><span class="nav-text"> timerproc 的调度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么是-64-个-timer-bucket"><span class="nav-text"> 为什么是 64 个 timer bucket?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么是四叉堆"><span class="nav-text"> 为什么是四叉堆</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#sleep-的实现"><span class="nav-text"> sleep 的实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text"> 总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-text"> 参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="cyhone"
+      src="/img/avatar.jpg">
+  <p class="site-author-name" itemprop="name">cyhone</p>
+  <div class="site-description" itemprop="description">每有会意，便欣然忘食</div>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chenyahui" title="GitHub → https://github.com/chenyahui" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cyhone@qq.com" title="E-Mail → mailto:cyhone@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhuanlan.zhihu.com/ruminations-on-code" title="Zhihu → https://zhuanlan.zhihu.com/ruminations-on-code" rel="noopener" target="_blank"><i class="fa fa-custom zhihu fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="rss → /atom.xml"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center;">
+    <img id="wechat_subscriber_qcode" src="/img/wechat_subscriber.png" alt="cyhone wechat" style="width: 200px; max-width: 100%;">
+    <div style="color: #79bac1;font-size: 14px;">
+      扫码关注公众号【编程沉思录】<br> 第一时间收到文章推送
+    </div>
+</div>
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">豫ICP备18011028号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fas fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cyhone</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
+<script src="/js/utils.js?v=7.8.0.1"></script>
+<script src="/js/schemes/pisces.js?v=7.8.0.1"></script>
+<script src="/js/next-boot.js?v=7.8.0.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '35a91b87ee1c4d2b4980',
+      clientSecret: 'e80145e7e64c156b4d278e67c79abfe5762115a0',
+      repo        : 'chenyahui.github.io',
+      owner       : 'chenyahui',
+      admin       : ['chenyahui'],
+      id          : '4d4d172ab86a2a26530e6f8079581d93',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'sb9fJUcsRooG9QU63KflHMhU-gzGzoHsz',
+      appKey     : 'DVy4Enbaa5UpxREeLinbWIcG',
+      placeholder: "请在上方填写您的邮箱，邮件不会被公开",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://leancloud-api.cyhone.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

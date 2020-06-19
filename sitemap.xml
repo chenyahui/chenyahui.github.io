@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://www.cyhone.com/articles/analysis-of-libco/</loc>
+    
+    <lastmod>2020-06-19T09:54:23.911Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.cyhone.com/articles/analysis-of-golang-timer/</loc>
+    
+    <lastmod>2020-06-19T09:54:23.911Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://www.cyhone.com/articles/analisys-of-golang-rate/</loc>
     
     <lastmod>2020-06-04T05:16:18.803Z</lastmod>
@@ -9,7 +23,7 @@
   </url>
   
   <url>
-    <loc>http://www.cyhone.com/articles/time-wheel-in-libco/</loc>
+    <loc>http://www.cyhone.com/articles/introduction-of-bloomfilter/</loc>
     
     <lastmod>2020-04-09T12:36:39.626Z</lastmod>
     
@@ -44,7 +58,7 @@
   </url>
   
   <url>
-    <loc>http://www.cyhone.com/articles/introduction-of-bloomfilter/</loc>
+    <loc>http://www.cyhone.com/articles/time-wheel-in-libco/</loc>
     
     <lastmod>2020-04-09T12:36:39.626Z</lastmod>
     
@@ -59,13 +73,6 @@
   
   <url>
     <loc>http://www.cyhone.com/articles/why-move-no-work-in-lambda/</loc>
-    
-    <lastmod>2020-04-09T04:29:57.591Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://www.cyhone.com/articles/analysis-of-libco/</loc>
     
     <lastmod>2020-04-09T04:29:57.591Z</lastmod>
     
@@ -114,14 +121,14 @@
   </url>
   
   <url>
-    <loc>http://www.cyhone.com/articles/analysis-of-filebeat/</loc>
+    <loc>http://www.cyhone.com/articles/usage-of-filebeat-log-config/</loc>
     
     <lastmod>2020-03-12T02:56:12.746Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.cyhone.com/articles/usage-of-filebeat-log-config/</loc>
+    <loc>http://www.cyhone.com/articles/analysis-of-filebeat/</loc>
     
     <lastmod>2020-03-12T02:56:12.746Z</lastmod>
     
