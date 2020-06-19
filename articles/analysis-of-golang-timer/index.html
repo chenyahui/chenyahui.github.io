@@ -24,19 +24,19 @@
     var CONFIG = {"hostname":"www.cyhone.com","root":"/","scheme":"Gemini","version":"7.8.0.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":false,"lazyload":false,"nav":{"gitalk":{"order":1},"valine":{"order":2}},"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":null,"post_header":null,"post_body":null,"coll_header":null,"sidebar":null}}};
   </script>
 
-  <meta name="description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。 介绍 Timer 和 Ticker 的辅助函数 After、AfterFunc、Tick 是怎么实现的。  注：本文基于 go-1.13 源码进行">
+  <meta name="description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节，包括数据结构等选型。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。  注：本文基于 go-1.13 源码进行分析，而在 go 的 1.14 版本中，关于定时器的实现略有一些改变，以后会再专门写一">
 <meta name="keywords" content="Golang,源码,定时器">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Golang 定时器底层实现深度剖析">
 <meta property="og:url" content="http://www.cyhone.com/articles/analysis-of-golang-timer/index.html">
 <meta property="og:site_name" content="编程沉思录">
-<meta property="og:description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。 介绍 Timer 和 Ticker 的辅助函数 After、AfterFunc、Tick 是怎么实现的。  注：本文基于 go-1.13 源码进行">
+<meta property="og:description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节，包括数据结构等选型。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。  注：本文基于 go-1.13 源码进行分析，而在 go 的 1.14 版本中，关于定时器的实现略有一些改变，以后会再专门写一">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/go-timer/timer-4-heap.png">
-<meta property="og:updated_time" content="2020-06-19T09:54:23.911Z">
+<meta property="og:updated_time" content="2020-06-19T09:55:44.039Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Golang 定时器底层实现深度剖析">
-<meta name="twitter:description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。 介绍 Timer 和 Ticker 的辅助函数 After、AfterFunc、Tick 是怎么实现的。  注：本文基于 go-1.13 源码进行">
+<meta name="twitter:description" content="本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：  Timer 和 Ticker 在 Golang 中的底层实现细节，包括数据结构等选型。 分析 time.Sleep 的实现细节，Golang 如何实现 Goroutine 的休眠。  注：本文基于 go-1.13 源码进行分析，而在 go 的 1.14 版本中，关于定时器的实现略有一些改变，以后会再专门写一">
 <meta name="twitter:image" content="http://www.cyhone.com/img/go-timer/timer-4-heap.png">
 
 <link rel="canonical" href="http://www.cyhone.com/articles/analysis-of-golang-timer/">
@@ -213,7 +213,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-19 17:54:23" itemprop="dateModified" datetime="2020-06-19T17:54:23+08:00">2020-06-19</time>
+                <time title="修改时间：2020-06-19 17:55:44" itemprop="dateModified" datetime="2020-06-19T17:55:44+08:00">2020-06-19</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -259,9 +259,8 @@
       
         <p>本文将基于 Golang 源码对 Timer 的底层实现进行深度剖析。主要包含以下内容：</p>
 <ol>
-<li>Timer 和 Ticker 在 Golang 中的底层实现细节。</li>
+<li>Timer 和 Ticker 在 Golang 中的底层实现细节，包括数据结构等选型。</li>
 <li>分析 <code>time.Sleep</code> 的实现细节，Golang 如何实现 Goroutine 的休眠。</li>
-<li>介绍 Timer 和 Ticker 的辅助函数 After、AfterFunc、Tick 是怎么实现的。</li>
 </ol>
 <p>注：<strong>本文基于 go-1.13 源码进行分析</strong>，而在 go 的 1.14 版本中，关于定时器的实现略有一些改变，以后会再专门写一篇文章进行分析。</p>
 <a id="more"></a>
