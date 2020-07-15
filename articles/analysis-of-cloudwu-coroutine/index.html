@@ -34,7 +34,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.cyhone.com/img/coroutine/coroutine_dummy.png">
 <meta property="og:image" content="http://www.cyhone.com/img/coroutine/coroutine-state-machine.png">
-<meta property="og:updated_time" content="2020-04-07T10:37:21.607Z">
+<meta property="og:updated_time" content="2020-07-15T02:44:32.958Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="云风 coroutine 协程库源码分析">
 <meta name="twitter:description" content="随着 Golang 的兴起，协程尤其是有栈协程 (stackful coroutine) 越来越受到程序员的关注。协程几乎成了程序员的一套必备技能。 云风实现了一套 C 语言的协程库，整体背景可以参考其 博客。 这个协程库非常轻量级，一共也才 200 多行代码，使用上更贴近于 lua 的写法（众所周知，云风是知名的 lua 粉)。整体基于 ucontext 和共享栈模型实现了有栈协程，代码质量毋庸">
@@ -214,7 +214,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-07 18:37:21" itemprop="dateModified" datetime="2020-04-07T18:37:21+08:00">2020-04-07</time>
+                <time title="修改时间：2020-07-15 10:44:32" itemprop="dateModified" datetime="2020-07-15T10:44:32+08:00">2020-07-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -280,7 +280,7 @@
 <h1 id="有栈协程的原理"><a class="markdownIt-Anchor" href="#有栈协程的原理"></a> 有栈协程的原理</h1>
 <p>一个程序要真正运行起来，需要两个因素：可执行代码段、数据。体现在 CPU 中，主要包含以下几个方面：</p>
 <ol>
-<li>EIP 寄存器，用来存储 CPU 要读取指令的地址</li>
+<li>EIP 寄存器：用来存储 CPU 要读取指令的地址</li>
 <li>ESP 寄存器：指向当前线程栈的栈顶位置</li>
 <li>其他通用寄存器的内容：包括代表函数参数的 rdi、rsi 等等。</li>
 <li>线程栈中的内存内容。</li>
